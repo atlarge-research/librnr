@@ -6,6 +6,6 @@
     "api_version": "1.0",
     "implementation_version": "@layer_version@",
     "description": "@layer_description@",
-    "library_path": "@current_folder_path_prefix@@library_filename@"@instance_extension_list@
+    "library_path": "@current_folder_path_prefix@lib@library_filename@"@instance_extension_list@
   }
 }

@@ -8,15 +8,15 @@ cmake_minimum_required(VERSION 3.20)
 
 #To configure the layer name, description and output name, change these variables
 project(OpenXR-layer-template)
-set(library_name      "layer_module")
-set(layer_name        "XR_APILAYER_VENDORID_test_me") # This name *must* be of the form XR_APILAYER_<VENDOR_TAG>_the_name_of_the_layer to be valid according to the OpenXR 1.0 spec.
-set(layer_version     "1")
-set(layer_description "This is a sample OpenXR layer that doesn't do anything useful.'")
+set(library_name      "rnr")
+set(layer_name        "XR_APILAYER_ATLARGE_RNR") # This name *must* be of the form XR_APILAYER_<VENDOR_TAG>_the_name_of_the_layer to be valid according to the OpenXR 1.0 spec.
+set(layer_version     "0.1")
+set(layer_description "An OpenXR layer to record and replay user inputs.")
 
 #To add extension declaration to the layer manifest file, fill these two string lists : "extensions" and "extension_versions"
 #These two needs to match in lenght
-list(APPEND extensions "XR_TEST_test_me")
-list(APPEND extension_versions "42")
+# list(APPEND extensions "XR_TEST_test_me")
+# list(APPEND extension_versions "42")
 
 #this need to be done in the exact same pattern for every extensions this OpenXR layer implements.
 #the size of the two list *have* to match
@@ -70,3 +70,13 @@ target_include_directories(${library_name} PRIVATE
 add_custom_target(install_manifest
 	COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/src/manifest.json ${layer_directory})
 add_dependencies(${library_name} install_manifest)
+
+# Several files use these compile time OS switches
+if(WIN32)
+    add_definitions(-DXR_OS_WINDOWS)
+    add_definitions(-DNOMINMAX)
+elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    add_definitions(-DXR_OS_LINUX)
+elseif(ANDROID)
+    add_definitions(-DXR_OS_ANDROID)
+endif()

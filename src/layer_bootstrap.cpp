@@ -7,11 +7,14 @@
 #include "layer_bootstrap.hpp"
 #include "layer_shims.hpp"
 #include "layer_config.hpp"
+#include "logger.h"
 #include <cstring>
 
-extern "C" XrResult LAYER_EXPORT XRAPI_CALL xrNegotiateLoaderApiLayerInterface(const XrNegotiateLoaderInfo * loaderInfo, const char* apiLayerName,
-	XrNegotiateApiLayerRequest* apiLayerRequest)
+extern "C" XrResult LAYER_EXPORT XRAPI_CALL xrNegotiateLoaderApiLayerInterface(const XrNegotiateLoaderInfo *loaderInfo, const char *apiLayerName,
+																			   XrNegotiateApiLayerRequest *apiLayerRequest)
 {
+	Log::Write(Log::Level::Error, "ITS ALIVE!");
+
 	if (nullptr == loaderInfo || nullptr == apiLayerRequest || loaderInfo->structType != XR_LOADER_INTERFACE_STRUCT_LOADER_INFO ||
 		loaderInfo->structVersion != XR_LOADER_INFO_STRUCT_VERSION || loaderInfo->structSize != sizeof(XrNegotiateLoaderInfo) ||
 		apiLayerRequest->structType != XR_LOADER_INTERFACE_STRUCT_API_LAYER_REQUEST ||
@@ -22,7 +25,8 @@ extern "C" XrResult LAYER_EXPORT XRAPI_CALL xrNegotiateLoaderApiLayerInterface(c
 		loaderInfo->maxInterfaceVersion > XR_CURRENT_LOADER_API_LAYER_VERSION ||
 		loaderInfo->maxApiVersion < XR_CURRENT_API_VERSION ||
 		loaderInfo->minApiVersion > XR_CURRENT_API_VERSION ||
-		0 != strcmp(apiLayerName, XR_THISLAYER_NAME)) {
+		0 != strcmp(apiLayerName, XR_THISLAYER_NAME))
+	{
 		return XR_ERROR_INITIALIZATION_FAILED;
 	}
 
@@ -34,8 +38,8 @@ extern "C" XrResult LAYER_EXPORT XRAPI_CALL xrNegotiateLoaderApiLayerInterface(c
 	return XR_SUCCESS;
 }
 
-XrResult thisLayer_xrCreateApiLayerInstance(const XrInstanceCreateInfo* info, const XrApiLayerCreateInfo* apiLayerInfo,
-	XrInstance* instance)
+XrResult thisLayer_xrCreateApiLayerInstance(const XrInstanceCreateInfo *info, const XrApiLayerCreateInfo *apiLayerInfo,
+											XrInstance *instance)
 {
 	if (nullptr == apiLayerInfo || XR_LOADER_INTERFACE_STRUCT_API_LAYER_CREATE_INFO != apiLayerInfo->structType ||
 		XR_API_LAYER_CREATE_INFO_STRUCT_VERSION > apiLayerInfo->structVersion ||
@@ -50,34 +54,34 @@ XrResult thisLayer_xrCreateApiLayerInstance(const XrInstanceCreateInfo* info, co
 		return XR_ERROR_INITIALIZATION_FAILED;
 	}
 
-	//Prepare to call this function down the layer chain
+	// Prepare to call this function down the layer chain
 	XrApiLayerCreateInfo newApiLayerCreateInfo;
 	memcpy(&newApiLayerCreateInfo, &apiLayerInfo, sizeof(newApiLayerCreateInfo));
 	newApiLayerCreateInfo.nextInfo = apiLayerInfo->nextInfo->next;
 
 	XrInstanceCreateInfo instanceCreateInfo = *info;
-	std::vector<const char*> extension_list_without_implemented_extensions;
-	std::vector<const char*> enabled_this_layer_extensions;
+	std::vector<const char *> extension_list_without_implemented_extensions;
+	std::vector<const char *> enabled_this_layer_extensions;
 
-	//If we deal with extensions, we will check the list of enabled extensions.
-	//We remove ours form the list if present, and we store the list of *our* extensions that were enabled
-	#if XR_THISLAYER_HAS_EXTENSIONS
+// If we deal with extensions, we will check the list of enabled extensions.
+// We remove ours form the list if present, and we store the list of *our* extensions that were enabled
+#if XR_THISLAYER_HAS_EXTENSIONS
 	{
 		for (size_t enabled_extension_index = 0; enabled_extension_index < instanceCreateInfo.enabledExtensionCount; ++enabled_extension_index)
 		{
-			const char* enabled_extension_name = instanceCreateInfo.enabledExtensionNames[enabled_extension_index];
+			const char *enabled_extension_name = instanceCreateInfo.enabledExtensionNames[enabled_extension_index];
 			bool implemented_by_us = false;
 
 			for (const auto layer_extension_name : layer_extension_names)
 			{
-				if(0 == strcmp(enabled_extension_name, layer_extension_name))
+				if (0 == strcmp(enabled_extension_name, layer_extension_name))
 				{
 					implemented_by_us = true;
 					break;
 				}
 			}
 
-			if(implemented_by_us)
+			if (implemented_by_us)
 				enabled_this_layer_extensions.push_back(enabled_extension_name);
 			else
 				extension_list_without_implemented_extensions.push_back(enabled_extension_name);
@@ -89,8 +93,7 @@ XrResult thisLayer_xrCreateApiLayerInstance(const XrInstanceCreateInfo* info, co
 	}
 #endif
 
-
-	//This is the real "bootstrap" of this layer's
+	// This is the real "bootstrap" of this layer's
 	OpenXRLayer::CreateLayerContext(apiLayerInfo->nextInfo->nextGetInstanceProcAddr, ListShims());
 
 	XrInstance newInstance = *instance;
@@ -106,7 +109,7 @@ XrResult thisLayer_xrCreateApiLayerInstance(const XrInstanceCreateInfo* info, co
 	return result;
 }
 
-XrResult thisLayer_xrGetInstanceProcAddr(XrInstance instance, const char* name, PFN_xrVoidFunction* function)
+XrResult thisLayer_xrGetInstanceProcAddr(XrInstance instance, const char *name, PFN_xrVoidFunction *function)
 {
 	return OpenXRLayer::GetLayerContext().GetInstanceProcAddr(instance, name, function);
 }

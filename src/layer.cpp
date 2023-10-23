@@ -7,6 +7,8 @@
 #include "layer.hpp"
 #include "layer_config.hpp"
 #include <stdexcept>
+#include <algorithm>
+#include <cstring>
 
 OpenXRLayer* OpenXRLayer::this_layer = nullptr;
 std::vector<const char*> OpenXRLayer::extensions{};
