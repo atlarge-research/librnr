@@ -7,7 +7,7 @@
 cmake_minimum_required(VERSION 3.20)
 
 #To configure the layer name, description and output name, change these variables
-project(OpenXR-layer-template)
+project(OpenXR-librnr)
 set(library_name      "rnr")
 set(layer_name        "XR_APILAYER_ATLARGE_RNR") # This name *must* be of the form XR_APILAYER_<VENDOR_TAG>_the_name_of_the_layer to be valid according to the OpenXR 1.0 spec.
 set(layer_version     "0.1")
