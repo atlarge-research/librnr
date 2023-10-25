@@ -61,7 +61,8 @@ XRAPI_ATTR XrResult XRAPI_CALL thisLayer_xrStringToPath(XrInstance instance, con
 	buffer << "RNR xrStringToPath " << pathString << " " << path;
 	Log::Write(Log::Level::Info, buffer.str());
 
-	// Debugging code. Just testing hypothesis that the same string always results in the same XrPath pointer
+	// Debugging code. Just testing hypothesis that the same string always results in the same XrPath pointer !!! Pointer need not be the same -> enum value
+	// !!! Don't use pointers to XrPaths in the map, they're just numbers
 	auto getFromMap = stringToPath[pathString];
 	if (auto search = stringToPath.find(pathString); search != stringToPath.end()) {
 		if (stringToPath[search->first] != path) {
