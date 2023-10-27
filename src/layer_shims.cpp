@@ -16,8 +16,14 @@
 
 using namespace std;
 
-std::map<XrPath*, string> pathToString;
-std::map<string, XrPath*> stringToPath;
+
+std::map<XrPath, string> pathToString;
+std::map<string, XrPath> stringToPath;
+map<XrSpace, string> spaceMap;
+
+const string leftHandStr = "/user/hand/left";
+const string rightHandStr = "/user/hand/right";
+const string headStr = "user/head";
 
 // IMPORTANT: to allow for multiple instance creation/destruction, the context of the layer must be re-initialized when the instance is being destroyed.
 // Hooking xrDestroyInstance is the best way to do that.
@@ -57,23 +63,35 @@ XRAPI_ATTR XrResult XRAPI_CALL thisLayer_xrStringToPath(XrInstance instance, con
 {
 	static PFN_xrStringToPath nextLayer_xrStringToPath = GetNextLayerFunction(xrStringToPath);
 	const auto result = nextLayer_xrStringToPath(instance, pathString, path);
+
 	std::stringstream buffer;
-	buffer << "RNR xrStringToPath " << pathString << " " << path;
+	buffer << "RNR xrStringToPath " << instance << " " << pathString << " " << *path;
 	Log::Write(Log::Level::Info, buffer.str());
 
-	// Debugging code. Just testing hypothesis that the same string always results in the same XrPath pointer !!! Pointer need not be the same -> enum value
-	// !!! Don't use pointers to XrPaths in the map, they're just numbers
-	auto getFromMap = stringToPath[pathString];
+	// Debugging code. Just testing hypothesis that the same string always results in the same XrPath
+	// TODO: also track the xrinstance name and handle
 	if (auto search = stringToPath.find(pathString); search != stringToPath.end()) {
-		if (stringToPath[search->first] != path) {
+		if (search->second != *path) {
 			buffer.str(std::string());
-			buffer << "RNR xrStringToPath STRANGE! Multiple paths for the same string " << pathString << " " << stringToPath[search->first] << " " << pathString;
-			Log::Write(Log::Level::Info, buffer.str());
+			buffer << "RNR xrStringToPath STRANGE! Multiple paths for the same string " << search->first << " " << pathString << " " << search->second << " " << *path;
+			Log::Write(Log::Level::Warning, buffer.str());
 		}
 	}
 
-	pathToString[path] = pathString;
-	stringToPath[pathString] = path;
+	pathToString[*path] = pathString;
+	stringToPath[pathString] = *path;
+
+	return result;
+}
+
+XRAPI_ATTR XrResult XRAPI_CALL thisLayer_xrCreateActionSet(XrInstance instance, const XrActionSetCreateInfo* createInfo, XrActionSet* actionSet)
+{
+	static PFN_xrCreateActionSet nextLayer_xrCreateActionSet = GetNextLayerFunction(xrCreateActionSet);
+	const auto result = nextLayer_xrCreateActionSet(instance, createInfo, actionSet);
+
+	stringstream buffer;
+	buffer << "RNR xrCreateActionSet " << createInfo->actionSetName << " " << createInfo->localizedActionSetName << " " << *actionSet;
+	Log::Write(Log::Level::Info, buffer.str());
 
 	return result;
 }
@@ -85,7 +103,9 @@ XRAPI_ATTR XrResult XRAPI_CALL thisLayer_xrCreateAction(XrActionSet actionSet, c
 
 	if (createInfo->actionType == XR_ACTION_TYPE_POSE_INPUT) {
 		// Creating action for a controller!
-		
+		stringstream buffer;
+		buffer << "RNR xrCreateAction " << createInfo->actionName << " " << createInfo->localizedActionName << " " << *action;
+		Log::Write(Log::Level::Info, buffer.str());
 	}
 
 	return result;
@@ -94,12 +114,33 @@ XRAPI_ATTR XrResult XRAPI_CALL thisLayer_xrCreateAction(XrActionSet actionSet, c
 XRAPI_ATTR XrResult XRAPI_CALL thisLayer_xrCreateActionSpace(XrSession session, const XrActionSpaceCreateInfo* createInfo, XrSpace* space)
 {
 	static PFN_xrCreateActionSpace nextLayer_xrCreateActionSpace = GetNextLayerFunction(xrCreateActionSpace);
-
-	std::stringstream buffer;
-	//buffer << "RNR xrCreateActionSpace " << createInfo.
-	Log::Write(Log::Level::Info, buffer.str());
-
 	const auto result = nextLayer_xrCreateActionSpace(session, createInfo, space);
+
+	if (auto search = pathToString.find(createInfo->subactionPath); search != pathToString.end()) {
+		if (!search->second.compare(leftHandStr)) {
+			std::stringstream buffer;
+			buffer << "RNR xrCreateActionSpace " << search->second << " " << createInfo->action << " " << *space;
+			Log::Write(Log::Level::Info, buffer.str());
+			spaceMap[*space] = leftHandStr;
+		}
+		else if (!search->second.compare(rightHandStr)) {
+			std::stringstream buffer;
+			buffer << "RNR xrCreateActionSpace " << search->second << " " << createInfo->action << " " << *space;
+			Log::Write(Log::Level::Info, buffer.str());
+			spaceMap[*space] = rightHandStr;
+		}
+		else if (!search->second.compare(headStr)) {
+			std::stringstream buffer;
+			buffer << "RNR xrCreateActionSpace " << search->second << " " << createInfo->action << " " << *space;
+			Log::Write(Log::Level::Info, buffer.str());
+			spaceMap[*space] = headStr;
+		}
+	}
+
+	//std::stringstream buffer;
+	//buffer << "RNR xrCreateActionSpace " << createInfo.
+	//Log::Write(Log::Level::Info, buffer.str());
+
 	return result;
 }
 
@@ -124,6 +165,13 @@ XRAPI_ATTR XrResult XRAPI_CALL thisLayer_xrLocateSpace(XrSpace space, XrSpace ba
 	// Not sure yet how to get positions of controllers / headsets out of this
 	static PFN_xrLocateSpace nextLayer_xrLocateSpace = GetNextLayerFunction(xrLocateSpace);
 	const auto result = nextLayer_xrLocateSpace(space, baseSpace, time, location);
+
+	if (auto search = spaceMap.find(space); search != spaceMap.end()) {
+		stringstream buffer;
+		buffer << "Getting location for " << search->second << " for base space " << baseSpace << " at time " << time;
+		Log::Write(Log::Level::Info, buffer.str());
+	}
+
 	return result;
 }
 
@@ -201,6 +249,10 @@ std::vector<OpenXRLayer::ShimFunction> ListShims()
 	functions.emplace_back("xrEndFrame", PFN_xrVoidFunction(thisLayer_xrEndFrame));
 	functions.emplace_back("xrStringToPath", PFN_xrVoidFunction(thisLayer_xrStringToPath));
 	functions.emplace_back("xrLocateViews", PFN_xrVoidFunction(thisLayer_xrLocateViews));
+	functions.emplace_back("xrCreateActionSet", PFN_xrVoidFunction(thisLayer_xrCreateActionSet));
+	functions.emplace_back("xrCreateAction", PFN_xrVoidFunction(thisLayer_xrCreateAction));
+	functions.emplace_back("xrCreateActionSpace", PFN_xrVoidFunction(thisLayer_xrCreateActionSpace));
+	functions.emplace_back("xrLocateSpace", PFN_xrVoidFunction(thisLayer_xrLocateSpace));
 	//functions.emplace_back("xrLocateSpace", PFN_xrVoidFunction(thisLayer_xrLocateSpace));
 
 #if XR_THISLAYER_HAS_EXTENSIONS
