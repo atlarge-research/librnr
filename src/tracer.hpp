@@ -9,7 +9,8 @@ using namespace std;
 namespace tracer {
 	// trace format:
 	// time s space w x y z x y z basespace
-	// time v space w x y z x y z u r d l index
+	// time v space w x y z x y z u r d l type index
+
 	struct traceEntry {
 		XrTime time;
 		char type;
@@ -17,13 +18,13 @@ namespace tracer {
 		float ow, ox, oy, oz, px, py, pz;
 		string basespace;
 		float u, r, d, l;
-		uint32_t index;
+		uint32_t viewType, index;
 	};
 
 	void init();
 	void close();
 	void writeView(traceEntry);
-	void readView(traceEntry*);
+	bool readNextView(traceEntry*);
 	void writeSpace(traceEntry);
-	void readNextSpace(traceEntry*);
+	bool readNextSpace(traceEntry*);
 }

@@ -20,9 +20,10 @@
 
 using namespace std;
 
-std::map<XrPath, string> pathToString;
-std::map<string, XrPath> stringToPath;
+map<XrPath, string> pathToString;
+map<string, XrPath> stringToPath;
 map<XrSpace, string> spaceMap;
+string mode;
 
 const string leftHandStr = "/user/hand/left";
 const string rightHandStr = "/user/hand/right";
@@ -179,15 +180,15 @@ XRAPI_ATTR XrResult XRAPI_CALL thisLayer_xrCreateReferenceSpace(XrSession sessio
 	spaceMap[*space] = type;
 
 	stringstream buffer;
-	buffer << "RNR xrCreateReferenceSpace created space type " << type << " " << *space;
-	Log::Write(Log::Level::Verbose, buffer.str());
+	auto p = createInfo->poseInReferenceSpace;
+	buffer << "RNR xrCreateReferenceSpace type " << type << " posef " << p.orientation.w << " " << p.orientation.x << " " << p.orientation.y << " " << p.orientation.z << " " << p.position.x << " " << p.position.y << " " << p.position.z << " space " << *space;
+	Log::Write(Log::Level::Info, buffer.str());
 
 	return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL thisLayer_xrLocateSpace(XrSpace space, XrSpace baseSpace, XrTime time, XrSpaceLocation* location)
+XRAPI_ATTR XrResult XRAPI_CALL recordLocateSpace(XrSpace space, XrSpace baseSpace, XrTime time, XrSpaceLocation* location)
 {
-	// Not sure yet how to get positions of controllers / headsets out of this
 	static PFN_xrLocateSpace nextLayer_xrLocateSpace = GetNextLayerFunction(xrLocateSpace);
 
 	static auto lastlog = std::chrono::system_clock::now();
@@ -243,11 +244,104 @@ XRAPI_ATTR XrResult XRAPI_CALL thisLayer_xrLocateSpace(XrSpace space, XrSpace ba
 	return result;
 }
 
-/// <summary>
-/// This seems to successfully get the position and the orientation of both eyes.
-/// I'm not sure if this also conttrols the head position, or if this is relative to the head position.
-/// </summary>
-XRAPI_ATTR XrResult XRAPI_CALL thisLayer_xrLocateViews(XrSession session, const XrViewLocateInfo* viewlocateInfo, XrViewState* viewState,
+bool replayLocateSpace(XrSpace space, XrSpace baseSpace, XrTime time, XrSpaceLocation* location)
+{
+	tracer::traceEntry entry;
+	entry.time = time;
+	entry.space = spaceMap[space];
+	entry.basespace = spaceMap[baseSpace];
+	
+	if (tracer::readNextSpace(&entry))
+	{
+		location->pose.orientation.w = entry.ow;
+		location->pose.orientation.x = entry.ox;
+		location->pose.orientation.y = entry.oy;
+		location->pose.orientation.z = entry.oz;
+		location->pose.position.x = entry.px;
+		location->pose.position.y = entry.py;
+		location->pose.position.z = entry.pz;
+		return true;
+	}
+
+	//Log::Write(Log::Level::Info, "RNR replayLocateSpace rewrote space loc!");
+
+	return false;
+}
+
+XRAPI_ATTR XrResult XRAPI_CALL thisLayer_xrLocateSpace(XrSpace space, XrSpace baseSpace, XrTime time, XrSpaceLocation* location)
+{
+	static PFN_xrLocateSpace nextLayer_xrLocateSpace = GetNextLayerFunction(xrLocateSpace);
+
+	if (mode == "REPLAY")
+	{
+		//XrSpaceLocation ours;
+		//// FIXME enable replay
+
+		//ours = *location;
+		auto res = nextLayer_xrLocateSpace(space, baseSpace, time, location);
+		if (replayLocateSpace(space, baseSpace, time, location)) {
+			Log::Write(Log::Level::Info, "RNR location should be overwritten!");
+		}
+		//stringstream buffer;
+		//buffer << "RNR xrLocateSpace ours " << ours.type << " " << ours.locationFlags << " " << ours.pose.orientation.w << " " << ours.pose.orientation.x << " " << ours.pose.orientation.y << " " << ours.pose.orientation.z << " " << ours.pose.position.x << " " << ours.pose.position.y << " " << ours.pose.position.z;
+		//Log::Write(Log::Level::Info, buffer.str());
+		//buffer.str(string());		
+		//buffer << "RNR xrLocateSpace thei " << location->type << " " << location->locationFlags << " " << location->pose.orientation.w << " " << location->pose.orientation.x << " " << location->pose.orientation.y << " " << location->pose.orientation.z << " " << location->pose.position.x << " " << location->pose.position.y << " " << location->pose.position.z;
+		//Log::Write(Log::Level::Info, buffer.str());
+		return res;
+	}
+	else
+	{
+		return recordLocateSpace(space, baseSpace, time, location);
+	}
+}
+
+XRAPI_ATTR XrResult XRAPI_CALL replayLocateViews(XrSession session, const XrViewLocateInfo* viewlocateInfo, XrViewState* viewState,
+	uint32_t viewCapacityInput, uint32_t* viewCountOutput, XrView* views)
+{
+	tracer::traceEntry entry;
+	entry.time = viewlocateInfo->displayTime;
+	entry.space = spaceMap[viewlocateInfo->space];
+	entry.index = 0;
+	tracer::readNextView(&entry);
+
+	views[0].fov.angleUp = entry.u;
+	views[0].fov.angleRight = entry.r;
+	views[0].fov.angleDown = entry.d;
+	views[0].fov.angleLeft = entry.l;
+	views[0].pose.orientation.w = entry.ow;
+	views[0].pose.orientation.x = entry.ox;
+	views[0].pose.orientation.y = entry.oy;
+	views[0].pose.orientation.z = entry.oz;
+	views[0].pose.position.x = entry.px;
+	views[0].pose.position.y = entry.py;
+	views[0].pose.position.z = entry.pz;
+
+	// TODO support mono view https://registry.khronos.org/OpenXR/specs/1.0/man/html/XrViewConfigurationType.html
+	entry.time = viewlocateInfo->displayTime;
+	entry.space = spaceMap[viewlocateInfo->space];
+	entry.index = 1;
+	tracer::readNextView(&entry);
+
+	views[1].fov.angleUp = entry.u;
+	views[1].fov.angleRight = entry.r;
+	views[1].fov.angleDown = entry.d;
+	views[1].fov.angleLeft = entry.l;
+	views[1].pose.orientation.w = entry.ow;
+	views[1].pose.orientation.x = entry.ox;
+	views[1].pose.orientation.y = entry.oy;
+	views[1].pose.orientation.z = entry.oz;
+	views[1].pose.position.x = entry.px;
+	views[1].pose.position.y = entry.py;
+	views[1].pose.position.z = entry.pz;
+
+	*viewCountOutput = 2;
+
+	return XR_SUCCESS;
+}
+
+// FIXME also trace view mode
+XRAPI_ATTR XrResult XRAPI_CALL recordLocateViews(XrSession session, const XrViewLocateInfo* viewlocateInfo, XrViewState* viewState,
 	uint32_t viewCapacityInput, uint32_t* viewCountOutput, XrView* views)
 {
 	using namespace std::chrono_literals;
@@ -302,6 +396,26 @@ XRAPI_ATTR XrResult XRAPI_CALL thisLayer_xrLocateViews(XrSession session, const 
 	return result;
 }
 
+/// <summary>
+/// This seems to successfully get the position and the orientation of both eyes.
+/// I'm not sure if this also conttrols the head position, or if this is relative to the head position.
+/// </summary>
+XRAPI_ATTR XrResult XRAPI_CALL thisLayer_xrLocateViews(XrSession session, const XrViewLocateInfo* viewlocateInfo, XrViewState* viewState,
+	uint32_t viewCapacityInput, uint32_t* viewCountOutput, XrView* views)
+{
+	static PFN_xrLocateViews nextLayer_xrLocateViews = GetNextLayerFunction(xrLocateViews);
+	if (mode == "REPLAY")
+	{
+		// FIXME enable
+		//return replayLocateViews(session, viewlocateInfo, viewState, viewCapacityInput, viewCountOutput, views);
+		return nextLayer_xrLocateViews(session, viewlocateInfo, viewState, viewCapacityInput, viewCountOutput, views);
+	}
+	else
+	{
+		return recordLocateViews(session, viewlocateInfo, viewState, viewCapacityInput, viewCountOutput, views);
+	}
+}
+
 #if XR_THISLAYER_HAS_EXTENSIONS
 // The following function doesn't exist in the spec, this is just a test for the extension mecanism
 XRAPI_ATTR XrResult XRAPI_CALL thisLayer_xrTestMeTEST(XrSession session)
@@ -318,6 +432,27 @@ std::vector<OpenXRLayer::ShimFunction> ListShims()
 	// TODO move this to another function. Does not belong here.
 	tracer::init();
 
+	//if (auto envMode = getenv("ATLARGE_RNR_MODE"); mode.length() > 0)
+	//{
+	//	stringstream buffer;
+	//	buffer << "RNR ListShims ATLARGE_RNR_MODE " << envMode;
+	//	Log::Write(Log::Level::Info, buffer.str());
+	//	if (strcmp(envMode, "REPLAY") == 0)
+	//	{
+	//		mode = envMode;
+	//	}
+	//	else
+	//	{
+	//		mode = "RECORD";
+	//	}
+	//}
+	//else
+	//{
+	//	Log::Write(Log::Level::Warning, "Could not find env var ATLARGE_RNR_MODE");
+	//}
+
+	mode = "RECORD";
+
 	std::vector<OpenXRLayer::ShimFunction> functions;
 	functions.emplace_back("xrDestroyInstance", PFN_xrVoidFunction(thisLayer_xrDestroyInstance));
 
@@ -330,7 +465,6 @@ std::vector<OpenXRLayer::ShimFunction> ListShims()
 	functions.emplace_back("xrCreateActionSpace", PFN_xrVoidFunction(thisLayer_xrCreateActionSpace));
 	functions.emplace_back("xrCreateReferenceSpace", PFN_xrVoidFunction(thisLayer_xrCreateReferenceSpace));
 	functions.emplace_back("xrLocateSpace", PFN_xrVoidFunction(thisLayer_xrLocateSpace));
-	//functions.emplace_back("xrLocateSpace", PFN_xrVoidFunction(thisLayer_xrLocateSpace));
 
 #if XR_THISLAYER_HAS_EXTENSIONS
 	if (OpenXRLayer::IsExtensionEnabled("XR_TEST_test_me"))
