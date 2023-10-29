@@ -47,8 +47,8 @@ namespace tracer {
 		// Reset the string buffer
 		buffer.str(string());
 		buffer << entry.time - start << " " << entry.type << " " << entry.space << " ";
-		buffer << entry.ow << " " << entry.ox << " " << entry.oy << " " << entry.oz << " ";
-		buffer << entry.px << " " << entry.py << " " << entry.pz << " ";
+		buffer << entry.o.x << " " << entry.o.y << " " << entry.o.z << " " << entry.o.w << " ";
+		buffer << entry.p.x << " " << entry.p.y << " " << entry.p.z << " ";
 	}
 
 	void writeSpace(traceEntry entry)
@@ -80,7 +80,7 @@ namespace tracer {
 		}
 
 		stringstream sstream(line);
-		if (!(sstream >> entry->time >> entry->type >> entry->space >> entry->ow >> entry->ox >> entry->oy >> entry->oz >> entry->px >> entry->py >> entry->pz))
+		if (!(sstream >> entry->time >> entry->type >> entry->space >> entry->o.x >> entry->o.y >> entry->o.z >> entry->o.w >> entry->p.x >> entry->p.y >> entry->p.z))
 		{
 			Log::Write(Log::Level::Warning, "RNR read end of file!");
 			return false;
@@ -129,8 +129,6 @@ namespace tracer {
 		return res;
 	}
 
-
-
 	bool readNextSpace(traceEntry* entry)
 	{
 		traceEntry outEntry;
@@ -142,8 +140,8 @@ namespace tracer {
 			return false;
 		}
 
-		//// This is a bit of a hack to bootstrap the process
-		//// If we read up to the indicated time, but haven't yet seen an entry that matches the space/basespace/index we're looking for, we keep reading until we do
+		// This is a bit of a hack to bootstrap the process
+		// If we read up to the indicated time, but haven't yet seen an entry that matches the space/basespace/index we're looking for, we keep reading until we do
 		//for (auto findEntry = spaceMap.find(entry->space); findEntry == spaceMap.end(); )
 		//{
 		//	read(&outEntry);

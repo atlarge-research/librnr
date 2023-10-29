@@ -20,7 +20,8 @@ namespace tracer {
 		XrTime time;
 		char type;
 		string space;
-		float ow, ox, oy, oz, px, py, pz;
+		XrQuaternionf o;
+		XrVector3f p;
 		string basespace;
 		float u, r, d, l;
 		uint32_t viewType, index;
