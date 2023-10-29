@@ -5,7 +5,6 @@
 // Initial Author: Arthur Brainville <ybalrid@ybalrid.info>
 
 #include "layer_shims.hpp"
-#include "logger.h"
 
 #include <cassert>
 #include <iostream>
@@ -13,9 +12,13 @@
 #include <chrono>
 #include <map>
 #include <string>
+#include <iostream>
+#include <fstream>
+
+#include "logger.h"
+#include "tracer.hpp"
 
 using namespace std;
-
 
 std::map<XrPath, string> pathToString;
 std::map<string, XrPath> stringToPath;
@@ -30,6 +33,9 @@ const string headStr = "user/head";
 XRAPI_ATTR XrResult XRAPI_CALL thisLayer_xrDestroyInstance(
 	XrInstance instance)
 {
+	// Close trace filestream
+	tracer::close();
+
 	PFN_xrDestroyInstance nextLayer_xrDestroyInstance = GetNextLayerFunction(xrDestroyInstance);
 
 	OpenXRLayer::DestroyLayerContext();
@@ -151,12 +157,31 @@ XRAPI_ATTR XrResult XRAPI_CALL thisLayer_xrCreateActionSpace(XrSession session, 
 XRAPI_ATTR XrResult XRAPI_CALL thisLayer_xrCreateReferenceSpace(XrSession session, const XrReferenceSpaceCreateInfo* createInfo, XrSpace* space)
 {
 	static PFN_xrCreateReferenceSpace nextLayer_xrCreateReferenceSpace = GetNextLayerFunction(xrCreateReferenceSpace);
+	const auto result = nextLayer_xrCreateReferenceSpace(session, createInfo, space);
 
-	if (createInfo->referenceSpaceType == XR_REFERENCE_SPACE_TYPE_VIEW) {
-		// We are creating a space for the headset.
+	string type;
+	switch (createInfo->referenceSpaceType) {
+	case XR_REFERENCE_SPACE_TYPE_VIEW:
+		type = "XR_REFERENCE_SPACE_TYPE_VIEW";
+		break;
+	case XR_REFERENCE_SPACE_TYPE_LOCAL:
+		type = "XR_REFERENCE_SPACE_TYPE_LOCAL";
+		break;
+	case XR_REFERENCE_SPACE_TYPE_STAGE:
+		type = "XR_REFERENCE_SPACE_TYPE_STAGE";
+		break;
+	default:
+		type = "OTHER";
+		break;
 	}
 
-	const auto result = nextLayer_xrCreateReferenceSpace(session, createInfo, space);
+	// Store string to space type, so that we can look it up later
+	spaceMap[*space] = type;
+
+	stringstream buffer;
+	buffer << "RNR xrCreateReferenceSpace created space type " << type << " " << *space;
+	Log::Write(Log::Level::Verbose, buffer.str());
+
 	return result;
 }
 
@@ -164,12 +189,55 @@ XRAPI_ATTR XrResult XRAPI_CALL thisLayer_xrLocateSpace(XrSpace space, XrSpace ba
 {
 	// Not sure yet how to get positions of controllers / headsets out of this
 	static PFN_xrLocateSpace nextLayer_xrLocateSpace = GetNextLayerFunction(xrLocateSpace);
+
+	static auto lastlog = std::chrono::system_clock::now();
+	auto now = chrono::system_clock::now();
+	auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(now - lastlog);
+	string spaceString;
+	string baseSpaceString;
+
 	const auto result = nextLayer_xrLocateSpace(space, baseSpace, time, location);
 
-	if (auto search = spaceMap.find(space); search != spaceMap.end()) {
+	auto findBaseSpace = spaceMap.find(baseSpace);
+	if (findBaseSpace == spaceMap.end()) {
 		stringstream buffer;
-		buffer << "Getting location for " << search->second << " for base space " << baseSpace << " at time " << time;
-		Log::Write(Log::Level::Info, buffer.str());
+		buffer << "RNR xrLocateSpace base space not tracked: " << baseSpace;
+		Log::Write(Log::Level::Warning, buffer.str());
+
+		baseSpaceString = "???";
+	}
+	else {
+		baseSpaceString = findBaseSpace->second;
+	}
+
+	auto findSpace = spaceMap.find(space);
+	if (findSpace == spaceMap.end()) {
+		stringstream buffer;
+		buffer << "RNR xrLocateSpace space not tracked: " << space;
+		Log::Write(Log::Level::Warning, buffer.str());
+
+		spaceString = "???";
+	}
+	else {
+		spaceString = findSpace->second;
+	}
+
+	if (result == XR_SUCCESS && duration.count() > 8) {
+		auto o = location->pose.orientation;
+		auto p = location->pose.position;
+		tracer::traceEntry entry;
+		entry.time = time;
+		entry.type = 's';
+		entry.space = spaceString;
+		entry.ow = o.w;
+		entry.ox = o.x;
+		entry.oy = o.y;
+		entry.oz = o.z;
+		entry.px = p.x;
+		entry.py = p.y;
+		entry.pz = p.z;
+		entry.basespace = baseSpaceString;
+		tracer::writeSpace(entry);
 	}
 
 	return result;
@@ -192,7 +260,7 @@ XRAPI_ATTR XrResult XRAPI_CALL thisLayer_xrLocateViews(XrSession session, const 
 	const auto result = nextLayer_xrLocateViews(session, viewlocateInfo, viewState, viewCapacityInput, viewCountOutput, views);
 
 	auto now = std::chrono::system_clock::now();
-	auto duration = std::chrono::duration_cast<std::chrono::seconds>(now - lastlog);
+	auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(now - lastlog);
 
 	// input: the type of view (MONO, STEREO, etc.)
 	auto configType = viewlocateInfo->viewConfigurationType;
@@ -204,25 +272,30 @@ XRAPI_ATTR XrResult XRAPI_CALL thisLayer_xrLocateViews(XrSession session, const 
 	auto outputValid = (flags & (XR_VIEW_STATE_ORIENTATION_VALID_BIT | XR_VIEW_STATE_POSITION_VALID_BIT));
 
 	// Test printing the user's head view location at most once per second
-	if (result == XR_SUCCESS && *viewCountOutput > 0 && outputValid && duration.count() > 1) {
+	if (result == XR_SUCCESS && *viewCountOutput > 0 && outputValid && duration.count() > 8) {
 		std::stringstream buf;
 		buf << "logging " << *viewCountOutput << " views";
-		Log::Write(Log::Level::Info, buf.str());
+		//Log::Write(Log::Level::Info, buf.str());
 		lastlog = now;
 
 		for (auto i = 0; i < *viewCountOutput; i++) {
 			const auto view = views[i];
-			const auto fov = view.fov;
-			const auto pose = view.pose;
-			const auto ori = pose.orientation;
-			const auto pos = pose.position;
-			// Clear the string stream
-			buffer.str(std::string());
-			// Log head position
-			buffer << "view " << i << " fov " << fov.angleUp << " " << fov.angleRight << " " << fov.angleDown << " " << fov.angleLeft << " ";
-			buffer << "pose ori " << ori.w << " " << ori.x << " " << ori.y << " " << ori.z << " ";
-			buffer << "pos " << pos.x << " " << pos.y << " " << pos.z;
-			Log::Write(Log::Level::Info, buffer.str());
+			const auto o = view.pose.orientation;
+			const auto p = view.pose.position;
+			tracer::traceEntry entry;
+			entry.time = viewlocateInfo->displayTime;
+			entry.type = 'v';
+			entry.space = spaceMap[viewlocateInfo->space];
+			entry.ow = o.w;
+			entry.ox = o.x;
+			entry.oy = o.y;
+			entry.oz = o.z;
+			entry.px = p.x;
+			entry.py = p.y;
+			entry.pz = p.z;
+			// TODO check if this entry exists in map
+			entry.index = i;
+			tracer::writeView(entry);
 		}
 	}
 
@@ -242,6 +315,9 @@ XRAPI_ATTR XrResult XRAPI_CALL thisLayer_xrTestMeTEST(XrSession session)
 // This functions returns the list of function pointers and name we implement, and is called during the initialization of the layer:
 std::vector<OpenXRLayer::ShimFunction> ListShims()
 {
+	// TODO move this to another function. Does not belong here.
+	tracer::init();
+
 	std::vector<OpenXRLayer::ShimFunction> functions;
 	functions.emplace_back("xrDestroyInstance", PFN_xrVoidFunction(thisLayer_xrDestroyInstance));
 
@@ -252,6 +328,7 @@ std::vector<OpenXRLayer::ShimFunction> ListShims()
 	functions.emplace_back("xrCreateActionSet", PFN_xrVoidFunction(thisLayer_xrCreateActionSet));
 	functions.emplace_back("xrCreateAction", PFN_xrVoidFunction(thisLayer_xrCreateAction));
 	functions.emplace_back("xrCreateActionSpace", PFN_xrVoidFunction(thisLayer_xrCreateActionSpace));
+	functions.emplace_back("xrCreateReferenceSpace", PFN_xrVoidFunction(thisLayer_xrCreateReferenceSpace));
 	functions.emplace_back("xrLocateSpace", PFN_xrVoidFunction(thisLayer_xrLocateSpace));
 	//functions.emplace_back("xrLocateSpace", PFN_xrVoidFunction(thisLayer_xrLocateSpace));
 

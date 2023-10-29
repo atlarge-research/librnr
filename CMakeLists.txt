@@ -64,7 +64,7 @@ configure_file(
 #TODO make this a bit nicer
 file(GLOB layer_src CONFIGURE_DEPENDS src/*)
 
-add_library(${library_name} SHARED ${layer_src} ${CMAKE_SOURCE_DIR}/README.md)
+add_library(${library_name} SHARED ${layer_src} ${CMAKE_SOURCE_DIR}/README.md "src/tracer.cpp")
 target_include_directories(${library_name} PRIVATE
 	${CMAKE_SOURCE_DIR}/OpenXR-SDK/src/loader
 	${CMAKE_SOURCE_DIR}/OpenXR-SDK/src/common
