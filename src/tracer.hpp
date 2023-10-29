@@ -11,6 +11,11 @@ namespace tracer {
 	// time s space w x y z x y z basespace
 	// time v space w x y z x y z u r d l type index
 
+	enum Mode {
+		RECORD,
+		REPLAY
+	};
+
 	struct traceEntry {
 		XrTime time;
 		char type;
@@ -21,7 +26,7 @@ namespace tracer {
 		uint32_t viewType, index;
 	};
 
-	void init();
+	void init(Mode);
 	void close();
 	void writeView(traceEntry);
 	bool readNextView(traceEntry*);

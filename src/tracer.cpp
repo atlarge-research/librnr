@@ -16,9 +16,22 @@ namespace tracer {
 	map<string, map<uint32_t, traceEntry>> viewMap;
 	stringstream buffer;
 
-	void init()
+	void init(Mode m)
 	{
-		trace.open("trace.txt");
+		ios_base::openmode filemode;
+		switch (m)
+		{
+		case REPLAY:
+			filemode = fstream::in;
+			break;
+		case RECORD:
+		default:
+			filemode = fstream::out | fstream::trunc;
+			break;
+		}
+		trace.open("trace.txt", filemode);
+		Log::Write(Log::Level::Info, "RNR file is open?");
+		Log::Write(Log::Level::Info, trace.is_open() ? "YES" : "NO");
 	}
 
 	void close()

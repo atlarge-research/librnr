@@ -23,7 +23,7 @@ using namespace std;
 map<XrPath, string> pathToString;
 map<string, XrPath> stringToPath;
 map<XrSpace, string> spaceMap;
-string mode;
+tracer::Mode mode;
 
 const string leftHandStr = "/user/hand/left";
 const string rightHandStr = "/user/hand/right";
@@ -272,7 +272,7 @@ XRAPI_ATTR XrResult XRAPI_CALL thisLayer_xrLocateSpace(XrSpace space, XrSpace ba
 {
 	static PFN_xrLocateSpace nextLayer_xrLocateSpace = GetNextLayerFunction(xrLocateSpace);
 
-	if (mode == "REPLAY")
+	if (mode == tracer::Mode::REPLAY)
 	{
 		//XrSpaceLocation ours;
 		//// FIXME enable replay
@@ -404,7 +404,7 @@ XRAPI_ATTR XrResult XRAPI_CALL thisLayer_xrLocateViews(XrSession session, const 
 	uint32_t viewCapacityInput, uint32_t* viewCountOutput, XrView* views)
 {
 	static PFN_xrLocateViews nextLayer_xrLocateViews = GetNextLayerFunction(xrLocateViews);
-	if (mode == "REPLAY")
+	if (mode == tracer::Mode::REPLAY)
 	{
 		// FIXME enable
 		//return replayLocateViews(session, viewlocateInfo, viewState, viewCapacityInput, viewCountOutput, views);
@@ -430,7 +430,8 @@ XRAPI_ATTR XrResult XRAPI_CALL thisLayer_xrTestMeTEST(XrSession session)
 std::vector<OpenXRLayer::ShimFunction> ListShims()
 {
 	// TODO move this to another function. Does not belong here.
-	tracer::init();
+	mode = tracer::Mode::REPLAY;
+	tracer::init(mode);
 
 	//if (auto envMode = getenv("ATLARGE_RNR_MODE"); mode.length() > 0)
 	//{
@@ -451,7 +452,6 @@ std::vector<OpenXRLayer::ShimFunction> ListShims()
 	//	Log::Write(Log::Level::Warning, "Could not find env var ATLARGE_RNR_MODE");
 	//}
 
-	mode = "RECORD";
 
 	std::vector<OpenXRLayer::ShimFunction> functions;
 	functions.emplace_back("xrDestroyInstance", PFN_xrVoidFunction(thisLayer_xrDestroyInstance));
