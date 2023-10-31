@@ -19,7 +19,7 @@ namespace tracer {
 	struct traceEntry {
 		XrTime time;
 		char type;
-		string space;
+		string path;
 		XrQuaternionf o;
 		XrVector3f p;
 		string basespace;

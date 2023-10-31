@@ -30,8 +30,6 @@ namespace tracer {
 			break;
 		}
 		trace.open("trace.txt", filemode);
-		Log::Write(Log::Level::Info, "RNR file is open?");
-		Log::Write(Log::Level::Info, trace.is_open() ? "YES" : "NO");
 	}
 
 	void close()
@@ -46,7 +44,7 @@ namespace tracer {
 
 		// Reset the string buffer
 		buffer.str(string());
-		buffer << entry.time - start << " " << entry.type << " " << entry.space << " ";
+		buffer << entry.time - start << " " << entry.type << " " << entry.path << " ";
 		buffer << entry.o.x << " " << entry.o.y << " " << entry.o.z << " " << entry.o.w << " ";
 		buffer << entry.p.x << " " << entry.p.y << " " << entry.p.z << " ";
 	}
@@ -80,7 +78,7 @@ namespace tracer {
 		}
 
 		stringstream sstream(line);
-		if (!(sstream >> entry->time >> entry->type >> entry->space >> entry->o.x >> entry->o.y >> entry->o.z >> entry->o.w >> entry->p.x >> entry->p.y >> entry->p.z))
+		if (!(sstream >> entry->time >> entry->type >> entry->path >> entry->o.x >> entry->o.y >> entry->o.z >> entry->o.w >> entry->p.x >> entry->p.y >> entry->p.z))
 		{
 			Log::Write(Log::Level::Warning, "RNR read end of file!");
 			return false;
@@ -92,11 +90,11 @@ namespace tracer {
 		switch (entry->type) {
 		case 's':
 			sstream >> entry->basespace;
-			spaceMap[entry->space][entry->basespace] = *entry;
+			spaceMap[entry->path][entry->basespace] = *entry;
 			break;
 		case 'v':
 			sstream >> entry->u >> entry->r >> entry->d >> entry->l >> entry->viewType >> entry->index;
-			viewMap[entry->space][entry->index] = *entry;
+			viewMap[entry->path][entry->index] = *entry;
 			break;
 		default:
 			stringstream buffer;
@@ -122,7 +120,7 @@ namespace tracer {
 		buffer << "RNR " << mostRecentEntry << " " << time;
 		Log::Write(Log::Level::Info, buffer.str());
 		bool res;
-		for (res = true; res && mostRecentEntry < until; res = read(entry))
+		for (res = true; res && mostRecentEntry <= until; res = read(entry))
 		{
 			// Nothing to do here
 		}
@@ -155,7 +153,7 @@ namespace tracer {
 		//}
 
 		// Overwrite the output variable
-		*entry = spaceMap[entry->space][entry->basespace];
+		*entry = spaceMap[entry->path][entry->basespace];
 		return true;
 	}
 
@@ -183,7 +181,7 @@ namespace tracer {
 		//}
 
 		// Overwrite the output variable
-		*entry = viewMap[entry->space][entry->index];
+		*entry = viewMap[entry->path][entry->index];
 
 		return true;
 	}
