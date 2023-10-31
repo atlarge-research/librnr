@@ -29,10 +29,6 @@ map<XrSpace, string> spaceToFullName;
 
 tracer::Mode mode;
 
-const string leftHandStr = "/user/hand/left";
-const string rightHandStr = "/user/hand/right";
-const string headStr = "user/head";
-
 // IMPORTANT: to allow for multiple instance creation/destruction, the context of the layer must be re-initialized when the instance is being destroyed.
 // Hooking xrDestroyInstance is the best way to do that.
 XRAPI_ATTR XrResult XRAPI_CALL thisLayer_xrDestroyInstance(
@@ -79,16 +75,6 @@ XRAPI_ATTR XrResult XRAPI_CALL thisLayer_xrStringToPath(XrInstance instance, con
 	buffer << "RNR xrStringToPath " << instance << " " << pathString << " " << *path;
 	Log::Write(Log::Level::Info, buffer.str());
 
-	// Debugging code. Just testing hypothesis that the same string always results in the same XrPath
-	// TODO: also track the xrinstance name and handle
-	//if (auto search = stringToPath.find(pathString); search != stringToPath.end()) {
-	//	if (search->second != *path) {
-	//		buffer.str(std::string());
-	//		buffer << "RNR xrStringToPath STRANGE! Multiple paths for the same string " << search->first << " " << pathString << " " << search->second << " " << *path;
-	//		Log::Write(Log::Level::Warning, buffer.str());
-	//	}
-	//}
-
 	pathToString[*path] = pathString;
 	stringToPath[pathString] = *path;
 
@@ -128,15 +114,10 @@ XRAPI_ATTR XrResult XRAPI_CALL thisLayer_xrCreateAction(XrActionSet actionSet, c
 	static PFN_xrCreateAction nextLayer_xrCreateAction = GetNextLayerFunction(xrCreateAction);
 	const auto result = nextLayer_xrCreateAction(actionSet, createInfo, action);
 
-	//if (createInfo->actionType == XR_ACTION_TYPE_POSE_INPUT) {
-		// Creating action for a controller!
-
 	stringstream buffer;
 	buffer << "RNR xrCreateAction " << createInfo->actionName << " " << createInfo->localizedActionName << " " << *action;
 	Log::Write(Log::Level::Info, buffer.str());
-	//}
 
-	//stringstream buffer;
 	buffer.str(string());
 	buffer << "RNR xrCreateAction subactionpaths";
 	for (auto i = 0; i < createInfo->countSubactionPaths; i++)
@@ -172,25 +153,6 @@ XRAPI_ATTR XrResult XRAPI_CALL thisLayer_xrCreateActionSpace(XrSession session, 
 			spaceToFullName[*space] = pathToString[p];
 		}
 	}
-
-	// TODO I think we can delete everything below?
-
-
-	if (auto search = pathToString.find(createInfo->subactionPath); search != pathToString.end()) {
-		std::stringstream buffer;
-		buffer << "RNR xrCreateActionSpace " << search->second << " " << createInfo->action << " " << *space;
-		Log::Write(Log::Level::Info, buffer.str());
-		// TODO next up: every space should be identified by total path: base /user/hand/left and sub /input/grip/pose
-		//spaceMap[*space] = search->second;
-	}
-	else
-	{
-		Log::Write(Log::Level::Warning, "RNR xrCreateActionSpace unknown path detected");
-	}
-
-	//std::stringstream buffer;
-	//buffer << "RNR xrCreateActionSpace " << createInfo.
-	//Log::Write(Log::Level::Info, buffer.str());
 
 	return result;
 }
@@ -312,20 +274,10 @@ XRAPI_ATTR XrResult XRAPI_CALL thisLayer_xrLocateSpace(XrSpace space, XrSpace ba
 
 	if (mode == tracer::Mode::REPLAY)
 	{
-		//XrSpaceLocation ours;
-		//// FIXME enable replay
-
-		//ours = *location;
 		auto res = nextLayer_xrLocateSpace(space, baseSpace, time, location);
 		if (replayLocateSpace(space, baseSpace, time, location)) {
 			Log::Write(Log::Level::Info, "RNR location should be overwritten!");
 		}
-		//stringstream buffer;
-		//buffer << "RNR xrLocateSpace ours " << ours.type << " " << ours.locationFlags << " " << ours.pose.orientation.w << " " << ours.pose.orientation.x << " " << ours.pose.orientation.y << " " << ours.pose.orientation.z << " " << ours.pose.position.x << " " << ours.pose.position.y << " " << ours.pose.position.z;
-		//Log::Write(Log::Level::Info, buffer.str());
-		//buffer.str(string());		
-		//buffer << "RNR xrLocateSpace thei " << location->type << " " << location->locationFlags << " " << location->pose.orientation.w << " " << location->pose.orientation.x << " " << location->pose.orientation.y << " " << location->pose.orientation.z << " " << location->pose.position.x << " " << location->pose.position.y << " " << location->pose.position.z;
-		//Log::Write(Log::Level::Info, buffer.str());
 		return res;
 	}
 	else
@@ -453,26 +405,6 @@ std::vector<OpenXRLayer::ShimFunction> ListShims()
 	// TODO move this to another function. Does not belong here.
 	mode = tracer::Mode::REPLAY;
 	tracer::init(mode);
-
-	//if (auto envMode = getenv("ATLARGE_RNR_MODE"); mode.length() > 0)
-	//{
-	//	stringstream buffer;
-	//	buffer << "RNR ListShims ATLARGE_RNR_MODE " << envMode;
-	//	Log::Write(Log::Level::Info, buffer.str());
-	//	if (strcmp(envMode, "REPLAY") == 0)
-	//	{
-	//		mode = envMode;
-	//	}
-	//	else
-	//	{
-	//		mode = "RECORD";
-	//	}
-	//}
-	//else
-	//{
-	//	Log::Write(Log::Level::Warning, "Could not find env var ATLARGE_RNR_MODE");
-	//}
-
 
 	std::vector<OpenXRLayer::ShimFunction> functions;
 	functions.emplace_back("xrDestroyInstance", PFN_xrVoidFunction(thisLayer_xrDestroyInstance));
