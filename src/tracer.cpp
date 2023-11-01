@@ -134,7 +134,7 @@ namespace tracer {
 		}
 		else if (entry->type == 'b')
 		{
-			traceActionBoolean b;
+			traceActionBoolean b{};
 			auto& changed = b.changed;
 			auto& isActive = b.isActive;
 			auto& lastChanged = b.lastChanged;
@@ -145,7 +145,7 @@ namespace tracer {
 		}
 		else if (entry->type == 'f')
 		{
-			traceActionFloat f;
+			traceActionFloat f{};
 			auto& changed = f.changed;
 			auto& isActive = f.isActive;
 			auto& lastChanged = f.lastChanged;
@@ -266,7 +266,7 @@ namespace tracer {
 
 		traceEntry outEntry;
 		outEntry.time = e->time;
-		if (!readUntil(&outEntry))
+		if (!readUntil(&outEntry) || floatActionMap.find(e->path) == floatActionMap.end())
 		{
 			return false;
 		}
@@ -292,7 +292,7 @@ namespace tracer {
 
 		traceEntry outEntry;
 		outEntry.time = e->time;
-		if (!readUntil(&outEntry))
+		if (!readUntil(&outEntry) || booleanActionMap.find(e->path) == booleanActionMap.end())
 		{
 			return false;
 		}

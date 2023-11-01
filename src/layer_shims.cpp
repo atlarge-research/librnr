@@ -398,18 +398,38 @@ XRAPI_ATTR XrResult XRAPI_CALL thisLayer_xrLocateViews(XrSession session, const 
 	}
 }
 
-void replayGetActionStateFloat(const XrActionStateGetInfo* getInfo, XrActionStateFloat* state)
+bool replayGetActionStateFloat(const XrActionStateGetInfo* getInfo, XrActionStateFloat* state)
 {
 	tracer::traceEntry e;
 	e.time = frameTime;
+	// look up the paths mapped to this action
+	if (auto search = actionBindingMap.find(getInfo->action); search != actionBindingMap.end())
+	{
+		// iterate over all paths for this action
+		auto paths = actionBindingMap[getInfo->action];
+		for (auto p : paths)
+		{
+			// check which path got activated
+			auto ps = pathToString[p];
+			auto pss = pathToString[getInfo->subactionPath];
+			if (ps.rfind(pss, 0) == 0)
+			{
+				e.path = ps;
+			}
+		}
+	}
 	e.body = tracer::traceActionFloat{};
-	tracer::readNextActionFloat(&e);
+	if (!tracer::readNextActionFloat(&e))
+	{
+		return false;
+	}
 	assert(holds_alternative<tracer::traceActionFloat>(e.body));
 	auto& f = get<tracer::traceActionFloat>(e.body);
 	state->changedSinceLastSync = f.changed;
 	state->currentState = f.value;
 	state->isActive = true;
 	state->lastChangeTime = f.lastChanged;
+	return true;
 }
 
 void recordGetActionStateFloat(const XrActionStateGetInfo* getInfo, XrActionStateFloat* state)
@@ -462,18 +482,38 @@ XRAPI_ATTR XrResult XRAPI_CALL thisLayer_xrGetActionStateFloat(XrSession session
 	return res;
 }
 
-void replayGetActionStateBoolean(const XrActionStateGetInfo* getInfo, XrActionStateBoolean* state)
+bool replayGetActionStateBoolean(const XrActionStateGetInfo* getInfo, XrActionStateBoolean* state)
 {
 	tracer::traceEntry e;
 	e.time = frameTime;
+	// look up the paths mapped to this action
+	if (auto search = actionBindingMap.find(getInfo->action); search != actionBindingMap.end())
+	{
+		// iterate over all paths for this action
+		auto paths = actionBindingMap[getInfo->action];
+		for (auto p : paths)
+		{
+			// check which path got activated
+			auto ps = pathToString[p];
+			auto pss = pathToString[getInfo->subactionPath];
+			if (ps.rfind(pss, 0) == 0)
+			{
+				e.path = ps;
+			}
+		}
+	}
 	e.body = tracer::traceActionBoolean{};
-	tracer::readNextActionBoolean(&e);
+	if (!tracer::readNextActionBoolean(&e))
+	{
+		return false;
+	}
 	assert(holds_alternative<tracer::traceActionBoolean>(e.body));
 	auto& f = get<tracer::traceActionBoolean>(e.body);
 	state->changedSinceLastSync = f.changed;
 	state->currentState = f.value;
 	state->isActive = true;
 	state->lastChangeTime = f.lastChanged;
+	return true;
 }
 
 void recordGetActionStateBoolean(const XrActionStateGetInfo* getInfo, XrActionStateBoolean* state)
@@ -517,7 +557,7 @@ XRAPI_ATTR XrResult XRAPI_CALL thisLayer_xrGetActionStateBoolean(XrSession sessi
 	auto res = nextLayer_xrGetActionStateBoolean(session, getInfo, state);
 	if (mode == tracer::Mode::REPLAY)
 	{
-
+		replayGetActionStateBoolean(getInfo, state);
 	}
 	else
 	{
