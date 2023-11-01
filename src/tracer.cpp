@@ -15,7 +15,6 @@ namespace tracer {
 	XrTime mostRecentEntry;
 	map<string, map<string, traceEntry>> spaceMap;
 	map<string, map<uint32_t, traceEntry>> viewMap;
-	stringstream buffer;
 
 	void init(Mode m)
 	{
@@ -42,10 +41,7 @@ namespace tracer {
 	{
 		// The first time we are asked to write an entry, set the requested timestamp as zero.
 		static XrTime start = entry.time;
-
-		// Reset the string buffer
-		buffer.str(string());
-		buffer << entry.time - start << " " << entry.type << " " << entry.path << " ";
+		trace << entry.time - start << " " << entry.type << " " << entry.path << " ";
 	}
 
 	void writeSpace(traceEntry entry)
@@ -58,10 +54,10 @@ namespace tracer {
 		auto& o = pose.orientation;
 		auto& p = pose.position;
 		auto& basespace = l.basespace;
-		buffer << " " << o.x << " " << o.y << " " << o.z << " " << o.w;
-		buffer << " " << p.x << " " << p.y << " " << p.z;
-		buffer << " " << basespace;
-		trace << buffer.str() << endl;
+		trace << " " << o.x << " " << o.y << " " << o.z << " " << o.w;
+		trace << " " << p.x << " " << p.y << " " << p.z;
+		trace << " " << basespace;
+		trace << endl;
 	}
 
 	void writeView(traceEntry entry)
@@ -80,10 +76,10 @@ namespace tracer {
 		auto& l = fov.angleLeft;
 		auto& type = w.type;
 		auto& index = w.index;
-		buffer << o.x << " " << o.y << " " << o.z << " " << o.w;
-		buffer << p.x << " " << p.y << " " << p.z;
-		buffer << u << " " << r << " " << d << " " << l << " " << type << " " << index;
-		trace << buffer.str() << endl;
+		trace << o.x << " " << o.y << " " << o.z << " " << o.w;
+		trace << p.x << " " << p.y << " " << p.z;
+		trace << u << " " << r << " " << d << " " << l << " " << type << " " << index;
+		trace << endl;
 	}
 
 	bool read(traceEntry* entry)
