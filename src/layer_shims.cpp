@@ -395,6 +395,13 @@ XRAPI_ATTR XrResult XRAPI_CALL thisLayer_xrLocateViews(XrSession session, const 
 	}
 }
 
+XRAPI_ATTR XrResult XRAPI_CALL thisLayer_xrGetActionStateFloat(XrSession session, const XrActionStateGetInfo* getInfo, XrActionStateFloat* state)
+{
+	static PFN_xrGetActionStateFloat nextLayer_xrGetActionStateFloat = GetNextLayerFunction(xrGetActionStateFloat);
+	auto res = nextLayer_xrGetActionStateFloat(session, getInfo, state);
+	return res;
+}
+
 #if XR_THISLAYER_HAS_EXTENSIONS
 // The following function doesn't exist in the spec, this is just a test for the extension mecanism
 XRAPI_ATTR XrResult XRAPI_CALL thisLayer_xrTestMeTEST(XrSession session)
@@ -424,6 +431,7 @@ std::vector<OpenXRLayer::ShimFunction> ListShims()
 	functions.emplace_back("xrCreateAction", PFN_xrVoidFunction(thisLayer_xrCreateAction));
 	functions.emplace_back("xrCreateActionSpace", PFN_xrVoidFunction(thisLayer_xrCreateActionSpace));
 	functions.emplace_back("xrCreateReferenceSpace", PFN_xrVoidFunction(thisLayer_xrCreateReferenceSpace));
+	functions.emplace_back("xrGetActionStateFloat", PFN_xrVoidFunction(thisLayer_xrGetActionStateFloat));
 	functions.emplace_back("xrLocateSpace", PFN_xrVoidFunction(thisLayer_xrLocateSpace));
 
 #if XR_THISLAYER_HAS_EXTENSIONS
