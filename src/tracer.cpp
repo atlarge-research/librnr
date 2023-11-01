@@ -234,4 +234,14 @@ namespace tracer {
 		trace << " " << f.changed << " " << f.isActive << " " << f.lastChanged << " " << f.value;
 		trace << endl;
 	}
+
+	void writeActionBoolean(traceEntry e)
+	{
+		assert(holds_alternative<traceActionBoolean>(e.body));
+		auto& b = get<traceActionBoolean>(e.body);
+
+		writeHead(e);
+		trace << " " << b.changed << " " << b.isActive << " " << b.lastChanged << " " << b.value;
+		trace << endl;
+	}
 }

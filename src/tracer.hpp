@@ -35,7 +35,14 @@ namespace tracer {
 		XrTime lastChanged;
 	};
 
-	using traceBody = variant<traceLocation, traceView, traceActionFloat>;
+	struct traceActionBoolean {
+		XrBool32 changed;
+		XrBool32 value;
+		XrBool32 isActive;
+		XrTime lastChanged;
+	};
+
+	using traceBody = variant<traceLocation, traceView, traceActionBoolean, traceActionFloat>;
 
 	struct traceEntry {
 		XrTime time;
@@ -51,4 +58,5 @@ namespace tracer {
 	void writeSpace(traceEntry);
 	bool readNextSpace(traceEntry*);
 	void writeActionFloat(traceEntry);
+	void writeActionBoolean(traceEntry);
 }
