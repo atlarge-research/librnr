@@ -224,4 +224,14 @@ namespace tracer {
 
 		return true;
 	}
+
+	void writeActionFloat(traceEntry e)
+	{
+		assert(holds_alternative<traceActionFloat>(e.body));
+		auto& f = get<traceActionFloat>(e.body);
+
+		writeHead(e);
+		trace << " " << f.changed << " " << f.isActive << " " << f.lastChanged << " " << f.value;
+		trace << endl;
+	}
 }

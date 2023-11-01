@@ -28,6 +28,7 @@ map<XrAction, vector<XrPath>> actionBindingMap;
 map<XrSpace, string> spaceToFullName;
 
 tracer::Mode mode;
+XrTime frameTime = 0;
 
 // IMPORTANT: to allow for multiple instance creation/destruction, the context of the layer must be re-initialized when the instance is being destroyed.
 // Hooking xrDestroyInstance is the best way to do that.
@@ -51,6 +52,8 @@ XRAPI_ATTR XrResult XRAPI_CALL thisLayer_xrEndFrame(XrSession session,
 {
 	// First time this runs, it will fetch the pointer from the loaded OpenXR dispatch table
 	static PFN_xrEndFrame nextLayer_xrEndFrame = GetNextLayerFunction(xrEndFrame);
+
+	frameTime = frameEndInfo->displayTime;
 
 	// Do some additional things;
 	std::cout << "Display frame time is " << frameEndInfo->displayTime << "\n";
@@ -395,10 +398,51 @@ XRAPI_ATTR XrResult XRAPI_CALL thisLayer_xrLocateViews(XrSession session, const 
 	}
 }
 
+void recordGetActionStateFloat(const XrActionStateGetInfo* getInfo, XrActionStateFloat* state)
+{
+	static bool previousWasChanged = true;
+	auto changed = state->changedSinceLastSync;
+	auto value = state->currentState;
+	auto isActive = state->isActive;
+	auto lastChanged = state->lastChangeTime;
+
+	// we don't need all values. especially if there are long periods that noting happens. check if we need to log
+	if (changed || (previousWasChanged && !changed))
+	{
+		// look up the paths mapped to this action
+		if (auto search = actionBindingMap.find(getInfo->action); search != actionBindingMap.end())
+		{
+			// iterate over all paths for this action
+			auto paths = actionBindingMap[getInfo->action];
+			for (auto p : paths)
+			{
+				// check which path got activated
+				auto ps = pathToString[p];
+				if (ps.rfind(getInfo->subactionPath, 0) == 0)
+				{
+					// log the path and the data for the action
+					tracer::traceEntry e = { frameTime, 'f', ps };
+					tracer::traceActionFloat taf = { changed, value, isActive, lastChanged };
+					e.body = taf;
+					tracer::writeActionFloat(e);
+				}
+			}
+		}
+	}
+}
+
 XRAPI_ATTR XrResult XRAPI_CALL thisLayer_xrGetActionStateFloat(XrSession session, const XrActionStateGetInfo* getInfo, XrActionStateFloat* state)
 {
 	static PFN_xrGetActionStateFloat nextLayer_xrGetActionStateFloat = GetNextLayerFunction(xrGetActionStateFloat);
 	auto res = nextLayer_xrGetActionStateFloat(session, getInfo, state);
+	if (mode == tracer::Mode::REPLAY)
+	{
+
+	}
+	else
+	{
+		recordGetActionStateFloat(getInfo, state);
+	}
 	return res;
 }
 
