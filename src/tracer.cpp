@@ -15,6 +15,8 @@ namespace tracer {
 	XrTime mostRecentEntry;
 	map<string, map<string, traceEntry>> spaceMap;
 	map<string, map<uint32_t, traceEntry>> viewMap;
+	map<string, traceEntry> floatActionMap;
+	map<string, traceEntry> booleanActionMap;
 
 	void init(Mode m)
 	{
@@ -130,6 +132,28 @@ namespace tracer {
 			entry->body = v;
 			viewMap[entry->path][index] = *entry;
 		}
+		else if (entry->type == 'b')
+		{
+			traceActionBoolean b;
+			auto& changed = b.changed;
+			auto& isActive = b.isActive;
+			auto& lastChanged = b.lastChanged;
+			auto& value = b.value;
+			sstream >> changed >> isActive >> lastChanged >> value;
+			entry->body = b;
+			booleanActionMap[entry->path] = *entry;
+		}
+		else if (entry->type == 'f')
+		{
+			traceActionFloat f;
+			auto& changed = f.changed;
+			auto& isActive = f.isActive;
+			auto& lastChanged = f.lastChanged;
+			auto& value = f.value;
+			sstream >> changed >> isActive >> lastChanged >> value;
+			entry->body = f;
+			floatActionMap[entry->path] = *entry;
+		}
 		else {
 			stringstream buffer;
 			buffer << "RNR ERROR invalid trace entry type: " << entry->type;
@@ -235,6 +259,22 @@ namespace tracer {
 		trace << endl;
 	}
 
+	bool readNextActionFloat(traceEntry* e)
+	{
+		assert(holds_alternative<traceActionFloat>(e->body));
+		auto& f = get<traceActionFloat>(e->body);
+
+		traceEntry outEntry;
+		outEntry.time = e->time;
+		if (!readUntil(&outEntry))
+		{
+			return false;
+		}
+
+		*e = floatActionMap[e->path];
+		return true;
+	}
+
 	void writeActionBoolean(traceEntry e)
 	{
 		assert(holds_alternative<traceActionBoolean>(e.body));
@@ -243,5 +283,21 @@ namespace tracer {
 		writeHead(e);
 		trace << " " << b.changed << " " << b.isActive << " " << b.lastChanged << " " << b.value;
 		trace << endl;
+	}
+
+	bool readNextActionBoolean(traceEntry* e)
+	{
+		assert(holds_alternative<traceActionBoolean>(e->body));
+		auto& f = get<traceActionBoolean>(e->body);
+
+		traceEntry outEntry;
+		outEntry.time = e->time;
+		if (!readUntil(&outEntry))
+		{
+			return false;
+		}
+
+		*e = booleanActionMap[e->path];
+		return true;
 	}
 }

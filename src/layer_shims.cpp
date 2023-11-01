@@ -398,6 +398,20 @@ XRAPI_ATTR XrResult XRAPI_CALL thisLayer_xrLocateViews(XrSession session, const 
 	}
 }
 
+void replayGetActionStateFloat(const XrActionStateGetInfo* getInfo, XrActionStateFloat* state)
+{
+	tracer::traceEntry e;
+	e.time = frameTime;
+	e.body = tracer::traceActionFloat{};
+	tracer::readNextActionFloat(&e);
+	assert(holds_alternative<tracer::traceActionFloat>(e.body));
+	auto& f = get<tracer::traceActionFloat>(e.body);
+	state->changedSinceLastSync = f.changed;
+	state->currentState = f.value;
+	state->isActive = true;
+	state->lastChangeTime = f.lastChanged;
+}
+
 void recordGetActionStateFloat(const XrActionStateGetInfo* getInfo, XrActionStateFloat* state)
 {
 	static bool previousWasChanged = true;
@@ -430,6 +444,7 @@ void recordGetActionStateFloat(const XrActionStateGetInfo* getInfo, XrActionStat
 			}
 		}
 	}
+	previousWasChanged = changed;
 }
 
 XRAPI_ATTR XrResult XRAPI_CALL thisLayer_xrGetActionStateFloat(XrSession session, const XrActionStateGetInfo* getInfo, XrActionStateFloat* state)
@@ -438,13 +453,27 @@ XRAPI_ATTR XrResult XRAPI_CALL thisLayer_xrGetActionStateFloat(XrSession session
 	auto res = nextLayer_xrGetActionStateFloat(session, getInfo, state);
 	if (mode == tracer::Mode::REPLAY)
 	{
-
+		replayGetActionStateFloat(getInfo, state);
 	}
 	else
 	{
 		recordGetActionStateFloat(getInfo, state);
 	}
 	return res;
+}
+
+void replayGetActionStateBoolean(const XrActionStateGetInfo* getInfo, XrActionStateBoolean* state)
+{
+	tracer::traceEntry e;
+	e.time = frameTime;
+	e.body = tracer::traceActionBoolean{};
+	tracer::readNextActionBoolean(&e);
+	assert(holds_alternative<tracer::traceActionBoolean>(e.body));
+	auto& f = get<tracer::traceActionBoolean>(e.body);
+	state->changedSinceLastSync = f.changed;
+	state->currentState = f.value;
+	state->isActive = true;
+	state->lastChangeTime = f.lastChanged;
 }
 
 void recordGetActionStateBoolean(const XrActionStateGetInfo* getInfo, XrActionStateBoolean* state)
@@ -479,6 +508,7 @@ void recordGetActionStateBoolean(const XrActionStateGetInfo* getInfo, XrActionSt
 			}
 		}
 	}
+	previousWasChanged = changed;
 }
 
 XRAPI_ATTR XrResult XRAPI_CALL thisLayer_xrGetActionStateBoolean(XrSession session, const XrActionStateGetInfo* getInfo, XrActionStateBoolean* state)
@@ -510,7 +540,7 @@ XRAPI_ATTR XrResult XRAPI_CALL thisLayer_xrTestMeTEST(XrSession session)
 std::vector<OpenXRLayer::ShimFunction> ListShims()
 {
 	// TODO move this to another function. Does not belong here.
-	mode = tracer::Mode::RECORD;
+	mode = tracer::Mode::REPLAY;
 	tracer::init(mode);
 
 	std::vector<OpenXRLayer::ShimFunction> functions;

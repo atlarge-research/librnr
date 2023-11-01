@@ -58,5 +58,7 @@ namespace tracer {
 	void writeSpace(traceEntry);
 	bool readNextSpace(traceEntry*);
 	void writeActionFloat(traceEntry);
+	bool readNextActionFloat(traceEntry*);
 	void writeActionBoolean(traceEntry);
+	bool readNextActionBoolean(traceEntry*);
 }
