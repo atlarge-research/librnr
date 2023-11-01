@@ -239,9 +239,10 @@ XRAPI_ATTR XrResult XRAPI_CALL recordLocateSpace(XrSpace space, XrSpace baseSpac
 		entry.time = time;
 		entry.type = 's';
 		entry.path = spaceToFullName[space];
-		entry.o = location->pose.orientation;
-		entry.p = location->pose.position;
-		entry.basespace = baseSpaceString;
+		tracer::traceLocation l;
+		l.pose = location->pose;
+		l.basespace = baseSpaceString;
+		entry.body = l;
 		tracer::writeSpace(entry);
 	}
 
@@ -253,12 +254,14 @@ bool replayLocateSpace(XrSpace space, XrSpace baseSpace, XrTime time, XrSpaceLoc
 	tracer::traceEntry entry;
 	entry.time = time;
 	entry.path = spaceToFullName[space];
-	entry.basespace = spaceToFullName[baseSpace];
+	tracer::traceLocation l;
+	l.basespace = spaceToFullName[baseSpace];
+	entry.body = l;
 
 	if (tracer::readNextSpace(&entry))
 	{
-		location->pose.orientation = entry.o;
-		location->pose.position = entry.p;
+		auto& l = get<tracer::traceLocation>(entry.body);
+		location->pose = l.pose;
 		location->locationFlags = XR_SPACE_LOCATION_ORIENTATION_VALID_BIT | XR_SPACE_LOCATION_POSITION_VALID_BIT | XR_SPACE_LOCATION_ORIENTATION_TRACKED_BIT | XR_SPACE_LOCATION_POSITION_TRACKED_BIT;
 		return true;
 	}
@@ -292,28 +295,30 @@ XRAPI_ATTR XrResult XRAPI_CALL replayLocateViews(XrSession session, const XrView
 	tracer::traceEntry entry;
 	entry.time = viewlocateInfo->displayTime;
 	entry.path = spaceToFullName[viewlocateInfo->space];
-	entry.index = 0;
+	tracer::traceView w;
+	w.index = 0;
+	entry.body = w;
 	tracer::readNextView(&entry);
 
-	views[0].fov.angleUp = entry.u;
-	views[0].fov.angleRight = entry.r;
-	views[0].fov.angleDown = entry.d;
-	views[0].fov.angleLeft = entry.l;
-	views[0].pose.orientation = entry.o;
-	views[0].pose.position = entry.p;
+	auto& wl = get<tracer::traceView>(entry.body);
+	views[0].fov.angleUp = wl.fov.angleUp;
+	views[0].fov.angleRight = wl.fov.angleRight;
+	views[0].fov.angleDown = wl.fov.angleDown;
+	views[0].fov.angleLeft = wl.fov.angleLeft;
+	views[0].pose = wl.pose;
 
 	// TODO support mono view https://registry.khronos.org/OpenXR/specs/1.0/man/html/XrViewConfigurationType.html
 	entry.time = viewlocateInfo->displayTime;
 	entry.path = spaceToFullName[viewlocateInfo->space];
-	entry.index = 1;
+	wl.index = 1;
 	tracer::readNextView(&entry);
 
-	views[1].fov.angleUp = entry.u;
-	views[1].fov.angleRight = entry.r;
-	views[1].fov.angleDown = entry.d;
-	views[1].fov.angleLeft = entry.l;
-	views[1].pose.orientation = entry.o;
-	views[1].pose.position = entry.p;
+	auto& wr = get<tracer::traceView>(entry.body);
+	views[0].fov.angleUp = wr.fov.angleUp;
+	views[0].fov.angleRight = wr.fov.angleRight;
+	views[0].fov.angleDown = wr.fov.angleDown;
+	views[0].fov.angleLeft = wr.fov.angleLeft;
+	views[0].pose = wr.pose;
 
 	*viewCountOutput = 2;
 
@@ -359,9 +364,10 @@ XRAPI_ATTR XrResult XRAPI_CALL recordLocateViews(XrSession session, const XrView
 			entry.type = 'v';
 			// TODO check if this entry exists in map
 			entry.path = spaceToFullName[viewlocateInfo->space];
-			entry.o = view.pose.orientation;
-			entry.p = view.pose.position;
-			entry.index = i;
+			tracer::traceView w;
+			w.pose = view.pose;
+			w.index = i;
+			entry.body = w;
 			tracer::writeView(entry);
 		}
 	}

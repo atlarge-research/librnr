@@ -5,6 +5,7 @@
 #include <fstream>
 #include <sstream>
 #include <map>
+#include <cassert>
 
 #include "logger.h"
 
@@ -37,7 +38,7 @@ namespace tracer {
 		trace.close();
 	}
 
-	void write(traceEntry entry)
+	void writeHead(traceEntry entry)
 	{
 		// The first time we are asked to write an entry, set the requested timestamp as zero.
 		static XrTime start = entry.time;
@@ -45,21 +46,43 @@ namespace tracer {
 		// Reset the string buffer
 		buffer.str(string());
 		buffer << entry.time - start << " " << entry.type << " " << entry.path << " ";
-		buffer << entry.o.x << " " << entry.o.y << " " << entry.o.z << " " << entry.o.w << " ";
-		buffer << entry.p.x << " " << entry.p.y << " " << entry.p.z << " ";
 	}
 
 	void writeSpace(traceEntry entry)
 	{
-		write(entry);
-		buffer << entry.basespace;
+		assert(holds_alternative<traceLocation>(entry.body));
+
+		writeHead(entry);
+		auto& l = get<traceLocation>(entry.body);
+		auto& pose = l.pose;
+		auto& o = pose.orientation;
+		auto& p = pose.position;
+		auto& basespace = l.basespace;
+		buffer << " " << o.x << " " << o.y << " " << o.z << " " << o.w;
+		buffer << " " << p.x << " " << p.y << " " << p.z;
+		buffer << " " << basespace;
 		trace << buffer.str() << endl;
 	}
 
 	void writeView(traceEntry entry)
 	{
-		write(entry);
-		buffer << entry.u << " " << entry.r << " " << entry.d << " " << entry.l << " " << entry.viewType << " " << entry.index;
+		assert(holds_alternative<traceView>(entry.body));
+
+		writeHead(entry);
+		auto& w = get<traceView>(entry.body);
+		auto& pose = w.pose;
+		auto& o = pose.orientation;
+		auto& p = pose.position;
+		auto& fov = w.fov;
+		auto& u = fov.angleUp;
+		auto& r = fov.angleRight;
+		auto& d = fov.angleDown;
+		auto& l = fov.angleLeft;
+		auto& type = w.type;
+		auto& index = w.index;
+		buffer << o.x << " " << o.y << " " << o.z << " " << o.w;
+		buffer << p.x << " " << p.y << " " << p.z;
+		buffer << u << " " << r << " " << d << " " << l << " " << type << " " << index;
 		trace << buffer.str() << endl;
 	}
 
@@ -78,7 +101,7 @@ namespace tracer {
 		}
 
 		stringstream sstream(line);
-		if (!(sstream >> entry->time >> entry->type >> entry->path >> entry->o.x >> entry->o.y >> entry->o.z >> entry->o.w >> entry->p.x >> entry->p.y >> entry->p.z))
+		if (!(sstream >> entry->time >> entry->type >> entry->path))
 		{
 			Log::Write(Log::Level::Warning, "RNR read end of file!");
 			return false;
@@ -87,20 +110,34 @@ namespace tracer {
 		Log::Write(Log::Level::Info, "B");
 
 		// Depending on the trace record type, we need to read different fields
-		switch (entry->type) {
-		case 's':
-			sstream >> entry->basespace;
-			spaceMap[entry->path][entry->basespace] = *entry;
-			break;
-		case 'v':
-			sstream >> entry->u >> entry->r >> entry->d >> entry->l >> entry->viewType >> entry->index;
-			viewMap[entry->path][entry->index] = *entry;
-			break;
-		default:
+		if (entry->type == 's') {
+			traceLocation l;
+			auto& o = l.pose.orientation;
+			auto& p = l.pose.position;
+			sstream >> o.x >> o.y >> o.z >> o.w >> p.x >> p.y >> p.z;
+			sstream >> l.basespace;
+			entry->body = l;
+			spaceMap[entry->path][l.basespace] = *entry;
+		}
+		else if (entry->type == 'v') {
+			traceView v;
+			auto& o = v.pose.orientation;
+			auto& p = v.pose.position;
+			auto& u = v.fov.angleUp;
+			auto& r = v.fov.angleRight;
+			auto& d = v.fov.angleDown;
+			auto& l = v.fov.angleLeft;
+			auto& type = v.type;
+			auto& index = v.index;
+			sstream >> o.x >> o.y >> o.z >> o.w >> p.x >> p.y >> p.z;
+			sstream >> u >> r >> d >> l >> type >> index;
+			entry->body = v;
+			viewMap[entry->path][index] = *entry;
+		}
+		else {
 			stringstream buffer;
 			buffer << "RNR ERROR invalid trace entry type: " << entry->type;
 			Log::Write(Log::Level::Error, buffer.str());
-			break;
 		}
 
 		// The trace timestamps start at zero. Add the offset back to read value.
@@ -129,6 +166,9 @@ namespace tracer {
 
 	bool readNextSpace(traceEntry* entry)
 	{
+		assert(holds_alternative<traceLocation>(entry->body));
+		auto& l = get<traceLocation>(entry->body);
+
 		traceEntry outEntry;
 		outEntry.time = entry->time;
 
@@ -153,12 +193,15 @@ namespace tracer {
 		//}
 
 		// Overwrite the output variable
-		*entry = spaceMap[entry->path][entry->basespace];
+		*entry = spaceMap[entry->path][l.basespace];
 		return true;
 	}
 
 	bool readNextView(traceEntry* entry)
 	{
+		assert(holds_alternative<traceView>(entry->body));
+		auto& v = get<traceView>(entry->body);
+
 		traceEntry outEntry;
 		outEntry.time = entry->time;
 
@@ -181,7 +224,7 @@ namespace tracer {
 		//}
 
 		// Overwrite the output variable
-		*entry = viewMap[entry->path][entry->index];
+		*entry = viewMap[entry->path][v.index];
 
 		return true;
 	}

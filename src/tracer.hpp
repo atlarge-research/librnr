@@ -3,6 +3,7 @@
 
 #include <string>
 #include <openxr/openxr.h>
+#include <variant>
 
 using namespace std;
 
@@ -16,15 +17,24 @@ namespace tracer {
 		REPLAY
 	};
 
+	struct traceLocation {
+		XrPosef pose;
+		string basespace;
+	};
+
+	struct traceView {
+		XrPosef pose;
+		XrFovf fov;
+		uint32_t type, index;
+	};
+
+	using traceBody = variant<traceLocation, traceView>;
+
 	struct traceEntry {
 		XrTime time;
 		char type;
 		string path;
-		XrQuaternionf o;
-		XrVector3f p;
-		string basespace;
-		float u, r, d, l;
-		uint32_t viewType, index;
+		traceBody body;
 	};
 
 	void init(Mode);
