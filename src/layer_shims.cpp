@@ -446,6 +446,54 @@ XRAPI_ATTR XrResult XRAPI_CALL thisLayer_xrGetActionStateFloat(XrSession session
 	return res;
 }
 
+void recordGetActionStateBoolean(const XrActionStateGetInfo* getInfo, XrActionStateBoolean* state)
+{
+	static bool previousWasChanged = true;
+	auto changed = state->changedSinceLastSync;
+	auto value = state->currentState;
+	auto isActive = state->isActive;
+	auto lastChanged = state->lastChangeTime;
+
+	// we don't need all values. especially if there are long periods that noting happens. check if we need to log
+	if (changed || (previousWasChanged && !changed))
+	{
+		// look up the paths mapped to this action
+		if (auto search = actionBindingMap.find(getInfo->action); search != actionBindingMap.end())
+		{
+			// iterate over all paths for this action
+			auto paths = actionBindingMap[getInfo->action];
+			for (auto p : paths)
+			{
+				// check which path got activated
+				auto ps = pathToString[p];
+				if (ps.rfind(getInfo->subactionPath, 0) == 0)
+				{
+					// log the path and the data for the action
+					tracer::traceEntry e = { frameTime, 'b', ps };
+					tracer::traceActionFloat taf = { changed, value, isActive, lastChanged };
+					e.body = taf;
+					tracer::writeActionFloat(e);
+				}
+			}
+		}
+	}
+}
+
+XRAPI_ATTR XrResult XRAPI_CALL thisLayer_xrGetActionStateBoolean(XrSession session, const XrActionStateGetInfo* getInfo, XrActionStateBoolean* state)
+{
+	static PFN_xrGetActionStateBoolean nextLayer_xrGetActionStateBoolean = GetNextLayerFunction(xrGetActionStateBoolean);
+	auto res = nextLayer_xrGetActionStateBoolean(session, getInfo, state);
+	if (mode == tracer::Mode::REPLAY)
+	{
+
+	}
+	else
+	{
+		recordGetActionStateBoolean(getInfo, state);
+	}
+	return res;
+}
+
 #if XR_THISLAYER_HAS_EXTENSIONS
 // The following function doesn't exist in the spec, this is just a test for the extension mecanism
 XRAPI_ATTR XrResult XRAPI_CALL thisLayer_xrTestMeTEST(XrSession session)
@@ -475,6 +523,7 @@ std::vector<OpenXRLayer::ShimFunction> ListShims()
 	functions.emplace_back("xrCreateAction", PFN_xrVoidFunction(thisLayer_xrCreateAction));
 	functions.emplace_back("xrCreateActionSpace", PFN_xrVoidFunction(thisLayer_xrCreateActionSpace));
 	functions.emplace_back("xrCreateReferenceSpace", PFN_xrVoidFunction(thisLayer_xrCreateReferenceSpace));
+	functions.emplace_back("xrGetActionStateBoolean", PFN_xrVoidFunction(thisLayer_xrGetActionStateBoolean));
 	functions.emplace_back("xrGetActionStateFloat", PFN_xrVoidFunction(thisLayer_xrGetActionStateFloat));
 	functions.emplace_back("xrLocateSpace", PFN_xrVoidFunction(thisLayer_xrLocateSpace));
 
