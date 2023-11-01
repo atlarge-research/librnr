@@ -418,7 +418,8 @@ void recordGetActionStateFloat(const XrActionStateGetInfo* getInfo, XrActionStat
 			{
 				// check which path got activated
 				auto ps = pathToString[p];
-				if (ps.rfind(getInfo->subactionPath, 0) == 0)
+				auto pss = pathToString[getInfo->subactionPath];
+				if (ps.rfind(pss, 0) == 0)
 				{
 					// log the path and the data for the action
 					tracer::traceEntry e = { frameTime, 'f', ps };
@@ -466,13 +467,14 @@ void recordGetActionStateBoolean(const XrActionStateGetInfo* getInfo, XrActionSt
 			{
 				// check which path got activated
 				auto ps = pathToString[p];
-				if (ps.rfind(getInfo->subactionPath, 0) == 0)
+				auto pss = pathToString[getInfo->subactionPath];
+				if (ps.rfind(pss, 0) == 0)
 				{
 					// log the path and the data for the action
 					tracer::traceEntry e = { frameTime, 'b', ps };
-					tracer::traceActionFloat taf = { changed, value, isActive, lastChanged };
+					tracer::traceActionBoolean taf = { changed, value, isActive, lastChanged };
 					e.body = taf;
-					tracer::writeActionFloat(e);
+					tracer::writeActionBoolean(e);
 				}
 			}
 		}
@@ -508,7 +510,7 @@ XRAPI_ATTR XrResult XRAPI_CALL thisLayer_xrTestMeTEST(XrSession session)
 std::vector<OpenXRLayer::ShimFunction> ListShims()
 {
 	// TODO move this to another function. Does not belong here.
-	mode = tracer::Mode::REPLAY;
+	mode = tracer::Mode::RECORD;
 	tracer::init(mode);
 
 	std::vector<OpenXRLayer::ShimFunction> functions;
