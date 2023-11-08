@@ -98,6 +98,10 @@ See also https://registry.khronos.org/OpenXR/specs/1.0/html/xrspec.html#XrAction
 
 A record for a float event (e.g., pulling the trigger button).
 
+```
+changed isActive lastChanged value
+```
+
 - changed: true if value has changed since last poll event.
 - isActive: true is the action/button is enabled.
 - lastChanged: the timestamp when the value last changed.
