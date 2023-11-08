@@ -81,10 +81,10 @@ See also https://registry.khronos.org/OpenXR/specs/1.0/html/xrspec.html#xrLocate
 
 ### Boolean
 
-A record for a boolean event.
+A record for a boolean event (e.g., pressing a button).
 
 ```
-changed isActive lastChanged value (e.g., pressing a button)
+changed isActive lastChanged value
 ```
 
 - changed: true if value has changed since last poll event.
@@ -96,7 +96,7 @@ See also https://registry.khronos.org/OpenXR/specs/1.0/html/xrspec.html#XrAction
 
 ### Float
 
-A record for a float event (e.g., pulling the trigger button)
+A record for a float event (e.g., pulling the trigger button).
 
 - changed: true if value has changed since last poll event.
 - isActive: true is the action/button is enabled.
