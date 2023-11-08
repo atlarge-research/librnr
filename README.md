@@ -1,4 +1,4 @@
-# Record and Replay for VR
+# Record 'n Replay (for VR)
 
 librnr is an [OpenXR API layer](https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#api-layers) that allows recording and replaying user inputs in arbitrary applications built on OpenXR. Its main purpose is to enable the end-to-end detailed study of non-functional properties of virtual reality devices and metaverse applications.
 The implementation is built on [this template for OpenXR API layers](https://github.com/Ybalrid/OpenXR-API-Layer-Template).
