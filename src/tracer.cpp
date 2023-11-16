@@ -89,8 +89,6 @@ namespace tracer {
 		// The first time we are asked to read an entry, set the requested timestamp as zero.
 		static XrTime start = entry->time;
 
-		Log::Write(Log::Level::Info, "A");
-
 		// Read a line from the trace
 		string line;
 		if (!getline(trace, line))
@@ -104,8 +102,6 @@ namespace tracer {
 			Log::Write(Log::Level::Warning, "RNR read end of file!");
 			return false;
 		}
-
-		Log::Write(Log::Level::Info, "B");
 
 		// Depending on the trace record type, we need to read different fields
 		if (entry->type == 's') {
@@ -165,17 +161,12 @@ namespace tracer {
 		// Keep track of the highest (most recent) timestamp read, used in readUntil
 		mostRecentEntry = entry->time;
 
-		Log::Write(Log::Level::Info, "C");
-
 		return true;
 	}
 
 	bool readUntil(traceEntry* entry)
 	{
 		auto until = entry->time;
-		stringstream buffer;
-		buffer << "RNR " << mostRecentEntry << " " << time;
-		Log::Write(Log::Level::Info, buffer.str());
 		bool res;
 		for (res = true; res && mostRecentEntry <= until; res = read(entry))
 		{

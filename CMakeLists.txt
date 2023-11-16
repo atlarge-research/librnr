@@ -35,6 +35,7 @@ file(MAKE_DIRECTORY ${layer_directory})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${layer_directory})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${layer_directory})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${layer_directory})
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${layer_directory})
 # set(current_folder_path_prefix "./") # This works on windows too now with up-to-date OpenXR loaders
 set(current_folder_path_prefix ".\\\\") # The line above did not work for me:
 # <...>\repos\openxr-librnr\out\build\x64-Debug\XR_APILAYER_ATLARGE_RNR\./librnr.dll does not appear to exist
@@ -48,7 +49,7 @@ if(WIN32)
 	add_compile_definitions(/w26812)
 	endif()
 else()
-	set(library_filename "${library_name}.so")
+	set(library_filename "lib${library_name}.so")
 endif(WIN32)
 
 configure_file(
@@ -73,6 +74,14 @@ target_include_directories(${library_name} PRIVATE
 add_custom_target(install_manifest
 	COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/src/manifest.json ${layer_directory})
 add_dependencies(${library_name} install_manifest)
+
+if(ANDROID)
+	# This makes android's log library available to us
+	# TODO find out how to do this properly
+	# Current solution, see: https://stackoverflow.com/questions/45316915/undefined-reference-to-function-with-cmake-in-android-studio
+	find_library(loglib log)
+	target_link_libraries(${library_name} ${loglib})
+endif()
 
 # Several files use these compile time OS switches
 if(WIN32)

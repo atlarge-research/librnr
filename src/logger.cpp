@@ -4,7 +4,6 @@
 
 #include "pch.h"
 #include "logger.h"
-
 #include <sstream>
 
 #if defined(_WIN32)
@@ -12,6 +11,7 @@
 #endif
 
 #if defined(ANDROID)
+#include <android/log.h>
 #define ALOGE(...) __android_log_print(ANDROID_LOG_ERROR, "hello_xr", __VA_ARGS__)
 #define ALOGV(...) __android_log_print(ANDROID_LOG_VERBOSE, "hello_xr", __VA_ARGS__)
 #endif
