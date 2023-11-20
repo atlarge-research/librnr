@@ -588,8 +588,7 @@ XRAPI_ATTR XrResult XRAPI_CALL thisLayer_xrTestMeTEST(XrSession session)
 std::vector<OpenXRLayer::ShimFunction> ListShims()
 {
 	// TODO move this to another function. Does not belong here.
-	mode = tracer::Mode::REPLAY;
-	tracer::init(mode);
+	mode = tracer::init();
 
 	std::vector<OpenXRLayer::ShimFunction> functions;
 	functions.emplace_back("xrDestroyInstance", PFN_xrVoidFunction(thisLayer_xrDestroyInstance));

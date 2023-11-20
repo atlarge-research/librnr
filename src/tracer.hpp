@@ -55,7 +55,7 @@ namespace tracer
 		traceBody body;
 	};
 
-	void init(Mode);
+	Mode init();
 	void close();
 	void writeView(traceEntry);
 	bool readNextView(traceEntry *);

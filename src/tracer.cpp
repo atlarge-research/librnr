@@ -1,6 +1,7 @@
 
 #include "tracer.hpp"
 
+#include <filesystem>
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -8,6 +9,8 @@
 #include <cassert>
 
 #include "logger.h"
+
+namespace fs = std::filesystem;
 
 namespace tracer {
 	fstream trace;
@@ -18,20 +21,32 @@ namespace tracer {
 	map<string, traceEntry> floatActionMap;
 	map<string, traceEntry> booleanActionMap;
 
-	void init(Mode m)
+	Mode init()
 	{
+        fs::path config = std::getenv("LOCALAPPDATA ");
+        config = config / "librnr" / "config.txt";
+
+        auto c = fstream(config);
+        string mode_str;
+        fs::path trace_file;
+        c >> mode_str >> trace_file;
+
 		ios_base::openmode filemode;
-		switch (m)
-		{
-		case REPLAY:
-			filemode = fstream::in;
-			break;
-		case RECORD:
-		default:
-			filemode = fstream::out | fstream::trunc;
-			break;
-		}
-		trace.open("trace.txt", filemode);
+        Mode res;
+        if (mode_str == "replay") {
+            filemode = fstream::in;
+            res = REPLAY;
+        } else {
+            filemode = fstream::out | fstream::trunc;
+            res = RECORD;
+        }
+		trace.open(trace_file, filemode);
+
+        if (res == RECORD) {
+            create_directories(trace_file.remove_filename());
+        }
+
+        return res;
 	}
 
 	void close()
