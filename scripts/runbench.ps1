@@ -67,7 +67,7 @@ function Get-Duration([System.IO.FileInfo]$TraceFile) {
 }
 
 $rnrDirPath = "$env:LOCALAPPDATA\librnr"
-$modeFilePath = "$rnrDirPath\mode.txt"
+$modeFilePath = "$rnrDirPath\config.txt"
 
 # Set librnr to replay mode
 Set-Content -Path $modeFilePath -Value "replay $TraceFile"
