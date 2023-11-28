@@ -37,6 +37,10 @@ A trace will now automatically will created in `trace.txt` when you start an Ope
 
 ## Replay
 
+Before you can start replaying user input traces, please follow these steps:
+
+- Turn off "Display off" and "Sleep mode" in your Quest settings under Settings > System > Power.
+
 To replay a trace, set the library mode to REPLAY in the `ListShims` function in `layer_shims.cpp` and recompile.
 A trace will now automatically be played back when you start an OpenXR application.
 When the trace ends, control is returned to the physical controllers.
