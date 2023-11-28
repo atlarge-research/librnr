@@ -36,9 +36,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${layer_directory})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${layer_directory})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${layer_directory})
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${layer_directory})
-# set(current_folder_path_prefix "./") # This works on windows too now with up-to-date OpenXR loaders
-set(current_folder_path_prefix ".\\\\") # The line above did not work for me:
-# <...>\repos\openxr-librnr\out\build\x64-Debug\XR_APILAYER_ATLARGE_RNR\./librnr.dll does not appear to exist
+ set(current_folder_path_prefix "./") # This works on windows too now with up-to-date OpenXR loaders
 
 set(CMAKE_CXX_STANDARD 17)
 
