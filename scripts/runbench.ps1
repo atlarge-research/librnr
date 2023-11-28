@@ -1,7 +1,8 @@
 param (
     [Parameter(Mandatory)][System.IO.FileInfo]$TraceFile,
     [Parameter(Mandatory)][System.IO.FileInfo]$App,
-    [Parameter(Mandatory)][System.IO.FileInfo]$OutDir
+    [Parameter(Mandatory)][System.IO.FileInfo]$OutDir,
+    [Parameter(Mandatory = $true)][ValidateNotNullOrEmpty()][ValidateSet('record', 'replay')][System.String]$Mode
 )
 
 function Trace-Metrics([System.IO.FileInfo]$OutDir) {
@@ -63,14 +64,15 @@ function Get-Duration([System.IO.FileInfo]$TraceFile) {
     $LastLine = Get-Content -Tail 1 $TraceFile
     $FirstTimestamp = [int]($FirstLine.Split(" "))[0]
     $LastTimestamp = [int]($LastLine.Split(" "))[0]
-    return $LastTimestamp - $FirstTimestamp
+    # Calculate duration, convert nanoseconds to seconds
+    return ($LastTimestamp - $FirstTimestamp) / 1000000000
 }
 
 $rnrDirPath = "$env:LOCALAPPDATA\librnr"
 $modeFilePath = "$rnrDirPath\config.txt"
 
-# Set librnr to replay mode
-Set-Content -Path $modeFilePath -Value "replay $TraceFile"
+# Set librnr to configured mode
+Set-Content -Path $modeFilePath -Value "$Mode $TraceFile"
 
 # Start tracing
 $TraceJob = Start-Job -ScriptBlock { Trace-Metrics }
