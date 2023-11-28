@@ -7,6 +7,7 @@
 #include <sstream>
 #include <map>
 #include <cassert>
+#include <stdlib.h>
 
 #include "logger.h"
 
@@ -23,7 +24,9 @@ namespace tracer {
 
 	Mode init()
 	{
-        fs::path config = std::getenv("LOCALAPPDATA ");
+        auto config_str = std::getenv("LOCALAPPDATA");
+        assert(config_str != nullptr);
+        auto config = fs::path(config_str);
         config = config / "librnr" / "config.txt";
 
         auto c = fstream(config);
@@ -40,11 +43,12 @@ namespace tracer {
             filemode = fstream::out | fstream::trunc;
             res = RECORD;
         }
-		trace.open(trace_file, filemode);
 
         if (res == RECORD) {
             create_directories(trace_file.remove_filename());
         }
+
+        trace.open(trace_file, filemode);
 
         return res;
 	}
