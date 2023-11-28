@@ -10,7 +10,7 @@ cmake_minimum_required(VERSION 3.20)
 project(OpenXR-librnr)
 set(library_name      "rnr")
 set(layer_name        "XR_APILAYER_ATLARGE_RNR") # This name *must* be of the form XR_APILAYER_<VENDOR_TAG>_the_name_of_the_layer to be valid according to the OpenXR 1.0 spec.
-set(layer_version     "0.1")
+set(layer_version     "0.2")
 set(layer_description "An OpenXR layer to record and replay user inputs.")
 
 #To add extension declaration to the layer manifest file, fill these two string lists : "extensions" and "extension_versions"
