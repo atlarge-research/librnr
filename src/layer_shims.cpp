@@ -574,6 +574,16 @@ XRAPI_ATTR XrResult XRAPI_CALL thisLayer_xrGetActionStateBoolean(XrSession sessi
 	return res;
 }
 
+XRAPI_ATTR XrResult XRAPI_CALL thisLayer_xrApplyHapticFeedback(XrSession session, XrHapticActionInfo* hapticActionInfo, XrHapticBaseHeader* hapticBaseHeader) {
+    static PFN_xrApplyHapticFeedback nextLayer_xrApplyHapticFeedback = GetNextLayerFunction(xrApplyHapticFeedback);
+    // Disable haptic feedback when in replay mode
+    if (mode == tracer::REPLAY) {
+        return XR_SUCCESS;
+    }
+    auto res = nextLayer_xrApplyHapticFeedback(session, hapticActionInfo, hapticBaseHeader);
+    return res;
+}
+
 #if XR_THISLAYER_HAS_EXTENSIONS
 // The following function doesn't exist in the spec, this is just a test for the extension mecanism
 XRAPI_ATTR XrResult XRAPI_CALL thisLayer_xrTestMeTEST(XrSession session)
@@ -605,6 +615,7 @@ std::vector<OpenXRLayer::ShimFunction> ListShims()
 	functions.emplace_back("xrGetActionStateBoolean", PFN_xrVoidFunction(thisLayer_xrGetActionStateBoolean));
 	functions.emplace_back("xrGetActionStateFloat", PFN_xrVoidFunction(thisLayer_xrGetActionStateFloat));
 	functions.emplace_back("xrLocateSpace", PFN_xrVoidFunction(thisLayer_xrLocateSpace));
+    functions.emplace_back("xrApplyHapticFeedback", PFN_xrVoidFunction(thisLayer_xrApplyHapticFeedback));
 
 #if XR_THISLAYER_HAS_EXTENSIONS
 	if (OpenXRLayer::IsExtensionEnabled("XR_TEST_test_me"))
