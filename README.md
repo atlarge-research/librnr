@@ -10,6 +10,12 @@ You can build the project using your IDE or the command line.
 CLion, Visual Studio, or Visual Studio Code are all good options.
 These IDEs have support CMake, either directly or through plugins.
 
+> [!WARNING]
+> When compiling for Windows, we experienced problems when using Clion's built-in MinGW toolchain.
+> (Maybe something to do with Windows path separators?)
+> This resulted in at least the following errors: `Failed loading layer information`.
+> We solved this by switching to Visual Studio's toolchain. Note that you can use this toolchain from Clion.
+
 To build the project using the command line, run the following commands in the project's root folder:
 
 ```bash
