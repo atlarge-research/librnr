@@ -287,10 +287,7 @@ XRAPI_ATTR XrResult XRAPI_CALL thisLayer_xrLocateSpace(XrSpace space, XrSpace ba
 	if (mode == tracer::Mode::REPLAY)
 	{
 		auto res = nextLayer_xrLocateSpace(space, baseSpace, time, location);
-		if (replayLocateSpace(space, baseSpace, time, location))
-		{
-			Log::Write(Log::Level::Info, "RNR location should be overwritten!");
-		}
+		replayLocateSpace(space, baseSpace, time, location);
 		return res;
 	}
 	else
