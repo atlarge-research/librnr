@@ -45,7 +45,9 @@ namespace tracer {
         }
 
         if (res == RECORD) {
-            create_directories(trace_file.remove_filename());
+            auto trace_dir = trace_file;
+            trace_dir.remove_filename();
+            create_directories(trace_dir);
         }
 
         trace.open(trace_file, filemode);
