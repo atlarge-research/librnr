@@ -40,6 +40,16 @@ A trace will now automatically will created in `trace.txt` when you start an Ope
 Before you can start replaying user input traces, please follow these steps:
 
 - Turn off "Display off" and "Sleep mode" in your Quest settings under Settings > System > Power.
+- Turn off "Hand and body tracking" in your Quest settings under Settings > Movement Tracking > Hand Tracking.
+- Stick a piece of paper onto the sensor between the lenses (on the MQP) to trick the headset into thinking it is being used, even when it is on the table.
+- Connect the MQP to the desktop machine using a USB cable and allow debugging via the Quest interface
+- Run the following commands (using the correct IP address) to set up a wireless adb connection:
+  ```
+  adb tcpip 5555
+  adb connect 192.168.0.155:5555
+  ```
+- Enable the Oculus overlay in the Quest via Quick Settings > Quest Link > Connect
+- You can now put the headset on the table
 
 To replay a trace, set the library mode to REPLAY in the `ListShims` function in `layer_shims.cpp` and recompile.
 A trace will now automatically be played back when you start an OpenXR application.
