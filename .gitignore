@@ -415,3 +415,4 @@ FodyWeavers.xsd
 .idea/
 cmake-build*
 CMakeSettings.json
+BeatSaberVersion.txt
