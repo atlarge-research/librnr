@@ -9,9 +9,6 @@ output:
 
 # Description
 
-Half-Life Alyx using Steam VR and a **wireless** Steam Link connection.
-I play the game upstairs, while the router is downstairs. This has a big impact of the performance! See the FPS drops!
-
 # Results
 
 ```{r setup, message = FALSE}
@@ -42,6 +39,65 @@ ggplot(aes(x = ts, y=fps)) +
 geom_line() +
 ylim(0, NA) +
 theme_half_open() + background_grid()
+```
+## Power Draw
+
+### CPU Frequency
+
+```{r battery_headset}
+if (file.exists("logcat_VrApi.log")) {
+cpu_freq <- system('grep -Po "(?<=CPU4/GPU=)[0-9]/[0-9],[0-9]+/[0-9]+(?=MHz,OC)" logcat_VrApi.log | cut -d, -f 2 | cut -d/ -f 1', intern = TRUE)
+data <- tibble(cpu_freq) %>% mutate(cpu_freq = as.numeric(cpu_freq)) %>% mutate(ts = 0:(n()-1)) %>% select(ts, everything())
+data %>%
+ggplot(aes(x = ts, y=cpu_freq)) +
+geom_line() +
+ylim(0, NA) +
+labs(y = "MHz", x = "time [s]") +
+theme_half_open() + background_grid()
+}
+```
+### GPU Frequency
+
+```{r battery_headset}
+if (file.exists("logcat_VrApi.log")) {
+gpu_freq <- system('grep -Po "(?<=CPU4/GPU=)[0-9]/[0-9],[0-9]+/[0-9]+(?=MHz,OC)" logcat_VrApi.log | cut -d, -f 2 | cut -d/ -f 2', intern = TRUE)
+data <- tibble(gpu_freq) %>% mutate(gpu_freq = as.numeric(gpu_freq)) %>% mutate(ts = 0:(n()-1)) %>% select(ts, everything())
+data %>%
+ggplot(aes(x = ts, y=gpu_freq)) +
+geom_line() +
+ylim(0, NA) +
+labs(y = "MHz", x = "time [s]") +
+theme_half_open() + background_grid()
+}
+```
+### CPU Level
+
+```{r battery_headset}
+if (file.exists("logcat_VrApi.log")) {
+cpu_freq <- system('grep -Po "(?<=CPU4/GPU=)[0-9]/[0-9],[0-9]+/[0-9]+(?=MHz,OC)" logcat_VrApi.log | cut -d, -f 1 | cut -d/ -f 1', intern = TRUE)
+data <- tibble(cpu_freq) %>% mutate(cpu_freq = as.numeric(cpu_freq)) %>% mutate(ts = 0:(n()-1)) %>% select(ts, everything())
+data %>%
+ggplot(aes(x = ts, y=cpu_freq)) +
+geom_line() +
+ylim(0, NA) +
+labs(y = "Level", x = "time [s]") +
+theme_half_open() + background_grid()
+}
+```
+
+### GPU Level
+
+```{r battery_headset}
+if (file.exists("logcat_VrApi.log")) {
+gpu_freq <- system('grep -Po "(?<=CPU4/GPU=)[0-9]/[0-9],[0-9]+/[0-9]+(?=MHz,OC)" logcat_VrApi.log | cut -d, -f 1 | cut -d/ -f 2', intern = TRUE)
+data <- tibble(gpu_freq) %>% mutate(gpu_freq = as.numeric(gpu_freq)) %>% mutate(ts = 0:(n()-1)) %>% select(ts, everything())
+data %>%
+ggplot(aes(x = ts, y=gpu_freq)) +
+geom_line() +
+ylim(0, NA) +
+labs(y = "Level", x = "time [s]") +
+theme_half_open() + background_grid()
+}
 ```
 
 ## Battery Levels
