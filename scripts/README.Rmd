@@ -64,7 +64,7 @@ theme_half_open() + background_grid()
 
 ```{r battery_controllers}
 if (file.exists("OVRRemoteService.log")) {
-battery <- system("grep -Po '(?<=Type:)\\s+(Left|Right),.+Battery:\\s+[0-9]+(?=%)' OVRRemoteService.log | tr -s ' ' | sed -e \'s/^[[:space:]]*//\' -e \'s/\\n[[:space:]]*//\' | cut -d' ' -f 1,5", intern=TRUE)
+battery <- system("grep -Po '(?<=Type:)\\s+(Left|Right),.+Battery:\\s+[0-9]+(?=%)' OVRRemoteService.log | tr -s ' ' | sed -e \'s/^[[:space:]]*//\' -e \'s/\\n[[:space:]]*//\' | cut -d' ' -f 1,7", intern=TRUE)
 data <- tibble(battery) %>% separate(battery, c("hand", "level"), convert = TRUE) %>% group_by(hand) %>% mutate(ts = 0:(n()-1)) %>% select(ts, everything())
 data %>%
 ggplot(aes(x=ts, y=level, color=hand)) +
