@@ -52,6 +52,10 @@ namespace tracer {
 
         trace.open(trace_file, filemode);
 
+        stringstream buffer;
+        buffer << "RNR Mode=" << ((res == REPLAY) ? "REPLAY" : "RECORD") << " File=" << trace_file;
+        Log::Write(Log::Level::Info, buffer.str());
+
         return res;
 	}
 
@@ -99,9 +103,9 @@ namespace tracer {
 		auto& l = fov.angleLeft;
 		auto& type = w.type;
 		auto& index = w.index;
-		trace << o.x << " " << o.y << " " << o.z << " " << o.w;
-		trace << p.x << " " << p.y << " " << p.z;
-		trace << u << " " << r << " " << d << " " << l << " " << type << " " << index;
+		trace << " " << o.x << " " << o.y << " " << o.z << " " << o.w;
+		trace << " " << p.x << " " << p.y << " " << p.z;
+		trace << " " << u << " " << r << " " << d << " " << l << " " << type << " " << index;
 		trace << endl;
 	}
 

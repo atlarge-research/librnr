@@ -296,40 +296,50 @@ XRAPI_ATTR XrResult XRAPI_CALL thisLayer_xrLocateSpace(XrSpace space, XrSpace ba
 	}
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL replayLocateViews(XrSession session, const XrViewLocateInfo *viewlocateInfo, XrViewState *viewState,
+bool replayLocateViews(XrSession session, const XrViewLocateInfo *viewlocateInfo, XrViewState *viewState,
 												 uint32_t viewCapacityInput, uint32_t *viewCountOutput, XrView *views)
 {
-	tracer::traceEntry entry;
-	entry.time = viewlocateInfo->displayTime;
-	entry.path = spaceToFullName[viewlocateInfo->space];
-	tracer::traceView w;
-	w.index = 0;
-	entry.body = w;
-	tracer::readNextView(&entry);
+    // TODO support mono view https://registry.khronos.org/OpenXR/specs/1.0/man/html/XrViewConfigurationType.html
 
-	auto &wl = get<tracer::traceView>(entry.body);
-	views[0].fov.angleUp = wl.fov.angleUp;
-	views[0].fov.angleRight = wl.fov.angleRight;
-	views[0].fov.angleDown = wl.fov.angleDown;
-	views[0].fov.angleLeft = wl.fov.angleLeft;
+    tracer::traceEntry lentry;
+	lentry.time = viewlocateInfo->displayTime;
+	lentry.path = spaceToFullName[viewlocateInfo->space];
+	tracer::traceView lw;
+	lw.index = 0;
+	lentry.body = lw;
+
+    tracer::traceEntry rentry;
+    rentry.time = viewlocateInfo->displayTime;
+    rentry.path = spaceToFullName[viewlocateInfo->space];
+    tracer::traceView rw;
+    rw.index = 1;
+    rentry.body = rw;
+
+    if (!tracer::readNextView(&rentry))
+    {
+        return false;
+    }
+
+    if (!tracer::readNextView(&lentry))
+    {
+        return false;
+    }
+
+    viewState->viewStateFlags = XR_VIEW_STATE_ORIENTATION_TRACKED_BIT | XR_VIEW_STATE_ORIENTATION_VALID_BIT | XR_VIEW_STATE_POSITION_TRACKED_BIT | XR_VIEW_STATE_POSITION_VALID_BIT;
+
+	auto &wl = get<tracer::traceView>(lentry.body);
+	views[0].fov = wl.fov;
 	views[0].pose = wl.pose;
 
-	// TODO support mono view https://registry.khronos.org/OpenXR/specs/1.0/man/html/XrViewConfigurationType.html
-	entry.time = viewlocateInfo->displayTime;
-	entry.path = spaceToFullName[viewlocateInfo->space];
-	wl.index = 1;
-	tracer::readNextView(&entry);
+	auto &wr = get<tracer::traceView>(rentry.body);
+	views[1].fov = wr.fov;
+	views[1].pose = wr.pose;
 
-	auto &wr = get<tracer::traceView>(entry.body);
-	views[0].fov.angleUp = wr.fov.angleUp;
-	views[0].fov.angleRight = wr.fov.angleRight;
-	views[0].fov.angleDown = wr.fov.angleDown;
-	views[0].fov.angleLeft = wr.fov.angleLeft;
-	views[0].pose = wr.pose;
+    assert(viewlocateInfo->viewConfigurationType == XR_VIEW_CONFIGURATION_TYPE_PRIMARY_STEREO);
 
 	*viewCountOutput = 2;
 
-	return XR_SUCCESS;
+	return true;
 }
 
 XRAPI_ATTR XrResult XRAPI_CALL recordLocateViews(XrSession session, const XrViewLocateInfo *viewlocateInfo, XrViewState *viewState,
@@ -370,10 +380,11 @@ XRAPI_ATTR XrResult XRAPI_CALL recordLocateViews(XrSession session, const XrView
 			tracer::traceEntry entry;
 			entry.time = viewlocateInfo->displayTime;
 			entry.type = 'v';
-			// TODO check if this entry exists in map
 			entry.path = spaceToFullName[viewlocateInfo->space];
 			tracer::traceView w;
-			w.pose = view.pose;
+            w.fov = view.fov;
+            w.pose = view.pose;
+            w.type = viewlocateInfo->viewConfigurationType;
 			w.index = i;
 			entry.body = w;
 			tracer::writeView(entry);
@@ -391,13 +402,14 @@ XRAPI_ATTR XrResult XRAPI_CALL thisLayer_xrLocateViews(XrSession session, const 
 													   uint32_t viewCapacityInput, uint32_t *viewCountOutput, XrView *views)
 {
 	static PFN_xrLocateViews nextLayer_xrLocateViews = GetNextLayerFunction(xrLocateViews);
-	if (mode == tracer::Mode::REPLAY)
+
+    if (mode == tracer::Mode::REPLAY)
 	{
-		// FIXME enable
-		// return replayLocateViews(session, viewlocateInfo, viewState, viewCapacityInput, viewCountOutput, views);
-		return nextLayer_xrLocateViews(session, viewlocateInfo, viewState, viewCapacityInput, viewCountOutput, views);
+		auto res = nextLayer_xrLocateViews(session, viewlocateInfo, viewState, viewCapacityInput, viewCountOutput, views);
+        replayLocateViews(session, viewlocateInfo, viewState, viewCapacityInput, viewCountOutput, views);
+        return res;
 	}
-	else
+    else
 	{
 		return recordLocateViews(session, viewlocateInfo, viewState, viewCapacityInput, viewCountOutput, views);
 	}
