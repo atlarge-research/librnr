@@ -1,7 +1,7 @@
 param (
     [Parameter(Mandatory)][System.IO.FileInfo]$TraceFile,
-    [Parameter(Mandatory)][System.IO.FileInfo]$App,
     [Parameter(Mandatory)][System.IO.FileInfo]$OutDir,
+    [System.IO.FileInfo]$App,
     [ValidateNotNullOrEmpty()][ValidateSet('record', 'replay')][System.String]$Mode = "replay"
 )
 
@@ -90,19 +90,28 @@ try {
     # Start tracing
     $TraceJob = Start-Job -InitializationScript $functions -ScriptBlock { Trace-Metrics $using:OutDir $using:PSScriptRoot }
 
-    # Obtain length of trace
-    $Seconds = (Get-Duration $TraceFile) + 5
+    if ($PSBoundParameters.ContainsKey('App')) {
+        # Start app
+        $Process = Start-Process -FilePath $App -PassThru
+    }
 
-    Write-Output "Will sleep for duration of trace: $Seconds seconds"
-
-    # Start app
-    $Process = Start-Process -FilePath $App -PassThru
-
-    # Wait for the trace to complete
-    Start-Sleep -Seconds $Seconds
-
-    # Stop app after tracing
-    Stop-Process $Process.Id -Force -ErrorAction SilentlyContinue
+    if ($Mode -eq "replay") {
+        # Obtain length of trace
+        $Seconds = (Get-Duration $TraceFile) + 5
+        # Wait for the trace to complete
+        Write-Output "Will sleep for duration of trace: $Seconds seconds"
+        Start-Sleep -Seconds $Seconds
+    } else {
+        # Recording, sleep until the user stops the script with an interrupt
+        while ($True) {
+            Start-Sleep 5
+        }
+    }
+} finally {
+    if ($PSBoundParameters.ContainsKey('App')) {
+        # Stop app after tracing
+        Stop-Process $Process.Id -Force -ErrorAction SilentlyContinue
+    }
 
     # Stop tracing
     Stop-Job $TraceJob
@@ -110,8 +119,5 @@ try {
     # Plot results
     Copy-Item -Path .\README.Rmd $OutDir
 
-    Write-Output "Trace complete. Open $OutDir\README.Rmd to view results."
-} finally {
-    Stop-Process $Process.Id -Force -ErrorAction SilentlyContinue
-    Stop-Job $TraceJob
+    Write-Output "Done $($Mode)ing trace. Open $OutDir\README.Rmd to view results."
 }
