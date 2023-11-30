@@ -1,0 +1,20 @@
+(base) jesse@Jesses-XPS-2022:~/repos/librnr/network-measurement-scripts$ ./measurebw.sh 
+iperf3: error - unable to send control message: Broken pipe
+iperf3: error - unable to send control message: Broken pipe
+^C./measurebw.sh: line 1: kill: (150403) - No such process
+./measurebw.sh: line 1: kill: (150404) - No such process
+./measurebw.sh: line 1: kill: (150405) - No such process
+./measurebw.sh: line 1: kill: (150406) - No such process
+
+(base) jesse@Jesses-XPS-2022:~/repos/librnr/network-measurement-scripts$ ./measurebw.sh 
+iperf3: error - unable to connect stream: Connection timed out
+iperf3: error - unable to send control message: Bad file descriptor
+iperf3: error - unable to connect stream: Connection timed out
+iperf3: error - unable to connect stream: Connection timed out
+iperf3: error - unable to send control message: Bad file descriptor
+iperf3: error - unable to connect stream: Connection timed out
+iperf3: error - unable to send control message: Broken pipe
+iperf3: error - unable to send control message: Bad file descriptor
+iperf3: error - unable to send control message: Broken pipe
+iperf3: error - unable to connect stream: Connection timed out
+^C
