@@ -17,6 +17,6 @@ Invoke-WebRequest -Uri "https://github.com/atlarge-research/librnr/releases/late
 
 # Download rnr.dll
 Write-Output "downloading library..."
-Invoke-WebRequest -Uri "https://github.com/atlarge-research/librnr/releases/latest/download/librnr.dll" -OutFile $rnrFilePath
+Invoke-WebRequest -Uri "https://github.com/atlarge-research/librnr/releases/latest/download/rnr.dll" -OutFile $rnrFilePath
 
 Write-Output "done!"

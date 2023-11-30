@@ -8,8 +8,9 @@ param (
 $functions = {
     function Trace-Metrics([string]$OutDir, [string]$PSScriptRoot)
     {
+        "Trace-Metrics: OutDir: $OutDir, PSScriptRoot: $PSScriptRoot" | Out-Host
         # https://xkln.net/blog/powershell-sleep-duration-accuracy-and-windows-timers/
-
+        Write-Host "Starting VR monitor..."
         adb shell "cat /proc/version" >> "$OutDir\version.log"
         adb shell "cat /proc/cpuinfo" >> "$OutDir\cpuinfo.log"
 
@@ -38,6 +39,8 @@ $functions = {
                     $HostJob = Start-Job -ScriptBlock { python "$using:PSScriptRoot\sample-host-metrics.py" $using:OutDir }
                 }
 
+                Write-Host "Collecting metrics..."
+
                 adb shell "cat /proc/uptime" >> "$OutDir\uptime.log"
                 adb shell "cat /proc/net/dev" >> "$OutDir\net_dev.log"
                 adb shell "cat /proc/meminfo" >> "$OutDir\meminfo.log"
@@ -57,6 +60,7 @@ $functions = {
                 } While ($Sleep -lt 0)
                 [System.Threading.Thread]::Sleep($Sleep * (1000.0 / $Freq))
             }
+            Write-Host "Done collecting metrics."
         }
         finally
         {
@@ -78,8 +82,8 @@ function Get-Duration([System.IO.FileInfo]$TraceFile) {
 }
 
 try {
-    $rnrDirPath = "$env:LOCALAPPDATA\librnr"
-    $modeFilePath = "$rnrDirPath\config.txt"
+    $rnrDirPath = "C:\Program Files\librnr"
+    $modeFilePath = "$env:LOCALAPPDATA\librnr\config.txt"
 
     # Create the output directory, if needed
     New-Item $OutDir -ItemType Directory -Force | Out-Null
@@ -89,6 +93,8 @@ try {
 
     # Start tracing
     $TraceJob = Start-Job -InitializationScript $functions -ScriptBlock { Trace-Metrics $using:OutDir $using:PSScriptRoot }
+
+    Write-Host "PSScriptRoot: $PSScriptRoot"
 
     if ($PSBoundParameters.ContainsKey('App')) {
         # Start app
@@ -103,11 +109,15 @@ try {
         Start-Sleep -Seconds $Seconds
     } else {
         # Recording, sleep until the user stops the script with an interrupt
+        Write-Output "Trace recording. Press Ctrl+C to stop the recording."
         while ($True) {
             Start-Sleep 5
+            Write-Output "oh no! cringe!"
         }
     }
 } finally {
+    Write-Host "Stopping trace, please wait..."
+
     if ($PSBoundParameters.ContainsKey('App')) {
         # Stop app after tracing
         Stop-Process $Process.Id -Force -ErrorAction SilentlyContinue
@@ -119,5 +129,5 @@ try {
     # Plot results
     Copy-Item -Path .\README.Rmd $OutDir
 
-    Write-Output "Done $($Mode)ing trace. Open $OutDir\README.Rmd to view results."
+    Write-Host "Done $($Mode)ing trace. Open $OutDir\README.Rmd to view results."
 }
