@@ -45,7 +45,13 @@ namespace tracer
 		XrTime lastChanged;
 	};
 
-	using traceBody = variant<traceLocation, traceView, traceActionBoolean, traceActionFloat>;
+	struct traceApplyHaptic
+	{
+        XrBool32 value;
+        XrTime lastChanged;
+	};
+
+	using traceBody = variant<traceLocation, traceView, traceActionBoolean, traceActionFloat, traceApplyHaptic>;
 
 	struct traceEntry
 	{
@@ -65,4 +71,6 @@ namespace tracer
 	bool readNextActionFloat(traceEntry *);
 	void writeActionBoolean(traceEntry);
 	bool readNextActionBoolean(traceEntry *);
+	void writeApplyHaptic(traceEntry);
+	bool readNextApplyHaptic(traceEntry *);
 }

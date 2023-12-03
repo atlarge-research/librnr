@@ -16,11 +16,18 @@
 #define ALOGV(...) __android_log_print(ANDROID_LOG_VERBOSE, "hello_xr", __VA_ARGS__)
 #endif
 
+#include <filesystem>
+#include <fstream>
+#include <stdlib.h>
+
 namespace
 {
     Log::Level g_minSeverity{Log::Level::Info};
     std::mutex g_logLock;
 } // namespace
+
+
+namespace fs = std::filesystem;
 
 namespace Log
 {
@@ -56,7 +63,20 @@ namespace Log
 
         std::lock_guard<std::mutex> lock(g_logLock); // Ensure output is serialized
         ((severity == Level::Error) ? std::clog : std::cout) << out.str();
+    
+        
+        static std::ofstream logfile;
+        
+        if(!logfile.is_open()){
+            auto config = fs::path("C:/Users/Paul/AppData/Local/librnr/logfile.txt");
+            logfile.open(config, std::ofstream::out);
+
+        }
+        
+        logfile << out.str();
+
 #if defined(_WIN32)
+
         OutputDebugStringA(out.str().c_str());
 #endif
 #if defined(ANDROID)

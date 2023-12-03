@@ -21,6 +21,7 @@ namespace tracer {
 	map<string, map<uint32_t, traceEntry>> viewMap;
 	map<string, traceEntry> floatActionMap;
 	map<string, traceEntry> booleanActionMap;
+	map<string, traceEntry> hapticActionMap;
 
 	Mode init()
 	{
@@ -175,6 +176,15 @@ namespace tracer {
 			entry->body = f;
 			floatActionMap[entry->path] = *entry;
 		}
+		else if (entry->type == 'h') 
+		{
+			traceApplyHaptic h{};
+			auto& value = h.value;
+
+			sstream >> value;
+			entry->body = h;
+			hapticActionMap[entry->path] = *entry;
+		}
 		else {
 			stringstream buffer;
 			buffer << "RNR ERROR invalid trace entry type: " << entry->type;
@@ -289,5 +299,32 @@ namespace tracer {
 
 		*e = booleanActionMap[e->path];
 		return true;
+	}
+
+	void writeApplyHaptic(traceEntry e)
+	{
+        assert(holds_alternative<traceApplyHaptic>(e.body));
+        auto& h = get<traceApplyHaptic>(e.body);
+
+        writeHead(e);
+        trace << " " << h.value;
+        trace << endl;
+	}
+
+	bool readNextApplyHaptic(traceEntry* e)
+	{
+        assert(holds_alternative<traceApplyHaptic>(e->body));
+        auto& h = get<traceApplyHaptic>(e->body);
+
+
+        traceEntry outEntry;
+        outEntry.time = e->time;
+        if (!readUntil(&outEntry) || hapticActionMap.find(e->path) == hapticActionMap.end())
+        {
+                return false;
+        }
+
+        *e = hapticActionMap[e->path];
+        return true;
 	}
 }

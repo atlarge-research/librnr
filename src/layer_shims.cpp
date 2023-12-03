@@ -29,6 +29,11 @@ map<XrSpace, string> spaceToFullName;
 
 tracer::Mode mode;
 XrTime frameTime = 0;
+XrTime offsetTime = 0;
+
+XrTime get_offset_frameTime() {
+       return frameTime + offsetTime;
+}
 
 // IMPORTANT: to allow for multiple instance creation/destruction, the context of the layer must be re-initialized when the instance is being destroyed.
 // Hooking xrDestroyInstance is the best way to do that.
@@ -583,13 +588,42 @@ XRAPI_ATTR XrResult XRAPI_CALL thisLayer_xrGetActionStateBoolean(XrSession sessi
 	return res;
 }
 
+void recordApplyHapticFeedback(XrHapticActionInfo* hapticActionInfo, XrHapticBaseHeader* hapticBaseHeader)
+{
+       // look up the paths mapped to this action
+       if (auto search = actionBindingMap.find(hapticActionInfo->action); search != actionBindingMap.end())
+       {
+               // iterate over all paths for this action
+               auto paths = actionBindingMap[hapticActionInfo->action];
+               for (auto p : paths)
+               {
+                       // check which path got activated
+                       auto ps = pathToString[p];
+                       auto pss = pathToString[hapticActionInfo->subactionPath];
+                       if (ps.rfind(pss, 0) == 0)
+                       {
+                               // log the path and the data for the action
+                               tracer::traceEntry e = {get_offset_frameTime(), 'h', ps};
+                               tracer::traceApplyHaptic taf = {true};
+                               e.body = taf;
+                               tracer::writeActionBoolean(e);
+                       }
+               }
+       }
+}
+
 XRAPI_ATTR XrResult XRAPI_CALL thisLayer_xrApplyHapticFeedback(XrSession session, XrHapticActionInfo* hapticActionInfo, XrHapticBaseHeader* hapticBaseHeader) {
     static PFN_xrApplyHapticFeedback nextLayer_xrApplyHapticFeedback = GetNextLayerFunction(xrApplyHapticFeedback);
     // Disable haptic feedback when in replay mode
     if (mode == tracer::REPLAY) {
-        return XR_SUCCESS;
-    }
-    auto res = nextLayer_xrApplyHapticFeedback(session, hapticActionInfo, hapticBaseHeader);
+    	return XR_SUCCESS;
+	}
+	
+	if (mode == tracer::RECORD) {
+    	recordApplyHapticFeedback(hapticActionInfo, hapticBaseHeader);
+	}
+
+	auto res = nextLayer_xrApplyHapticFeedback(session, hapticActionInfo, hapticBaseHeader);
     return res;
 }
 
