@@ -504,6 +504,91 @@ XRAPI_ATTR XrResult XRAPI_CALL thisLayer_xrGetActionStateFloat(XrSession session
 	return res;
 }
 
+bool replayGetActionStateVector2f(const XrActionStateGetInfo *getInfo, XrActionStateVector2f *state)
+{
+	tracer::traceEntry e;
+	e.time = frameTime;
+	// look up the paths mapped to this action
+	if (auto search = actionBindingMap.find(getInfo->action); search != actionBindingMap.end())
+	{
+		// iterate over all paths for this action
+		auto paths = actionBindingMap[getInfo->action];
+		for (auto p : paths)
+		{
+			// check which path got activated
+			auto ps = pathToString[p];
+			auto pss = pathToString[getInfo->subactionPath];
+			if (ps.rfind(pss, 0) == 0)
+			{
+				e.path = ps;
+			}
+		}
+	}
+	e.body = tracer::traceActionVector2f{};
+	if (!tracer::readNextActionVector2f(&e))
+	{
+		return false;
+	}
+	assert(holds_alternative<tracer::traceActionVector2f>(e.body));
+	auto &f = get<tracer::traceActionVector2f>(e.body);
+	state->changedSinceLastSync = f.changed;
+	state->currentState = f.value;
+	state->isActive = true;
+	state->lastChangeTime = f.lastChanged;
+	return true;
+}
+
+void recordGetActionStateVector2f(const XrActionStateGetInfo *getInfo, XrActionStateVector2f *state)
+{
+	static bool previousWasChanged = true;
+	auto changed = state->changedSinceLastSync;
+	auto value = state->currentState;
+	auto isActive = state->isActive;
+	auto lastChanged = state->lastChangeTime;
+
+	// we don't need all values. especially if there are long periods that noting happens. check if we need to log
+	if (changed || (previousWasChanged && !changed))
+	{
+		// look up the paths mapped to this action
+		if (auto search = actionBindingMap.find(getInfo->action); search != actionBindingMap.end())
+		{
+			// iterate over all paths for this action
+			auto paths = actionBindingMap[getInfo->action];
+			for (auto p : paths)
+			{
+				// check which path got activated
+				auto ps = pathToString[p];
+				auto pss = pathToString[getInfo->subactionPath];
+				if (ps.rfind(pss, 0) == 0)
+				{
+					// log the path and the data for the action
+					tracer::traceEntry e = {frameTime, 'p', ps};
+					tracer::traceActionVector2f taf = {changed, value.x, value.y, isActive, lastChanged};
+					e.body = taf;
+					tracer::writeActionVector2f(e);
+				}
+			}
+		}
+	}
+	previousWasChanged = changed;
+}
+
+XRAPI_ATTR XrResult XRAPI_CALL thisLayer_xrGetActionStateVector2f(XrSession session, const XrActionStateGetInfo *getInfo, XrActionStateVector2f *state)
+{
+	static PFN_xrGetActionStateVector2f nextLayer_xrGetActionStateFloat = GetNextLayerFunction(xrGetActionStateVector2f);
+	auto res = nextLayer_xrGetActionStateFloat(session, getInfo, state);
+	if (mode == tracer::Mode::REPLAY)
+	{
+		replayGetActionStateVector2f(getInfo, state);
+	}
+	else
+	{
+		recordGetActionStateVector2f(getInfo, state);
+	}
+
+	return res;
+}
+
 bool replayGetActionStateBoolean(const XrActionStateGetInfo *getInfo, XrActionStateBoolean *state)
 {
 	tracer::traceEntry e;
@@ -606,7 +691,7 @@ void recordApplyHapticFeedback(XrHapticActionInfo* hapticActionInfo, XrHapticBas
                                tracer::traceEntry e = {get_offset_frameTime(), 'h', ps};
                                tracer::traceApplyHaptic taf = {true};
                                e.body = taf;
-                               tracer::writeActionBoolean(e);
+                               tracer::writeApplyHaptic(e);
                        }
                }
        }
@@ -657,6 +742,7 @@ std::vector<OpenXRLayer::ShimFunction> ListShims()
 	functions.emplace_back("xrCreateReferenceSpace", PFN_xrVoidFunction(thisLayer_xrCreateReferenceSpace));
 	functions.emplace_back("xrGetActionStateBoolean", PFN_xrVoidFunction(thisLayer_xrGetActionStateBoolean));
 	functions.emplace_back("xrGetActionStateFloat", PFN_xrVoidFunction(thisLayer_xrGetActionStateFloat));
+	functions.emplace_back("xrGetActionStateVector2f", PFN_xrVoidFunction(thisLayer_xrGetActionStateVector2f));
 	functions.emplace_back("xrLocateSpace", PFN_xrVoidFunction(thisLayer_xrLocateSpace));
     functions.emplace_back("xrApplyHapticFeedback", PFN_xrVoidFunction(thisLayer_xrApplyHapticFeedback));
 

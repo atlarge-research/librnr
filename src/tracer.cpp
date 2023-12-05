@@ -22,6 +22,7 @@ namespace tracer {
 	map<string, traceEntry> floatActionMap;
 	map<string, traceEntry> booleanActionMap;
 	map<string, traceEntry> hapticActionMap;
+	map<string, traceEntry> vector2fActionMap;
 
 	Mode init()
 	{
@@ -185,6 +186,15 @@ namespace tracer {
 			entry->body = h;
 			hapticActionMap[entry->path] = *entry;
 		}
+		else if (entry->type == 'p') 
+		{
+			traceActionVector2f p{};
+			auto& value = p.value;
+
+			sstream >> value.x >> value.y;
+			entry->body = p;
+			vector2fActionMap[entry->path] = *entry;
+		}
 		else {
 			stringstream buffer;
 			buffer << "RNR ERROR invalid trace entry type: " << entry->type;
@@ -272,6 +282,32 @@ namespace tracer {
 		}
 
 		*e = floatActionMap[e->path];
+		return true;
+	}
+
+	void writeActionVector2f(traceEntry e)
+	{
+		assert(holds_alternative<traceActionVector2f>(e.body));
+		auto& f = get<traceActionVector2f>(e.body);
+
+		writeHead(e);
+		trace << " " << f.changed << " " << f.isActive << " " << f.lastChanged << " " << f.value.x << " " << f.value.y;
+		trace << endl;
+	}
+
+	bool readNextActionVector2f(traceEntry* e)
+	{
+		assert(holds_alternative<traceActionVector2f>(e->body));
+		auto& f = get<traceActionVector2f>(e->body);
+
+		traceEntry outEntry;
+		outEntry.time = e->time;
+		if (!readUntil(&outEntry) || vector2fActionMap.find(e->path) == vector2fActionMap.end())
+		{
+			return false;
+		}
+
+		*e = vector2fActionMap[e->path];
 		return true;
 	}
 
