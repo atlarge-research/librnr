@@ -30,7 +30,9 @@ namespace
 namespace fs = std::filesystem;
 
 namespace Log
-{
+{    
+    static std::ofstream logfile;
+
     void SetLevel(Level minSeverity) { g_minSeverity = minSeverity; }
 
     void Write(Level severity, const std::string &msg)
@@ -63,17 +65,6 @@ namespace Log
 
         std::lock_guard<std::mutex> lock(g_logLock); // Ensure output is serialized
         ((severity == Level::Error) ? std::clog : std::cout) << out.str();
-    
-        
-        static std::ofstream logfile;
-        
-        if(!logfile.is_open()){
-            auto config = fs::path("C:/Users/Paul/AppData/Local/librnr/logfile.txt");
-            logfile.open(config, std::ofstream::out);
-
-        }
-        
-        logfile << out.str();
 
 #if defined(_WIN32)
 

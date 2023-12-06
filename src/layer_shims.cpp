@@ -532,7 +532,8 @@ bool replayGetActionStateVector2f(const XrActionStateGetInfo *getInfo, XrActionS
 	assert(holds_alternative<tracer::traceActionVector2f>(e.body));
 	auto &f = get<tracer::traceActionVector2f>(e.body);
 	state->changedSinceLastSync = f.changed;
-	state->currentState = f.value;
+	state->currentState.x = f.value.x;
+	state->currentState.y = f.value.y;
 	state->isActive = true;
 	state->lastChangeTime = f.lastChanged;
 	return true;

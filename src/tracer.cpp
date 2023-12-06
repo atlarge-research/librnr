@@ -15,6 +15,7 @@ namespace fs = std::filesystem;
 
 namespace tracer {
 	fstream trace;
+	fstream log;
 
 	XrTime mostRecentEntry;
 	map<string, map<string, traceEntry>> spaceMap;
@@ -53,6 +54,12 @@ namespace tracer {
         }
 
         trace.open(trace_file, filemode);
+		
+		// Logging logic
+		// auto log_config = fs::path(config_str);
+		// log_config = log_config / "librnr" / "config.txt";
+
+        // log.open(log_config, std::ofstream::out);
 
         stringstream buffer;
         buffer << "RNR Mode=" << ((res == REPLAY) ? "REPLAY" : "RECORD") << " File=" << trace_file;
