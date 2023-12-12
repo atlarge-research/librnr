@@ -1,39 +1,37 @@
 param (
-    [Parameter(Mandatory)][System.IO.FileInfo]$TraceFile,
+    [System.IO.FileInfo]$TraceFile = "trace.txt",
     [Parameter(Mandatory)][System.IO.FileInfo]$OutDir,
     [System.IO.FileInfo]$App,
-    [ValidateNotNullOrEmpty()][ValidateSet('record', 'replay')][System.String]$Mode = "replay"
+    [ValidateNotNullOrEmpty()][ValidateSet('record', 'replay')][System.String]$Mode = "replay",
+    [switch]$NoHostTrace
 )
 
 $functions = {
-    function Trace-Metrics([string]$OutDir, [string]$PSScriptRoot)
-    {
+    function Trace-Metrics([string]$OutDir, [string]$PSScriptRoot) {
         # https://xkln.net/blog/powershell-sleep-duration-accuracy-and-windows-timers/
 
         adb shell "cat /proc/version" >> "$OutDir\version.log"
         adb shell "cat /proc/cpuinfo" >> "$OutDir\cpuinfo.log"
 
         $VrJob = Start-Job -ScriptBlock { adb logcat -s VrApi >> "$using:OutDir\logcat_VrApi.log" }
-        $HostJob = Start-Job -ScriptBlock { python "$using:PSScriptRoot\sample-host-metrics.py" $using:OutDir }
+        if (-not ($NoHostTrace)) {
+            $HostJob = Start-Job -ScriptBlock { python "$using:PSScriptRoot\sample-host-metrics.py" $using:OutDir }
+        }
 
         $Freq = [System.Diagnostics.Stopwatch]::Frequency
 
         $Start = [System.Diagnostics.Stopwatch]::GetTimestamp()
         $i = 0
 
-        try
-        {
-            While ($True)
-            {
+        try {
+            While ($True) {
                 [System.DateTime]::Now.ToString("HH:mm:ss.fff")
 
-                if ($VrJob.State -ne "Running")
-                {
+                if ($VrJob.State -ne "Running") {
                     Write-Host "Oh no! Restarting adb logcat"
                     $VrJob = Start-Job -ScriptBlock { adb logcat -s VrApi >> "$using:OutDir\logcat_VrApi.log" }
                 }
-                if ($HostJob.State -ne "Running")
-                {
+                if ((-not ($NoHostTrace)) -and ($HostJob.State -ne "Running")) {
                     Write-Host "Oh no! Restarting python script"
                     $HostJob = Start-Job -ScriptBlock { python "$using:PSScriptRoot\sample-host-metrics.py" $using:OutDir }
                 }
@@ -49,8 +47,7 @@ $functions = {
                 adb shell "dumpsys CompanionService" >> "$OutDir\CompanionService.log"
 
                 $End = [System.Diagnostics.Stopwatch]::GetTimestamp()
-                Do
-                {
+                Do {
                     $i = $i + 1
                     $Next = $Start + ($i * $Freq)
                     $Sleep = $Next - $End
@@ -58,8 +55,7 @@ $functions = {
                 [System.Threading.Thread]::Sleep($Sleep * (1000.0 / $Freq))
             }
         }
-        finally
-        {
+        finally {
             Write-Host "Stopping VR monitor..."
             Stop-Job $VrJob
             Write-Host "Stopping host monitor..."
@@ -101,13 +97,15 @@ try {
         # Wait for the trace to complete
         Write-Output "Will sleep for duration of trace: $Seconds seconds"
         Start-Sleep -Seconds $Seconds
-    } else {
+    }
+    else {
         # Recording, sleep until the user stops the script with an interrupt
         while ($True) {
             Start-Sleep 5
         }
     }
-} finally {
+}
+finally {
     if ($PSBoundParameters.ContainsKey('App')) {
         # Stop app after tracing
         Stop-Process $Process.Id -Force -ErrorAction SilentlyContinue
