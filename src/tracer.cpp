@@ -54,12 +54,6 @@ namespace tracer {
         }
 
         trace.open(trace_file, filemode);
-		
-		// Logging logic
-		// auto log_config = fs::path(config_str);
-		// log_config = log_config / "librnr" / "config.txt";
-
-        // log.open(log_config, std::ofstream::out);
 
         stringstream buffer;
         buffer << "RNR Mode=" << ((res == REPLAY) ? "REPLAY" : "RECORD") << " File=" << trace_file;
@@ -196,9 +190,12 @@ namespace tracer {
 		else if (entry->type == 'p') 
 		{
 			traceActionVector2f p{};
+			auto& changed = p.changed;
+			auto& isActive = p.isActive;
+			auto& lastChanged = p.lastChanged;
 			auto& value = p.value;
 
-			sstream >> value.x >> value.y;
+			sstream >> changed >> isActive >> lastChanged >> value.x >> value.y;
 			entry->body = p;
 			vector2fActionMap[entry->path] = *entry;
 		}
