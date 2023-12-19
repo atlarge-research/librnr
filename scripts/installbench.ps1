@@ -6,6 +6,9 @@ $rnrFilePath = "$rnrDirPath\rnr.dll"
 $Path = "HKLM:\SOFTWARE\Khronos\OpenXR\1\ApiLayers\Implicit"
 
 # Create or set registry key value to 0 to enable library
+if (!(Test-Path $Path)) {
+    New-Item -Path $Path -Force | Out-Null
+}
 Set-ItemProperty -Path $Path -Name $Name -Value 0 -Type DWord
 
 # Create librnr directory
@@ -17,6 +20,6 @@ Invoke-WebRequest -Uri "https://github.com/atlarge-research/librnr/releases/late
 
 # Download rnr.dll
 Write-Output "downloading library..."
-Invoke-WebRequest -Uri "https://github.com/atlarge-research/librnr/releases/latest/download/librnr.dll" -OutFile $rnrFilePath
+Invoke-WebRequest -Uri "https://github.com/atlarge-research/librnr/releases/latest/download/rnr.dll" -OutFile $rnrFilePath
 
 Write-Output "done!"
