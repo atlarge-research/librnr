@@ -699,10 +699,8 @@ XRAPI_ATTR XrResult XRAPI_CALL thisLayer_xrApplyHapticFeedback(XrSession session
     	return XR_SUCCESS;
 	}
 	
-	if (mode == tracer::RECORD) {
-    	recordApplyHapticFeedback(hapticActionInfo, hapticBaseHeader);
-	}
-
+	recordApplyHapticFeedback(hapticActionInfo, hapticBaseHeader);
+	
 	auto res = nextLayer_xrApplyHapticFeedback(session, hapticActionInfo, hapticBaseHeader);
     return res;
 }
