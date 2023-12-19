@@ -29,11 +29,6 @@ map<XrSpace, string> spaceToFullName;
 
 tracer::Mode mode;
 XrTime frameTime = 0;
-XrTime offsetTime = 0;
-
-XrTime get_offset_frameTime() {
-       return frameTime + offsetTime;
-}
 
 // IMPORTANT: to allow for multiple instance creation/destruction, the context of the layer must be re-initialized when the instance is being destroyed.
 // Hooking xrDestroyInstance is the best way to do that.
@@ -688,7 +683,7 @@ void recordApplyHapticFeedback(XrHapticActionInfo* hapticActionInfo, XrHapticBas
                        if (ps.rfind(pss, 0) == 0)
                        {
                                // log the path and the data for the action
-                               tracer::traceEntry e = {get_offset_frameTime(), 'h', ps};
+                               tracer::traceEntry e = {frameTime, 'h', ps};
                                tracer::traceApplyHaptic taf = {true};
                                e.body = taf;
                                tracer::writeApplyHaptic(e);
