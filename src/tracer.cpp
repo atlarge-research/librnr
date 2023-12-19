@@ -15,7 +15,6 @@ namespace fs = std::filesystem;
 
 namespace tracer {
 	fstream trace;
-	fstream log;
 
 	XrTime mostRecentEntry;
 	map<string, map<string, traceEntry>> spaceMap;
