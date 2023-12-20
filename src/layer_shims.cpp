@@ -742,7 +742,7 @@ std::vector<OpenXRLayer::ShimFunction> ListShims()
 	functions.emplace_back("xrGetActionStateFloat", PFN_xrVoidFunction(thisLayer_xrGetActionStateFloat));
 	functions.emplace_back("xrGetActionStateVector2f", PFN_xrVoidFunction(thisLayer_xrGetActionStateVector2f));
 	functions.emplace_back("xrLocateSpace", PFN_xrVoidFunction(thisLayer_xrLocateSpace));
-    functions.emplace_back("xrApplyHapticFeedback", PFN_xrVoidFunction(thisLayer_xrApplyHapticFeedback));
+	functions.emplace_back("xrApplyHapticFeedback", PFN_xrVoidFunction(thisLayer_xrApplyHapticFeedback));
 
 #if XR_THISLAYER_HAS_EXTENSIONS
 	if (OpenXRLayer::IsExtensionEnabled("XR_TEST_test_me"))
