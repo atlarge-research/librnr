@@ -299,33 +299,33 @@ XRAPI_ATTR XrResult XRAPI_CALL thisLayer_xrLocateSpace(XrSpace space, XrSpace ba
 bool replayLocateViews(XrSession session, const XrViewLocateInfo *viewlocateInfo, XrViewState *viewState,
 												 uint32_t viewCapacityInput, uint32_t *viewCountOutput, XrView *views)
 {
-    // TODO support mono view https://registry.khronos.org/OpenXR/specs/1.0/man/html/XrViewConfigurationType.html
+	// TODO support mono view https://registry.khronos.org/OpenXR/specs/1.0/man/html/XrViewConfigurationType.html
 
-    tracer::traceEntry lentry;
+	tracer::traceEntry lentry;
 	lentry.time = viewlocateInfo->displayTime;
 	lentry.path = spaceToFullName[viewlocateInfo->space];
 	tracer::traceView lw;
 	lw.index = 0;
 	lentry.body = lw;
 
-    tracer::traceEntry rentry;
-    rentry.time = viewlocateInfo->displayTime;
-    rentry.path = spaceToFullName[viewlocateInfo->space];
-    tracer::traceView rw;
-    rw.index = 1;
-    rentry.body = rw;
+	tracer::traceEntry rentry;
+	rentry.time = viewlocateInfo->displayTime;
+	rentry.path = spaceToFullName[viewlocateInfo->space];
+	tracer::traceView rw;
+	rw.index = 1;
+	rentry.body = rw;
 
-    if (!tracer::readNextView(&rentry))
-    {
-        return false;
-    }
+	if (!tracer::readNextView(&rentry))
+	{
+		return false;
+	}
 
-    if (!tracer::readNextView(&lentry))
-    {
-        return false;
-    }
+	if (!tracer::readNextView(&lentry))
+	{
+		return false;
+	}
 
-    viewState->viewStateFlags = XR_VIEW_STATE_ORIENTATION_TRACKED_BIT | XR_VIEW_STATE_ORIENTATION_VALID_BIT | XR_VIEW_STATE_POSITION_TRACKED_BIT | XR_VIEW_STATE_POSITION_VALID_BIT;
+	viewState->viewStateFlags = XR_VIEW_STATE_ORIENTATION_TRACKED_BIT | XR_VIEW_STATE_ORIENTATION_VALID_BIT | XR_VIEW_STATE_POSITION_TRACKED_BIT | XR_VIEW_STATE_POSITION_VALID_BIT;
 
 	auto &wl = get<tracer::traceView>(lentry.body);
 	views[0].fov = wl.fov;
@@ -335,7 +335,7 @@ bool replayLocateViews(XrSession session, const XrViewLocateInfo *viewlocateInfo
 	views[1].fov = wr.fov;
 	views[1].pose = wr.pose;
 
-    assert(viewlocateInfo->viewConfigurationType == XR_VIEW_CONFIGURATION_TYPE_PRIMARY_STEREO);
+	assert(viewlocateInfo->viewConfigurationType == XR_VIEW_CONFIGURATION_TYPE_PRIMARY_STEREO);
 
 	*viewCountOutput = 2;
 
@@ -382,9 +382,9 @@ XRAPI_ATTR XrResult XRAPI_CALL recordLocateViews(XrSession session, const XrView
 			entry.type = 'v';
 			entry.path = spaceToFullName[viewlocateInfo->space];
 			tracer::traceView w;
-            w.fov = view.fov;
-            w.pose = view.pose;
-            w.type = viewlocateInfo->viewConfigurationType;
+			w.fov = view.fov;
+			w.pose = view.pose;
+			w.type = viewlocateInfo->viewConfigurationType;
 			w.index = i;
 			entry.body = w;
 			tracer::writeView(entry);
@@ -403,13 +403,13 @@ XRAPI_ATTR XrResult XRAPI_CALL thisLayer_xrLocateViews(XrSession session, const 
 {
 	static PFN_xrLocateViews nextLayer_xrLocateViews = GetNextLayerFunction(xrLocateViews);
 
-    if (mode == tracer::Mode::REPLAY)
+	if (mode == tracer::Mode::REPLAY)
 	{
 		auto res = nextLayer_xrLocateViews(session, viewlocateInfo, viewState, viewCapacityInput, viewCountOutput, views);
-        replayLocateViews(session, viewlocateInfo, viewState, viewCapacityInput, viewCountOutput, views);
-        return res;
+		replayLocateViews(session, viewlocateInfo, viewState, viewCapacityInput, viewCountOutput, views);
+		return res;
 	}
-    else
+	else
 	{
 		return recordLocateViews(session, viewlocateInfo, viewState, viewCapacityInput, viewCountOutput, views);
 	}
@@ -457,7 +457,7 @@ void recordGetActionStateFloat(const XrActionStateGetInfo *getInfo, XrActionStat
 	auto isActive = state->isActive;
 	auto lastChanged = state->lastChangeTime;
 
-	// we don't need all values. especially if there are long periods that noting happens. check if we need to log
+	// we don't need all values. especially if there are long periods that nothing happens. check if we need to log
 	if (changed || (previousWasChanged && !changed))
 	{
 		// look up the paths mapped to this action
@@ -496,6 +496,96 @@ XRAPI_ATTR XrResult XRAPI_CALL thisLayer_xrGetActionStateFloat(XrSession session
 	{
 		recordGetActionStateFloat(getInfo, state);
 	}
+	return res;
+}
+
+bool replayGetActionStateVector2f(const XrActionStateGetInfo *getInfo, XrActionStateVector2f *state)
+{
+	tracer::traceEntry e;
+	e.time = frameTime;
+	// look up the paths mapped to this action
+	if (auto search = actionBindingMap.find(getInfo->action); search != actionBindingMap.end())
+	{
+		// iterate over all paths for this action
+		auto paths = actionBindingMap[getInfo->action];
+		for (auto p : paths)
+		{
+			// check which path got activated
+			auto ps = pathToString[p];
+			auto pss = pathToString[getInfo->subactionPath];
+			if (ps.rfind(pss, 0) == 0)
+			{
+				e.path = ps;
+			}
+		}
+	}
+	else
+	{
+		return false;
+	}
+
+	e.body = tracer::traceActionVector2f{};
+	if (!tracer::readNextActionVector2f(&e))
+	{
+		return false;
+	}
+	assert(holds_alternative<tracer::traceActionVector2f>(e.body));
+	auto &f = get<tracer::traceActionVector2f>(e.body);
+	state->changedSinceLastSync = f.changed;
+	state->currentState = f.value;
+	state->isActive = true;
+	state->lastChangeTime = f.lastChanged;
+	return true;
+}
+
+void recordGetActionStateVector2f(const XrActionStateGetInfo *getInfo, XrActionStateVector2f *state)
+{
+	static bool previousWasChanged = true;
+	auto changed = state->changedSinceLastSync;
+	auto value = state->currentState;
+	auto isActive = state->isActive;
+	auto lastChanged = state->lastChangeTime;
+
+	// we don't need all values. especially if there are long periods that nothing happens. check if we need to log
+	if (changed || (previousWasChanged && !changed))
+	{
+		// look up the paths mapped to this action
+		if (auto search = actionBindingMap.find(getInfo->action); search != actionBindingMap.end())
+		{
+			// iterate over all paths for this action
+			auto paths = actionBindingMap[getInfo->action];
+			for (auto p : paths)
+			{
+				// check which path got activated
+				auto ps = pathToString[p];
+				auto pss = pathToString[getInfo->subactionPath];
+				if (ps.rfind(pss, 0) == 0)
+				{
+					// log the path and the data for the action
+					tracer::traceEntry e = {frameTime, 'p', ps};
+					tracer::traceActionVector2f taf = {changed, value.x, value.y, isActive, lastChanged};
+					e.body = taf;
+					tracer::writeActionVector2f(e);
+				}
+			}
+		}
+	}
+	previousWasChanged = changed;
+}
+
+XRAPI_ATTR XrResult XRAPI_CALL thisLayer_xrGetActionStateVector2f(XrSession session, const XrActionStateGetInfo *getInfo, XrActionStateVector2f *state)
+{
+	static PFN_xrGetActionStateVector2f nextLayer_xrGetActionStateFloat = GetNextLayerFunction(xrGetActionStateVector2f);
+	auto res = nextLayer_xrGetActionStateFloat(session, getInfo, state);
+	if (mode == tracer::Mode::REPLAY)
+	{
+		replayGetActionStateVector2f(getInfo, state);
+	}
+	else
+	{
+		recordGetActionStateVector2f(getInfo, state);
+	}
+
 	return res;
 }
 
@@ -583,14 +673,41 @@ XRAPI_ATTR XrResult XRAPI_CALL thisLayer_xrGetActionStateBoolean(XrSession sessi
 	return res;
 }
 
+void recordApplyHapticFeedback(XrHapticActionInfo* hapticActionInfo, XrHapticBaseHeader* hapticBaseHeader)
+{
+	   // look up the paths mapped to this action
+	   if (auto search = actionBindingMap.find(hapticActionInfo->action); search != actionBindingMap.end())
+	   {
+			   // iterate over all paths for this action
+			   auto paths = actionBindingMap[hapticActionInfo->action];
+			   for (auto p : paths)
+			   {
+					   // check which path got activated
+					   auto ps = pathToString[p];
+					   auto pss = pathToString[hapticActionInfo->subactionPath];
+					   if (ps.rfind(pss, 0) == 0)
+					   {
+							   // log the path and the data for the action
+							   tracer::traceEntry e = {frameTime, 'h', ps};
+							   tracer::traceApplyHaptic taf = {true};
+							   e.body = taf;
+							   tracer::writeApplyHaptic(e);
+					   }
+			   }
+	   }
+}
+
 XRAPI_ATTR XrResult XRAPI_CALL thisLayer_xrApplyHapticFeedback(XrSession session, XrHapticActionInfo* hapticActionInfo, XrHapticBaseHeader* hapticBaseHeader) {
-    static PFN_xrApplyHapticFeedback nextLayer_xrApplyHapticFeedback = GetNextLayerFunction(xrApplyHapticFeedback);
-    // Disable haptic feedback when in replay mode
-    if (mode == tracer::REPLAY) {
-        return XR_SUCCESS;
-    }
-    auto res = nextLayer_xrApplyHapticFeedback(session, hapticActionInfo, hapticBaseHeader);
-    return res;
+	static PFN_xrApplyHapticFeedback nextLayer_xrApplyHapticFeedback = GetNextLayerFunction(xrApplyHapticFeedback);
+	// Disable haptic feedback when in replay mode
+	if (mode == tracer::REPLAY) {
+		return XR_SUCCESS;
+	}
+	
+	recordApplyHapticFeedback(hapticActionInfo, hapticBaseHeader);
+	
+	auto res = nextLayer_xrApplyHapticFeedback(session, hapticActionInfo, hapticBaseHeader);
+	return res;
 }
 
 #if XR_THISLAYER_HAS_EXTENSIONS
@@ -623,8 +740,9 @@ std::vector<OpenXRLayer::ShimFunction> ListShims()
 	functions.emplace_back("xrCreateReferenceSpace", PFN_xrVoidFunction(thisLayer_xrCreateReferenceSpace));
 	functions.emplace_back("xrGetActionStateBoolean", PFN_xrVoidFunction(thisLayer_xrGetActionStateBoolean));
 	functions.emplace_back("xrGetActionStateFloat", PFN_xrVoidFunction(thisLayer_xrGetActionStateFloat));
+	functions.emplace_back("xrGetActionStateVector2f", PFN_xrVoidFunction(thisLayer_xrGetActionStateVector2f));
 	functions.emplace_back("xrLocateSpace", PFN_xrVoidFunction(thisLayer_xrLocateSpace));
-    functions.emplace_back("xrApplyHapticFeedback", PFN_xrVoidFunction(thisLayer_xrApplyHapticFeedback));
+	functions.emplace_back("xrApplyHapticFeedback", PFN_xrVoidFunction(thisLayer_xrApplyHapticFeedback));
 
 #if XR_THISLAYER_HAS_EXTENSIONS
 	if (OpenXRLayer::IsExtensionEnabled("XR_TEST_test_me"))

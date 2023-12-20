@@ -21,42 +21,44 @@ namespace tracer {
 	map<string, map<uint32_t, traceEntry>> viewMap;
 	map<string, traceEntry> floatActionMap;
 	map<string, traceEntry> booleanActionMap;
+	map<string, traceEntry> hapticActionMap;
+	map<string, traceEntry> vector2fActionMap;
 
 	Mode init()
 	{
-        auto config_str = std::getenv("LOCALAPPDATA");
-        assert(config_str != nullptr);
-        auto config = fs::path(config_str);
-        config = config / "librnr" / "config.txt";
+		auto config_str = std::getenv("LOCALAPPDATA");
+		assert(config_str != nullptr);
+		auto config = fs::path(config_str);
+		config = config / "librnr" / "config.txt";
 
-        auto c = fstream(config);
-        string mode_str;
-        fs::path trace_file;
-        c >> mode_str >> trace_file;
+		auto c = fstream(config);
+		string mode_str;
+		fs::path trace_file;
+		c >> mode_str >> trace_file;
 
 		ios_base::openmode filemode;
-        Mode res;
-        if (mode_str == "replay") {
-            filemode = fstream::in;
-            res = REPLAY;
-        } else {
-            filemode = fstream::out | fstream::trunc;
-            res = RECORD;
-        }
+		Mode res;
+		if (mode_str == "replay") {
+			filemode = fstream::in;
+			res = REPLAY;
+		} else {
+			filemode = fstream::out | fstream::trunc;
+			res = RECORD;
+		}
 
-        if (res == RECORD) {
-            auto trace_dir = trace_file;
-            trace_dir.remove_filename();
-            create_directories(trace_dir);
-        }
+		if (res == RECORD) {
+			auto trace_dir = trace_file;
+			trace_dir.remove_filename();
+			create_directories(trace_dir);
+		}
 
-        trace.open(trace_file, filemode);
+		trace.open(trace_file, filemode);
 
-        stringstream buffer;
-        buffer << "RNR Mode=" << ((res == REPLAY) ? "REPLAY" : "RECORD") << " File=" << trace_file;
-        Log::Write(Log::Level::Info, buffer.str());
+		stringstream buffer;
+		buffer << "RNR Mode=" << ((res == REPLAY) ? "REPLAY" : "RECORD") << " File=" << trace_file;
+		Log::Write(Log::Level::Info, buffer.str());
 
-        return res;
+		return res;
 	}
 
 	void close()
@@ -175,6 +177,27 @@ namespace tracer {
 			entry->body = f;
 			floatActionMap[entry->path] = *entry;
 		}
+		else if (entry->type == 'h') 
+		{
+			traceApplyHaptic h{};
+			auto& value = h.value;
+
+			sstream >> value;
+			entry->body = h;
+			hapticActionMap[entry->path] = *entry;
+		}
+		else if (entry->type == 'p') 
+		{
+			traceActionVector2f p{};
+			auto& changed = p.changed;
+			auto& isActive = p.isActive;
+			auto& lastChanged = p.lastChanged;
+			auto& value = p.value;
+
+			sstream >> changed >> isActive >> lastChanged >> value.x >> value.y;
+			entry->body = p;
+			vector2fActionMap[entry->path] = *entry;
+		}
 		else {
 			stringstream buffer;
 			buffer << "RNR ERROR invalid trace entry type: " << entry->type;
@@ -265,6 +288,32 @@ namespace tracer {
 		return true;
 	}
 
+	void writeActionVector2f(traceEntry e)
+	{
+		assert(holds_alternative<traceActionVector2f>(e.body));
+		auto& f = get<traceActionVector2f>(e.body);
+
+		writeHead(e);
+		trace << " " << f.changed << " " << f.isActive << " " << f.lastChanged << " " << f.value.x << " " << f.value.y;
+		trace << endl;
+	}
+
+	bool readNextActionVector2f(traceEntry* e)
+	{
+		assert(holds_alternative<traceActionVector2f>(e->body));
+		auto& f = get<traceActionVector2f>(e->body);
+
+		traceEntry outEntry;
+		outEntry.time = e->time;
+		if (!readUntil(&outEntry) || vector2fActionMap.find(e->path) == vector2fActionMap.end())
+		{
+			return false;
+		}
+
+		*e = vector2fActionMap[e->path];
+		return true;
+	}
+
 	void writeActionBoolean(traceEntry e)
 	{
 		assert(holds_alternative<traceActionBoolean>(e.body));
@@ -288,6 +337,33 @@ namespace tracer {
 		}
 
 		*e = booleanActionMap[e->path];
+		return true;
+	}
+
+	void writeApplyHaptic(traceEntry e)
+	{
+		assert(holds_alternative<traceApplyHaptic>(e.body));
+		auto& h = get<traceApplyHaptic>(e.body);
+
+		writeHead(e);
+		trace << " " << h.value;
+		trace << endl;
+	}
+
+	bool readNextApplyHaptic(traceEntry* e)
+	{
+		assert(holds_alternative<traceApplyHaptic>(e->body));
+		auto& h = get<traceApplyHaptic>(e->body);
+
+
+		traceEntry outEntry;
+		outEntry.time = e->time;
+		if (!readUntil(&outEntry) || hapticActionMap.find(e->path) == hapticActionMap.end())
+		{
+			return false;
+		}
+
+		*e = hapticActionMap[e->path];
 		return true;
 	}
 }
