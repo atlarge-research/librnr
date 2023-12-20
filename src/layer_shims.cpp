@@ -457,7 +457,7 @@ void recordGetActionStateFloat(const XrActionStateGetInfo *getInfo, XrActionStat
 	auto isActive = state->isActive;
 	auto lastChanged = state->lastChangeTime;
 
-	// we don't need all values. especially if there are long periods that noting happens. check if we need to log
+	// we don't need all values. especially if there are long periods that nothing happens. check if we need to log
 	if (changed || (previousWasChanged && !changed))
 	{
 		// look up the paths mapped to this action
@@ -519,6 +519,11 @@ bool replayGetActionStateVector2f(const XrActionStateGetInfo *getInfo, XrActionS
 			}
 		}
 	}
+	else
+	{
+		return false;
+	}
+
 	e.body = tracer::traceActionVector2f{};
 	if (!tracer::readNextActionVector2f(&e))
 	{
@@ -541,7 +546,7 @@ void recordGetActionStateVector2f(const XrActionStateGetInfo *getInfo, XrActionS
 	auto isActive = state->isActive;
 	auto lastChanged = state->lastChangeTime;
 
-	// we don't need all values. especially if there are long periods that noting happens. check if we need to log
+	// we don't need all values. especially if there are long periods that nothing happens. check if we need to log
 	if (changed || (previousWasChanged && !changed))
 	{
 		// look up the paths mapped to this action
