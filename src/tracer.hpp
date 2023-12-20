@@ -55,8 +55,8 @@ namespace tracer
 
 	struct traceApplyHaptic
 	{
-        XrBool32 value;
-        XrTime lastChanged;
+		XrBool32 value;
+		XrTime lastChanged;
 	};
 
 	using traceBody = variant<traceLocation, traceView, traceActionBoolean, traceActionFloat, traceActionVector2f, traceApplyHaptic>;

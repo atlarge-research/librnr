@@ -26,39 +26,39 @@ namespace tracer {
 
 	Mode init()
 	{
-        auto config_str = std::getenv("LOCALAPPDATA");
-        assert(config_str != nullptr);
-        auto config = fs::path(config_str);
-        config = config / "librnr" / "config.txt";
+		auto config_str = std::getenv("LOCALAPPDATA");
+		assert(config_str != nullptr);
+		auto config = fs::path(config_str);
+		config = config / "librnr" / "config.txt";
 
-        auto c = fstream(config);
-        string mode_str;
-        fs::path trace_file;
-        c >> mode_str >> trace_file;
+		auto c = fstream(config);
+		string mode_str;
+		fs::path trace_file;
+		c >> mode_str >> trace_file;
 
 		ios_base::openmode filemode;
-        Mode res;
-        if (mode_str == "replay") {
-            filemode = fstream::in;
-            res = REPLAY;
-        } else {
-            filemode = fstream::out | fstream::trunc;
-            res = RECORD;
-        }
+		Mode res;
+		if (mode_str == "replay") {
+			filemode = fstream::in;
+			res = REPLAY;
+		} else {
+			filemode = fstream::out | fstream::trunc;
+			res = RECORD;
+		}
 
-        if (res == RECORD) {
-            auto trace_dir = trace_file;
-            trace_dir.remove_filename();
-            create_directories(trace_dir);
-        }
+		if (res == RECORD) {
+			auto trace_dir = trace_file;
+			trace_dir.remove_filename();
+			create_directories(trace_dir);
+		}
 
-        trace.open(trace_file, filemode);
+		trace.open(trace_file, filemode);
 
-        stringstream buffer;
-        buffer << "RNR Mode=" << ((res == REPLAY) ? "REPLAY" : "RECORD") << " File=" << trace_file;
-        Log::Write(Log::Level::Info, buffer.str());
+		stringstream buffer;
+		buffer << "RNR Mode=" << ((res == REPLAY) ? "REPLAY" : "RECORD") << " File=" << trace_file;
+		Log::Write(Log::Level::Info, buffer.str());
 
-        return res;
+		return res;
 	}
 
 	void close()
@@ -342,28 +342,28 @@ namespace tracer {
 
 	void writeApplyHaptic(traceEntry e)
 	{
-        assert(holds_alternative<traceApplyHaptic>(e.body));
-        auto& h = get<traceApplyHaptic>(e.body);
+		assert(holds_alternative<traceApplyHaptic>(e.body));
+		auto& h = get<traceApplyHaptic>(e.body);
 
-        writeHead(e);
-        trace << " " << h.value;
-        trace << endl;
+		writeHead(e);
+		trace << " " << h.value;
+		trace << endl;
 	}
 
 	bool readNextApplyHaptic(traceEntry* e)
 	{
-        assert(holds_alternative<traceApplyHaptic>(e->body));
-        auto& h = get<traceApplyHaptic>(e->body);
+		assert(holds_alternative<traceApplyHaptic>(e->body));
+		auto& h = get<traceApplyHaptic>(e->body);
 
 
-        traceEntry outEntry;
-        outEntry.time = e->time;
-        if (!readUntil(&outEntry) || hapticActionMap.find(e->path) == hapticActionMap.end())
-        {
-                return false;
-        }
+		traceEntry outEntry;
+		outEntry.time = e->time;
+		if (!readUntil(&outEntry) || hapticActionMap.find(e->path) == hapticActionMap.end())
+		{
+			return false;
+		}
 
-        *e = hapticActionMap[e->path];
-        return true;
+		*e = hapticActionMap[e->path];
+		return true;
 	}
 }

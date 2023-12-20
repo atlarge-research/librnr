@@ -299,33 +299,33 @@ XRAPI_ATTR XrResult XRAPI_CALL thisLayer_xrLocateSpace(XrSpace space, XrSpace ba
 bool replayLocateViews(XrSession session, const XrViewLocateInfo *viewlocateInfo, XrViewState *viewState,
 												 uint32_t viewCapacityInput, uint32_t *viewCountOutput, XrView *views)
 {
-    // TODO support mono view https://registry.khronos.org/OpenXR/specs/1.0/man/html/XrViewConfigurationType.html
+	// TODO support mono view https://registry.khronos.org/OpenXR/specs/1.0/man/html/XrViewConfigurationType.html
 
-    tracer::traceEntry lentry;
+	tracer::traceEntry lentry;
 	lentry.time = viewlocateInfo->displayTime;
 	lentry.path = spaceToFullName[viewlocateInfo->space];
 	tracer::traceView lw;
 	lw.index = 0;
 	lentry.body = lw;
 
-    tracer::traceEntry rentry;
-    rentry.time = viewlocateInfo->displayTime;
-    rentry.path = spaceToFullName[viewlocateInfo->space];
-    tracer::traceView rw;
-    rw.index = 1;
-    rentry.body = rw;
+	tracer::traceEntry rentry;
+	rentry.time = viewlocateInfo->displayTime;
+	rentry.path = spaceToFullName[viewlocateInfo->space];
+	tracer::traceView rw;
+	rw.index = 1;
+	rentry.body = rw;
 
-    if (!tracer::readNextView(&rentry))
-    {
-        return false;
-    }
+	if (!tracer::readNextView(&rentry))
+	{
+		return false;
+	}
 
-    if (!tracer::readNextView(&lentry))
-    {
-        return false;
-    }
+	if (!tracer::readNextView(&lentry))
+	{
+		return false;
+	}
 
-    viewState->viewStateFlags = XR_VIEW_STATE_ORIENTATION_TRACKED_BIT | XR_VIEW_STATE_ORIENTATION_VALID_BIT | XR_VIEW_STATE_POSITION_TRACKED_BIT | XR_VIEW_STATE_POSITION_VALID_BIT;
+	viewState->viewStateFlags = XR_VIEW_STATE_ORIENTATION_TRACKED_BIT | XR_VIEW_STATE_ORIENTATION_VALID_BIT | XR_VIEW_STATE_POSITION_TRACKED_BIT | XR_VIEW_STATE_POSITION_VALID_BIT;
 
 	auto &wl = get<tracer::traceView>(lentry.body);
 	views[0].fov = wl.fov;
@@ -335,7 +335,7 @@ bool replayLocateViews(XrSession session, const XrViewLocateInfo *viewlocateInfo
 	views[1].fov = wr.fov;
 	views[1].pose = wr.pose;
 
-    assert(viewlocateInfo->viewConfigurationType == XR_VIEW_CONFIGURATION_TYPE_PRIMARY_STEREO);
+	assert(viewlocateInfo->viewConfigurationType == XR_VIEW_CONFIGURATION_TYPE_PRIMARY_STEREO);
 
 	*viewCountOutput = 2;
 
@@ -382,9 +382,9 @@ XRAPI_ATTR XrResult XRAPI_CALL recordLocateViews(XrSession session, const XrView
 			entry.type = 'v';
 			entry.path = spaceToFullName[viewlocateInfo->space];
 			tracer::traceView w;
-            w.fov = view.fov;
-            w.pose = view.pose;
-            w.type = viewlocateInfo->viewConfigurationType;
+			w.fov = view.fov;
+			w.pose = view.pose;
+			w.type = viewlocateInfo->viewConfigurationType;
 			w.index = i;
 			entry.body = w;
 			tracer::writeView(entry);
@@ -403,13 +403,13 @@ XRAPI_ATTR XrResult XRAPI_CALL thisLayer_xrLocateViews(XrSession session, const 
 {
 	static PFN_xrLocateViews nextLayer_xrLocateViews = GetNextLayerFunction(xrLocateViews);
 
-    if (mode == tracer::Mode::REPLAY)
+	if (mode == tracer::Mode::REPLAY)
 	{
 		auto res = nextLayer_xrLocateViews(session, viewlocateInfo, viewState, viewCapacityInput, viewCountOutput, views);
-        replayLocateViews(session, viewlocateInfo, viewState, viewCapacityInput, viewCountOutput, views);
-        return res;
+		replayLocateViews(session, viewlocateInfo, viewState, viewCapacityInput, viewCountOutput, views);
+		return res;
 	}
-    else
+	else
 	{
 		return recordLocateViews(session, viewlocateInfo, viewState, viewCapacityInput, viewCountOutput, views);
 	}
@@ -675,39 +675,39 @@ XRAPI_ATTR XrResult XRAPI_CALL thisLayer_xrGetActionStateBoolean(XrSession sessi
 
 void recordApplyHapticFeedback(XrHapticActionInfo* hapticActionInfo, XrHapticBaseHeader* hapticBaseHeader)
 {
-       // look up the paths mapped to this action
-       if (auto search = actionBindingMap.find(hapticActionInfo->action); search != actionBindingMap.end())
-       {
-               // iterate over all paths for this action
-               auto paths = actionBindingMap[hapticActionInfo->action];
-               for (auto p : paths)
-               {
-                       // check which path got activated
-                       auto ps = pathToString[p];
-                       auto pss = pathToString[hapticActionInfo->subactionPath];
-                       if (ps.rfind(pss, 0) == 0)
-                       {
-                               // log the path and the data for the action
-                               tracer::traceEntry e = {frameTime, 'h', ps};
-                               tracer::traceApplyHaptic taf = {true};
-                               e.body = taf;
-                               tracer::writeApplyHaptic(e);
-                       }
-               }
-       }
+	   // look up the paths mapped to this action
+	   if (auto search = actionBindingMap.find(hapticActionInfo->action); search != actionBindingMap.end())
+	   {
+			   // iterate over all paths for this action
+			   auto paths = actionBindingMap[hapticActionInfo->action];
+			   for (auto p : paths)
+			   {
+					   // check which path got activated
+					   auto ps = pathToString[p];
+					   auto pss = pathToString[hapticActionInfo->subactionPath];
+					   if (ps.rfind(pss, 0) == 0)
+					   {
+							   // log the path and the data for the action
+							   tracer::traceEntry e = {frameTime, 'h', ps};
+							   tracer::traceApplyHaptic taf = {true};
+							   e.body = taf;
+							   tracer::writeApplyHaptic(e);
+					   }
+			   }
+	   }
 }
 
 XRAPI_ATTR XrResult XRAPI_CALL thisLayer_xrApplyHapticFeedback(XrSession session, XrHapticActionInfo* hapticActionInfo, XrHapticBaseHeader* hapticBaseHeader) {
-    static PFN_xrApplyHapticFeedback nextLayer_xrApplyHapticFeedback = GetNextLayerFunction(xrApplyHapticFeedback);
-    // Disable haptic feedback when in replay mode
-    if (mode == tracer::REPLAY) {
-    	return XR_SUCCESS;
+	static PFN_xrApplyHapticFeedback nextLayer_xrApplyHapticFeedback = GetNextLayerFunction(xrApplyHapticFeedback);
+	// Disable haptic feedback when in replay mode
+	if (mode == tracer::REPLAY) {
+		return XR_SUCCESS;
 	}
 	
 	recordApplyHapticFeedback(hapticActionInfo, hapticBaseHeader);
 	
 	auto res = nextLayer_xrApplyHapticFeedback(session, hapticActionInfo, hapticBaseHeader);
-    return res;
+	return res;
 }
 
 #if XR_THISLAYER_HAS_EXTENSIONS
