@@ -9,6 +9,12 @@ output:
 
 # Description
 
+The traces available in this folder contain measurements of network characteristics of the on-board WiFi of a
+KLM Boeing 787-10 Dreamliner flight from Amsterdam to San Fransisco.
+On this aircraft, KLM only offers the _surfing_ network package. The _streaming_ package is unavailable on this flight.
+Through our real-world experiment on this flight, we confirm that the available bandwidth is low, exhibits high
+variability, and high latency.
+
 # Results
 
 ```{r setup, message = FALSE}
