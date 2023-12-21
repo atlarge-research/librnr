@@ -7,7 +7,9 @@
 #include <sstream>
 
 #if defined(_WIN32)
+
 #include <Windows.h>
+
 #endif
 
 #if defined(ANDROID)
@@ -16,20 +18,16 @@
 #define ALOGV(...) __android_log_print(ANDROID_LOG_VERBOSE, "hello_xr", __VA_ARGS__)
 #endif
 
-namespace
-{
+namespace {
     Log::Level g_minSeverity{Log::Level::Info};
     std::mutex g_logLock;
 } // namespace
 
-namespace Log
-{
+namespace Log {
     void SetLevel(Level minSeverity) { g_minSeverity = minSeverity; }
 
-    void Write(Level severity, const std::string &msg)
-    {
-        if (severity < g_minSeverity)
-        {
+    void Write(Level severity, const std::string &msg) {
+        if (severity < g_minSeverity) {
             return;
         }
 
@@ -46,11 +44,15 @@ namespace Log
         const int64_t milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(secondRemainder).count();
 
         static std::map<Level, const char *> severityName = {
-            {Level::Verbose, "Verbose"}, {Level::Info, "Info   "}, {Level::Warning, "Warning"}, {Level::Error, "Error  "}};
+                {Level::Verbose, "Verbose"},
+                {Level::Info,    "Info   "},
+                {Level::Warning, "Warning"},
+                {Level::Error,   "Error  "}};
 
         std::ostringstream out;
         out.fill('0');
-        out << "[" << std::setw(2) << now_tm.tm_hour << ":" << std::setw(2) << now_tm.tm_min << ":" << std::setw(2) << now_tm.tm_sec
+        out << "[" << std::setw(2) << now_tm.tm_hour << ":" << std::setw(2) << now_tm.tm_min << ":" << std::setw(2)
+            << now_tm.tm_sec
             << "." << std::setw(3) << milliseconds << "]"
             << "[" << severityName[severity] << "] " << msg << std::endl;
 
