@@ -70,7 +70,11 @@ namespace tracer
 	};
 
 	Mode init();
+
+	void initSync();
+
 	void close();
+	void closeSync();
 	void writeView(traceEntry);
 	bool readNextView(traceEntry *);
 	void writeSpace(traceEntry);
@@ -83,4 +87,6 @@ namespace tracer
 	bool readNextActionVector2f(traceEntry *);
 	void writeApplyHaptic(traceEntry);
 	bool readNextApplyHaptic(traceEntry *);
+	void writeSync(traceEntry);
+	void RecordTimeStampSync(std::string);
 }

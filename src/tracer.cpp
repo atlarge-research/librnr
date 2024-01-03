@@ -9,12 +9,15 @@
 #include <cassert>
 #include <stdlib.h>
 
+#include <ctime>
+
 #include "logger.h"
 
 namespace fs = std::filesystem;
 
 namespace tracer {
 	fstream trace;
+	fstream sync;
 
 	XrTime mostRecentEntry;
 	map<string, map<string, traceEntry>> spaceMap;
@@ -58,8 +61,54 @@ namespace tracer {
 		buffer << "RNR Mode=" << ((res == REPLAY) ? "REPLAY" : "RECORD") << " File=" << trace_file;
 		Log::Write(Log::Level::Info, buffer.str());
 
+		initSync();
+
 		return res;
 	}
+
+	std::string getTimeStamp(){
+		time_t rawtime;
+  		struct tm * timeinfo;
+  		char filename_buffer[80];
+
+  		time (&rawtime);
+  		timeinfo = localtime(&rawtime);
+
+  		strftime(filename_buffer,sizeof(filename_buffer),"%d-%m-%Y_%H-%M-%S",timeinfo);
+  		std::string str(filename_buffer);
+
+		return str;
+	}
+
+	void RecordTimeStampSync(std::string type) {
+		sync << type << " " << getTimeStamp() << endl;
+	}
+
+	void initSync() {
+		std::string filename = getTimeStamp() + "-sync.txt";
+
+		auto local_context = std::getenv("LOCALAPPDATA");
+		assert(local_context != nullptr);
+		auto sync_file = fs::path(local_context);
+
+		sync_file = sync_file / "librnr" / filename;
+
+		ios_base::openmode filemode = fstream::out;
+		
+		sync.open(sync_file, filemode);
+
+		stringstream buffer;
+		buffer << "Setting up Sync_file " << " File=" << sync_file;
+		Log::Write(Log::Level::Info, buffer.str());
+
+		sync << "log start time: " << getTimeStamp() << endl;
+	}
+
+	void closeSync()
+	{
+		sync.close();
+	}
+
 
 	void close()
 	{
@@ -366,4 +415,11 @@ namespace tracer {
 		*e = hapticActionMap[e->path];
 		return true;
 	}
+
+	void writeSync(traceEntry e)
+	{
+		static XrTime start = e.time;
+		sync << e.time - start << " " << e.type << " " << e.path << " " << "1" << endl;
+	}
+
 }

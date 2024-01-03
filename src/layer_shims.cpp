@@ -37,6 +37,7 @@ XRAPI_ATTR XrResult XRAPI_CALL thisLayer_xrDestroyInstance(
 {
 	// Close trace filestream
 	tracer::close();
+	tracer::closeSync();
 
 	PFN_xrDestroyInstance nextLayer_xrDestroyInstance = GetNextLayerFunction(xrDestroyInstance);
 
@@ -297,7 +298,7 @@ XRAPI_ATTR XrResult XRAPI_CALL thisLayer_xrLocateSpace(XrSpace space, XrSpace ba
 }
 
 bool replayLocateViews(XrSession session, const XrViewLocateInfo *viewlocateInfo, XrViewState *viewState,
-												 uint32_t viewCapacityInput, uint32_t *viewCountOutput, XrView *views)
+					   uint32_t viewCapacityInput, uint32_t *viewCountOutput, XrView *views)
 {
 	// TODO support mono view https://registry.khronos.org/OpenXR/specs/1.0/man/html/XrViewConfigurationType.html
 
@@ -673,40 +674,113 @@ XRAPI_ATTR XrResult XRAPI_CALL thisLayer_xrGetActionStateBoolean(XrSession sessi
 	return res;
 }
 
-void recordApplyHapticFeedback(XrHapticActionInfo* hapticActionInfo, XrHapticBaseHeader* hapticBaseHeader)
+void recordApplyHapticFeedback(XrHapticActionInfo *hapticActionInfo, XrHapticBaseHeader *hapticBaseHeader)
 {
-	   // look up the paths mapped to this action
-	   if (auto search = actionBindingMap.find(hapticActionInfo->action); search != actionBindingMap.end())
-	   {
-			   // iterate over all paths for this action
-			   auto paths = actionBindingMap[hapticActionInfo->action];
-			   for (auto p : paths)
-			   {
-					   // check which path got activated
-					   auto ps = pathToString[p];
-					   auto pss = pathToString[hapticActionInfo->subactionPath];
-					   if (ps.rfind(pss, 0) == 0)
-					   {
-							   // log the path and the data for the action
-							   tracer::traceEntry e = {frameTime, 'h', ps};
-							   tracer::traceApplyHaptic taf = {true};
-							   e.body = taf;
-							   tracer::writeApplyHaptic(e);
-					   }
-			   }
-	   }
+	// look up the paths mapped to this action
+	if (auto search = actionBindingMap.find(hapticActionInfo->action); search != actionBindingMap.end())
+	{
+		// iterate over all paths for this action
+		auto paths = actionBindingMap[hapticActionInfo->action];
+		for (auto p : paths)
+		{
+			// check which path got activated
+			auto ps = pathToString[p];
+			auto pss = pathToString[hapticActionInfo->subactionPath];
+			if (ps.rfind(pss, 0) == 0)
+			{
+				// log the path and the data for the action
+				tracer::traceEntry e = {frameTime, 'h', ps};
+				tracer::traceApplyHaptic taf = {true};
+				e.body = taf;
+				tracer::writeApplyHaptic(e);
+				tracer::RecordTimeStampSync("h");
+			}
+		}
+	}
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL thisLayer_xrApplyHapticFeedback(XrSession session, XrHapticActionInfo* hapticActionInfo, XrHapticBaseHeader* hapticBaseHeader) {
+void recordStopHapticFeedback(XrHapticActionInfo *hapticActionInfo)
+{
+	// look up the paths mapped to this action
+	if (auto search = actionBindingMap.find(hapticActionInfo->action); search != actionBindingMap.end())
+	{
+		// iterate over all paths for this action
+		auto paths = actionBindingMap[hapticActionInfo->action];
+		for (auto p : paths)
+		{
+			// check which path got activated
+			auto ps = pathToString[p];
+			auto pss = pathToString[hapticActionInfo->subactionPath];
+			if (ps.rfind(pss, 0) == 0)
+			{
+				// log the path and the data for the action
+				tracer::traceEntry e = {frameTime, 'k', ps};
+				tracer::traceApplyHaptic taf = {true};
+				e.body = taf;
+				tracer::writeApplyHaptic(e);
+				tracer::RecordTimeStampSync("k");
+			}
+		}
+	}
+}
+
+XRAPI_ATTR XrResult XRAPI_CALL thisLayer_xrApplyHapticFeedback(XrSession session, XrHapticActionInfo *hapticActionInfo, XrHapticBaseHeader *hapticBaseHeader)
+{
 	static PFN_xrApplyHapticFeedback nextLayer_xrApplyHapticFeedback = GetNextLayerFunction(xrApplyHapticFeedback);
 	// Disable haptic feedback when in replay mode
-	if (mode == tracer::REPLAY) {
-		return XR_SUCCESS;
+	if (mode == tracer::REPLAY)
+	{
+
+		auto paths = actionBindingMap[hapticActionInfo->action];
+		for (auto p : paths)
+		{
+			// check which path got activated
+			auto ps = pathToString[p];
+			auto pss = pathToString[hapticActionInfo->subactionPath];
+			if (ps.rfind(pss, 0) == 0)
+			{
+				tracer::traceEntry e = {frameTime, 'h', ps};
+				tracer::traceApplyHaptic taf = {true};
+				e.body = taf;
+				tracer::writeSync(e);
+			}
+		}
 	}
-	
-	recordApplyHapticFeedback(hapticActionInfo, hapticBaseHeader);
-	
+	else
+	{
+		recordApplyHapticFeedback(hapticActionInfo, hapticBaseHeader);
+	}
+
 	auto res = nextLayer_xrApplyHapticFeedback(session, hapticActionInfo, hapticBaseHeader);
+	return res;
+}
+
+XRAPI_ATTR XrResult XRAPI_CALL thisLayer_xrStopHapticFeedback(XrSession session, XrHapticActionInfo *hapticActionInfo)
+{
+	static PFN_xrStopHapticFeedback nextLayer_xrStopHapticFeedback = GetNextLayerFunction(xrStopHapticFeedback);
+	if (mode == tracer::REPLAY)
+	{
+		auto paths = actionBindingMap[hapticActionInfo->action];
+		for (auto p : paths)
+		{
+			// check which path got activated
+			auto ps = pathToString[p];
+			auto pss = pathToString[hapticActionInfo->subactionPath];
+			if (ps.rfind(pss, 0) == 0)
+			{
+				tracer::traceEntry e = {frameTime, 'k', ps};
+				tracer::traceApplyHaptic taf = {true};
+				e.body = taf;
+				tracer::writeSync(e);
+			}
+		}
+	}
+	else
+	{
+		recordStopHapticFeedback(hapticActionInfo);
+	}
+
+	auto res = nextLayer_xrStopHapticFeedback(session, hapticActionInfo);
 	return res;
 }
 
@@ -743,6 +817,7 @@ std::vector<OpenXRLayer::ShimFunction> ListShims()
 	functions.emplace_back("xrGetActionStateVector2f", PFN_xrVoidFunction(thisLayer_xrGetActionStateVector2f));
 	functions.emplace_back("xrLocateSpace", PFN_xrVoidFunction(thisLayer_xrLocateSpace));
 	functions.emplace_back("xrApplyHapticFeedback", PFN_xrVoidFunction(thisLayer_xrApplyHapticFeedback));
+	functions.emplace_back("xrStopHapticFeedback", PFN_xrVoidFunction(thisLayer_xrStopHapticFeedback));
 
 #if XR_THISLAYER_HAS_EXTENSIONS
 	if (OpenXRLayer::IsExtensionEnabled("XR_TEST_test_me"))
