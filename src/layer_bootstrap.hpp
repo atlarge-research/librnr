@@ -11,7 +11,9 @@
 #define XR_OS_WINDOWS
 #define WIN32_LEAN_AND_MEAN
 #define NOMINMAX
+
 #include <Windows.h>
+
 #endif
 
 #include "openxr/openxr_platform_defines.h"
@@ -32,17 +34,17 @@
 #endif
 
 extern "C" XrResult LAYER_EXPORT XRAPI_CALL xrNegotiateLoaderApiLayerInterface(
-	const XrNegotiateLoaderInfo* loaderInfo,
-	const char* apiLayerName,
-	XrNegotiateApiLayerRequest* apiLayerRequest
+        const XrNegotiateLoaderInfo *loaderInfo,
+        const char *apiLayerName,
+        XrNegotiateApiLayerRequest *apiLayerRequest
 );
 
-XRAPI_ATTR XrResult XRAPI_CALL thisLayer_xrCreateApiLayerInstance(const XrInstanceCreateInfo* info,
-	const struct XrApiLayerCreateInfo* apiLayerInfo,
-	XrInstance* instance);
+XRAPI_ATTR XrResult XRAPI_CALL thisLayer_xrCreateApiLayerInstance(const XrInstanceCreateInfo *info,
+                                                                  const struct XrApiLayerCreateInfo *apiLayerInfo,
+                                                                  XrInstance *instance);
 
 XRAPI_ATTR XrResult XRAPI_CALL thisLayer_xrGetInstanceProcAddr(XrInstance instance,
-	const char* name,
-	PFN_xrVoidFunction* function);
+                                                               const char *name,
+                                                               PFN_xrVoidFunction *function);
 
 

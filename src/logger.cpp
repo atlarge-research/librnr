@@ -7,7 +7,9 @@
 #include <sstream>
 
 #if defined(_WIN32)
+
 #include <Windows.h>
+
 #endif
 
 #if defined(ANDROID)
@@ -16,22 +18,18 @@
 #define ALOGV(...) __android_log_print(ANDROID_LOG_VERBOSE, "hello_xr", __VA_ARGS__)
 #endif
 
-namespace
-{
-	Log::Level g_minSeverity{Log::Level::Info};
-	std::mutex g_logLock;
+namespace {
+    Log::Level g_minSeverity{Log::Level::Info};
+    std::mutex g_logLock;
 } // namespace
 
-namespace Log
-{
-	void SetLevel(Level minSeverity) { g_minSeverity = minSeverity; }
+namespace Log {
+    void SetLevel(Level minSeverity) { g_minSeverity = minSeverity; }
 
-	void Write(Level severity, const std::string &msg)
-	{
-		if (severity < g_minSeverity)
-		{
-			return;
-		}
+    void Write(Level severity, const std::string &msg) {
+        if (severity < g_minSeverity) {
+            return;
+        }
 
 		const auto now = std::chrono::system_clock::now();
 		const time_t now_time = std::chrono::system_clock::to_time_t(now);
@@ -45,14 +43,18 @@ namespace Log
 		const auto secondRemainder = now - std::chrono::system_clock::from_time_t(now_time);
 		const int64_t milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(secondRemainder).count();
 
-		static std::map<Level, const char *> severityName = {
-			{Level::Verbose, "Verbose"}, {Level::Info, "Info   "}, {Level::Warning, "Warning"}, {Level::Error, "Error  "}};
+        static std::map<Level, const char *> severityName = {
+                {Level::Verbose, "Verbose"},
+                {Level::Info,    "Info   "},
+                {Level::Warning, "Warning"},
+                {Level::Error,   "Error  "}};
 
-		std::ostringstream out;
-		out.fill('0');
-		out << "[" << std::setw(2) << now_tm.tm_hour << ":" << std::setw(2) << now_tm.tm_min << ":" << std::setw(2) << now_tm.tm_sec
-			<< "." << std::setw(3) << milliseconds << "]"
-			<< "[" << severityName[severity] << "] " << msg << std::endl;
+        std::ostringstream out;
+        out.fill('0');
+        out << "[" << std::setw(2) << now_tm.tm_hour << ":" << std::setw(2) << now_tm.tm_min << ":" << std::setw(2)
+            << now_tm.tm_sec
+            << "." << std::setw(3) << milliseconds << "]"
+            << "[" << severityName[severity] << "] " << msg << std::endl;
 
 		std::lock_guard<std::mutex> lock(g_logLock); // Ensure output is serialized
 		((severity == Level::Error) ? std::clog : std::cout) << out.str();
@@ -65,5 +67,5 @@ namespace Log
 		else
 			ALOGV("%s", out.str().c_str());
 #endif
-	}
+    }
 } // namespace Log

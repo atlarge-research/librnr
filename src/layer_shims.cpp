@@ -673,38 +673,12 @@ XRAPI_ATTR XrResult XRAPI_CALL thisLayer_xrGetActionStateBoolean(XrSession sessi
 	return res;
 }
 
-void recordApplyHapticFeedback(XrHapticActionInfo* hapticActionInfo, XrHapticBaseHeader* hapticBaseHeader)
-{
-	   // look up the paths mapped to this action
-	   if (auto search = actionBindingMap.find(hapticActionInfo->action); search != actionBindingMap.end())
-	   {
-			   // iterate over all paths for this action
-			   auto paths = actionBindingMap[hapticActionInfo->action];
-			   for (auto p : paths)
-			   {
-					   // check which path got activated
-					   auto ps = pathToString[p];
-					   auto pss = pathToString[hapticActionInfo->subactionPath];
-					   if (ps.rfind(pss, 0) == 0)
-					   {
-							   // log the path and the data for the action
-							   tracer::traceEntry e = {frameTime, 'h', ps};
-							   tracer::traceApplyHaptic taf = {true};
-							   e.body = taf;
-							   tracer::writeApplyHaptic(e);
-					   }
-			   }
-	   }
-}
-
 XRAPI_ATTR XrResult XRAPI_CALL thisLayer_xrApplyHapticFeedback(XrSession session, XrHapticActionInfo* hapticActionInfo, XrHapticBaseHeader* hapticBaseHeader) {
 	static PFN_xrApplyHapticFeedback nextLayer_xrApplyHapticFeedback = GetNextLayerFunction(xrApplyHapticFeedback);
 	// Disable haptic feedback when in replay mode
 	if (mode == tracer::REPLAY) {
 		return XR_SUCCESS;
 	}
-	
-	recordApplyHapticFeedback(hapticActionInfo, hapticBaseHeader);
 	
 	auto res = nextLayer_xrApplyHapticFeedback(session, hapticActionInfo, hapticBaseHeader);
 	return res;
