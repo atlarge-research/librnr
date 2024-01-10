@@ -432,13 +432,11 @@ void recordGetActionStateFloat(const XrActionStateGetInfo *getInfo, XrActionStat
     auto isActive = state->isActive;
     auto lastChanged = state->lastChangeTime;
 
-    // we don't need all values. especially if there are long periods that nothing happens. check if we need to log
     if (changed || (previousWasChanged && !changed)) {
-        // look up the paths mapped to this action
         if (auto search = actionBindingMap.find(getInfo->action); search != actionBindingMap.end()) {
-            // iterate over all paths for this action
             auto paths = actionBindingMap[getInfo->action];
-            for (auto p : paths) {
+
+            for (auto p: paths) {
                 // check which path got activated
                 auto ps = pathToString[p];
                 auto pss = pathToString[getInfo->subactionPath];
@@ -467,15 +465,14 @@ XRAPI_ATTR XrResult XRAPI_CALL thisLayer_xrGetActionStateFloat(XrSession session
     return res;
 }
 
-bool replayGetActionStateVector2f(const XrActionStateGetInfo *getInfo, XrActionStateVector2f *state)
-{
+bool replayGetActionStateVector2f(const XrActionStateGetInfo *getInfo, XrActionStateVector2f *state) {
     tracer::traceEntry e;
     e.time = frameTime;
     // look up the paths mapped to this action
     if (auto search = actionBindingMap.find(getInfo->action); search != actionBindingMap.end()) {
         // iterate over all paths for this action
         auto paths = actionBindingMap[getInfo->action];
-        for (auto p : paths) {
+        for (auto p: paths) {
             // check which path got activated
             auto ps = pathToString[p];
             auto pss = pathToString[getInfo->subactionPath];
@@ -501,26 +498,23 @@ bool replayGetActionStateVector2f(const XrActionStateGetInfo *getInfo, XrActionS
     return true;
 }
 
-void recordGetActionStateVector2f(const XrActionStateGetInfo *getInfo, XrActionStateVector2f *state)
-{
+void recordGetActionStateVector2f(const XrActionStateGetInfo *getInfo, XrActionStateVector2f *state) {
     static bool previousWasChanged = true;
     auto changed = state->changedSinceLastSync;
     auto value = state->currentState;
     auto isActive = state->isActive;
     auto lastChanged = state->lastChangeTime;
 
-    // we don't need all values. especially if there are long periods that nothing happens. check if we need to log
     if (changed || (previousWasChanged && !changed)) {
-        // look up the paths mapped to this action
         if (auto search = actionBindingMap.find(getInfo->action); search != actionBindingMap.end()) {
-            // iterate over all paths for this action
+
             auto paths = actionBindingMap[getInfo->action];
             for (auto p : paths) {
-                // check which path got activated
+
                 auto ps = pathToString[p];
                 auto pss = pathToString[getInfo->subactionPath];
                 if (ps.rfind(pss, 0) == 0) {
-                    // log the path and the data for the action
+
                     tracer::traceEntry e = {frameTime, 'p', ps};
                     tracer::traceActionVector2f taf = {changed, value.x, value.y, isActive, lastChanged};
                     e.body = taf;
@@ -532,8 +526,8 @@ void recordGetActionStateVector2f(const XrActionStateGetInfo *getInfo, XrActionS
     previousWasChanged = changed;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL thisLayer_xrGetActionStateVector2f(XrSession session, const XrActionStateGetInfo *getInfo, XrActionStateVector2f *state)
-{
+XRAPI_ATTR XrResult XRAPI_CALL thisLayer_xrGetActionStateVector2f(XrSession session, const XrActionStateGetInfo *getInfo,
+                                                                  XrActionStateVector2f *state) {
     static PFN_xrGetActionStateVector2f nextLayer_xrGetActionStateFloat = GetNextLayerFunction(xrGetActionStateVector2f);
     auto res = nextLayer_xrGetActionStateFloat(session, getInfo, state);
     if (mode == tracer::Mode::REPLAY) {
@@ -546,15 +540,13 @@ XRAPI_ATTR XrResult XRAPI_CALL thisLayer_xrGetActionStateVector2f(XrSession sess
     return res;
 }
 
-bool replayGetActionStateBoolean(const XrActionStateGetInfo *getInfo, XrActionStateBoolean *state)
-{
+bool replayGetActionStateBoolean(const XrActionStateGetInfo *getInfo, XrActionStateBoolean *state) {
     tracer::traceEntry e;
     e.time = frameTime;
     // look up the paths mapped to this action
     if (auto search = actionBindingMap.find(getInfo->action); search != actionBindingMap.end()) {
-        // iterate over all paths for this action
         auto paths = actionBindingMap[getInfo->action];
-        for (auto p : paths) {
+        for (auto p: paths) {
             // check which path got activated
             auto ps = pathToString[p];
             auto pss = pathToString[getInfo->subactionPath];
