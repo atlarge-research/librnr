@@ -264,15 +264,13 @@ namespace tracer {
         trace << endl;
     }
 
-    bool readNextActionVector2f(traceEntry* e)
-    {
+    bool readNextActionVector2f(traceEntry* e) {
         assert(holds_alternative<traceActionVector2f>(e->body));
         auto& f = get<traceActionVector2f>(e->body);
 
         traceEntry outEntry;
         outEntry.time = e->time;
-        if (!readUntil(&outEntry) || vector2fActionMap.find(e->path) == vector2fActionMap.end())
-        {
+        if (!readUntil(&outEntry) || vector2fActionMap.find(e->path) == vector2fActionMap.end()) {
             return false;
         }
 
@@ -280,8 +278,7 @@ namespace tracer {
         return true;
     }
 
-    void writeActionBoolean(traceEntry e)
-    {
+    void writeActionBoolean(traceEntry e) {
         assert(holds_alternative<traceActionBoolean>(e.body));
         auto& b = get<traceActionBoolean>(e.body);
 
@@ -304,8 +301,7 @@ namespace tracer {
         return true;
     }
 
-    void writeApplyHaptic(traceEntry e)
-    {
+    void writeApplyHaptic(traceEntry e) {
         assert(holds_alternative<traceApplyHaptic>(e.body));
         auto& h = get<traceApplyHaptic>(e.body);
 
@@ -314,16 +310,14 @@ namespace tracer {
         trace << endl;
     }
 
-    bool readNextApplyHaptic(traceEntry* e)
-    {
+    bool readNextApplyHaptic(traceEntry* e) {
         assert(holds_alternative<traceApplyHaptic>(e->body));
         auto& h = get<traceApplyHaptic>(e->body);
 
 
         traceEntry outEntry;
         outEntry.time = e->time;
-        if (!readUntil(&outEntry) || hapticActionMap.find(e->path) == hapticActionMap.end())
-        {
+        if (!readUntil(&outEntry) || hapticActionMap.find(e->path) == hapticActionMap.end()) {
                 return false;
         }
 

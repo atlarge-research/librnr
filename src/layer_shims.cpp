@@ -433,20 +433,16 @@ void recordGetActionStateFloat(const XrActionStateGetInfo *getInfo, XrActionStat
     auto lastChanged = state->lastChangeTime;
 
     // we don't need all values. especially if there are long periods that nothing happens. check if we need to log
-    if (changed || (previousWasChanged && !changed))
-    {
+    if (changed || (previousWasChanged && !changed)) {
         // look up the paths mapped to this action
-        if (auto search = actionBindingMap.find(getInfo->action); search != actionBindingMap.end())
-        {
+        if (auto search = actionBindingMap.find(getInfo->action); search != actionBindingMap.end()) {
             // iterate over all paths for this action
             auto paths = actionBindingMap[getInfo->action];
-            for (auto p : paths)
-            {
+            for (auto p : paths) {
                 // check which path got activated
                 auto ps = pathToString[p];
                 auto pss = pathToString[getInfo->subactionPath];
-                if (ps.rfind(pss, 0) == 0)
-                {
+                if (ps.rfind(pss, 0) == 0) {
                     // log the path and the data for the action
                     tracer::traceEntry e = {frameTime, 'f', ps};
                     tracer::traceActionFloat taf = {changed, value, isActive, lastChanged};
@@ -476,29 +472,24 @@ bool replayGetActionStateVector2f(const XrActionStateGetInfo *getInfo, XrActionS
     tracer::traceEntry e;
     e.time = frameTime;
     // look up the paths mapped to this action
-    if (auto search = actionBindingMap.find(getInfo->action); search != actionBindingMap.end())
-    {
+    if (auto search = actionBindingMap.find(getInfo->action); search != actionBindingMap.end()) {
         // iterate over all paths for this action
         auto paths = actionBindingMap[getInfo->action];
-        for (auto p : paths)
-        {
+        for (auto p : paths) {
             // check which path got activated
             auto ps = pathToString[p];
             auto pss = pathToString[getInfo->subactionPath];
-            if (ps.rfind(pss, 0) == 0)
-            {
+            if (ps.rfind(pss, 0) == 0) {
                 e.path = ps;
             }
         }
     }
-    else
-    {
+    else {
         return false;
     }
 
     e.body = tracer::traceActionVector2f{};
-    if (!tracer::readNextActionVector2f(&e))
-    {
+    if (!tracer::readNextActionVector2f(&e)) {
         return false;
     }
     assert(holds_alternative<tracer::traceActionVector2f>(e.body));
@@ -519,20 +510,16 @@ void recordGetActionStateVector2f(const XrActionStateGetInfo *getInfo, XrActionS
     auto lastChanged = state->lastChangeTime;
 
     // we don't need all values. especially if there are long periods that nothing happens. check if we need to log
-    if (changed || (previousWasChanged && !changed))
-    {
+    if (changed || (previousWasChanged && !changed)) {
         // look up the paths mapped to this action
-        if (auto search = actionBindingMap.find(getInfo->action); search != actionBindingMap.end())
-        {
+        if (auto search = actionBindingMap.find(getInfo->action); search != actionBindingMap.end()) {
             // iterate over all paths for this action
             auto paths = actionBindingMap[getInfo->action];
-            for (auto p : paths)
-            {
+            for (auto p : paths) {
                 // check which path got activated
                 auto ps = pathToString[p];
                 auto pss = pathToString[getInfo->subactionPath];
-                if (ps.rfind(pss, 0) == 0)
-                {
+                if (ps.rfind(pss, 0) == 0) {
                     // log the path and the data for the action
                     tracer::traceEntry e = {frameTime, 'p', ps};
                     tracer::traceActionVector2f taf = {changed, value.x, value.y, isActive, lastChanged};
@@ -549,12 +536,10 @@ XRAPI_ATTR XrResult XRAPI_CALL thisLayer_xrGetActionStateVector2f(XrSession sess
 {
     static PFN_xrGetActionStateVector2f nextLayer_xrGetActionStateFloat = GetNextLayerFunction(xrGetActionStateVector2f);
     auto res = nextLayer_xrGetActionStateFloat(session, getInfo, state);
-    if (mode == tracer::Mode::REPLAY)
-    {
+    if (mode == tracer::Mode::REPLAY) {
         replayGetActionStateVector2f(getInfo, state);
     }
-    else
-    {
+    else {
         recordGetActionStateVector2f(getInfo, state);
     }
 
@@ -566,24 +551,20 @@ bool replayGetActionStateBoolean(const XrActionStateGetInfo *getInfo, XrActionSt
     tracer::traceEntry e;
     e.time = frameTime;
     // look up the paths mapped to this action
-    if (auto search = actionBindingMap.find(getInfo->action); search != actionBindingMap.end())
-    {
+    if (auto search = actionBindingMap.find(getInfo->action); search != actionBindingMap.end()) {
         // iterate over all paths for this action
         auto paths = actionBindingMap[getInfo->action];
-        for (auto p : paths)
-        {
+        for (auto p : paths) {
             // check which path got activated
             auto ps = pathToString[p];
             auto pss = pathToString[getInfo->subactionPath];
-            if (ps.rfind(pss, 0) == 0)
-            {
+            if (ps.rfind(pss, 0) == 0) {
                 e.path = ps;
             }
         }
     }
     e.body = tracer::traceActionBoolean{};
-    if (!tracer::readNextActionBoolean(&e))
-    {
+    if (!tracer::readNextActionBoolean(&e)) {
         return false;
     }
     assert(holds_alternative<tracer::traceActionBoolean>(e.body));
@@ -641,17 +622,14 @@ XRAPI_ATTR XrResult XRAPI_CALL thisLayer_xrGetActionStateBoolean(XrSession sessi
 void recordApplyHapticFeedback(XrHapticActionInfo* hapticActionInfo, XrHapticBaseHeader* hapticBaseHeader)
 {
         // look up the paths mapped to this action
-        if (auto search = actionBindingMap.find(hapticActionInfo->action); search != actionBindingMap.end())
-        {
+        if (auto search = actionBindingMap.find(hapticActionInfo->action); search != actionBindingMap.end()) {
                 // iterate over all paths for this action
                 auto paths = actionBindingMap[hapticActionInfo->action];
-                for (auto p : paths)
-                {
+                for (auto p : paths) {
                         // check which path got activated
                         auto ps = pathToString[p];
                         auto pss = pathToString[hapticActionInfo->subactionPath];
-                        if (ps.rfind(pss, 0) == 0)
-                        {
+                        if (ps.rfind(pss, 0) == 0) {
                                 // log the path and the data for the action
                                 tracer::traceEntry e = {frameTime, 'h', ps};
                                 tracer::traceApplyHaptic taf = {true};
@@ -669,7 +647,6 @@ XRAPI_ATTR XrResult XRAPI_CALL thisLayer_xrApplyHapticFeedback(XrSession session
     if (mode == tracer::REPLAY) {
         return XR_SUCCESS;
     }
-    
     recordApplyHapticFeedback(hapticActionInfo, hapticBaseHeader);
     
     auto res = nextLayer_xrApplyHapticFeedback(session, hapticActionInfo, hapticBaseHeader);

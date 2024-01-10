@@ -32,24 +32,21 @@ namespace tracer {
         XrTime lastChanged;
     };
 
-    struct traceActionVector2f
-    {
+    struct traceActionVector2f {
         XrBool32 changed;
         XrVector2f value;
         XrBool32 isActive;
         XrTime lastChanged;
     };
 
-    struct traceActionBoolean
-    {
+    struct traceActionBoolean {
         XrBool32 changed;
         XrBool32 value;
         XrBool32 isActive;
         XrTime lastChanged;
     };
 
-    struct traceApplyHaptic
-    {
+    struct traceApplyHaptic {
         XrBool32 value;
         XrTime lastChanged;
     };
