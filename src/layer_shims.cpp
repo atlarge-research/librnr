@@ -611,13 +611,12 @@ XRAPI_ATTR XrResult XRAPI_CALL thisLayer_xrGetActionStateBoolean(XrSession sessi
     return res;
 }
 
-void recordApplyHapticFeedback(XrHapticActionInfo* hapticActionInfo, XrHapticBaseHeader* hapticBaseHeader)
-{
+void recordApplyHapticFeedback(XrHapticActionInfo* hapticActionInfo, XrHapticBaseHeader* hapticBaseHeader) {
         // look up the paths mapped to this action
         if (auto search = actionBindingMap.find(hapticActionInfo->action); search != actionBindingMap.end()) {
                 // iterate over all paths for this action
                 auto paths = actionBindingMap[hapticActionInfo->action];
-                for (auto p : paths) {
+                for (auto p: paths) {
                         // check which path got activated
                         auto ps = pathToString[p];
                         auto pss = pathToString[hapticActionInfo->subactionPath];
