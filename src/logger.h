@@ -6,10 +6,8 @@
 
 #include <string>
 
-namespace Log
-{
-    enum class Level
-    {
+namespace Log {
+    enum class Level {
         Verbose,
         Info,
         Warning,
@@ -17,5 +15,6 @@ namespace Log
     };
 
     void SetLevel(Level minSeverity);
+
     void Write(Level severity, const std::string &msg);
 } // namespace Log

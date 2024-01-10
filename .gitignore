@@ -417,3 +417,5 @@ cmake-build*
 CMakeSettings.json
 BeatSaberVersion.txt
 *.pem
+!traces/**/*.log
+!traces/**/*.csv
