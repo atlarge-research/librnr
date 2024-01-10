@@ -257,7 +257,7 @@ namespace tracer {
     void writeActionVector2f(traceEntry e)
     {
         assert(holds_alternative<traceActionVector2f>(e.body));
-        auto& f = get<traceActionVector2f>(e.body);
+        auto &f = get<traceActionVector2f>(e.body);
 
         writeHead(e);
         trace << " " << f.changed << " " << f.isActive << " " << f.lastChanged << " " << f.value.x << " " << f.value.y;
@@ -266,7 +266,7 @@ namespace tracer {
 
     bool readNextActionVector2f(traceEntry* e) {
         assert(holds_alternative<traceActionVector2f>(e->body));
-        auto& f = get<traceActionVector2f>(e->body);
+        auto &f = get<traceActionVector2f>(e->body);
 
         traceEntry outEntry;
         outEntry.time = e->time;
@@ -280,7 +280,7 @@ namespace tracer {
 
     void writeActionBoolean(traceEntry e) {
         assert(holds_alternative<traceActionBoolean>(e.body));
-        auto& b = get<traceActionBoolean>(e.body);
+        auto &b = get<traceActionBoolean>(e.body);
 
         writeHead(e);
         trace << " " << b.changed << " " << b.isActive << " " << b.lastChanged << " " << b.value;
@@ -303,7 +303,7 @@ namespace tracer {
 
     void writeApplyHaptic(traceEntry e) {
         assert(holds_alternative<traceApplyHaptic>(e.body));
-        auto& h = get<traceApplyHaptic>(e.body);
+        auto &h = get<traceApplyHaptic>(e.body);
 
         writeHead(e);
         trace << " " << h.value;
@@ -312,7 +312,7 @@ namespace tracer {
 
     bool readNextApplyHaptic(traceEntry* e) {
         assert(holds_alternative<traceApplyHaptic>(e->body));
-        auto& h = get<traceApplyHaptic>(e->body);
+        auto &h = get<traceApplyHaptic>(e->body);
 
 
         traceEntry outEntry;
