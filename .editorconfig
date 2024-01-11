@@ -42,3 +42,8 @@ cpp_indent_case_contents_when_block = true
 cpp_new_line_before_open_brace_namespace = same_line
 # Clion options
 brace_style = end_of_line
+
+[*.ps1]
+ij_powershell_block_brace_style = end_of_line
+ij_powershell_class_brace_style = end_of_line
+ij_powershell_method_brace_style = end_of_line
