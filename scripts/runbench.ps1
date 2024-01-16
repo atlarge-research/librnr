@@ -7,32 +7,61 @@ param (
     [ValidateRange("Positive")][int]$Duration,
     [ValidateNotNullOrEmpty()][ValidateSet('record', 'replay')][System.String]$Mode = "replay",
     [switch]$NoHostTrace,
-    [switch]$S2Battery
+    [switch]$S2Battery,
+    [ValidateRange("Positive")][int]$Delay = 0
 )
+
+# Give warnings/errors when using undefined variables and such
+Set-StrictMode -Version latest
+
+# Store the command used this script in the output folder
+$PSBoundParameters >> "$OutDir/command.txt"
 
 $Autodriver = $PSBoundParameters.ContainsKey('Class') -and $PSBoundParameters.ContainsKey('Activity') -and $PSBoundParameters.ContainsKey('Duration')
 
+# Delay starting script, if desired
+# Gives you time to put the VR headset on, for example
+Start-Sleep -Seconds $Delay
+
 $functions = {
-    function Trace-Metrics([string]$OutDir, [string]$PSScriptRoot) {
-        # https://xkln.net/blog/powershell-sleep-duration-accuracy-and-windows-timers/
+    function Trace-Metrics(
+            [Parameter(Mandatory)][string]$OutDir,
+            [Parameter(Mandatory)][bool]$S2Battery,
+            [Parameter(Mandatory)][bool]$NoHostTrace,
+            [Parameter(Mandatory)][string]$PSScriptRoot
+    ) {
+        # Give warnings/errors when using undefined variables and such
+        Set-StrictMode -Version latest
 
         # clear the log
         adb logcat -c
         # set the log to max size
         adb logcat -G 16M
 
-        # start the battery measurement app
         if ($S2Battery) {
+            # start the battery measurement app
             adb shell am start-foreground-service -n "com.example.batterymanager_utility/com.example.batterymanager_utility.DataCollectionService" --ei sampleRate 1000 --es "dataFields" "BATTERY_PROPERTY_CURRENT_NOW,EXTRA_VOLTAGE" --ez toCSV False
+            # stream battery measurement logs to file
+            $BatteryJob = Start-Job -ScriptBlock {
+                $Out = "$using:OutDir\batterymanager-companion.log"
+                Write-Host "Writing S2 battery data measurements to $Out"
+                adb shell 'logcat | grep "BatteryMgr:DataCollectionService"' >> $Out
+            }
         }
 
         # log the device hardware
         adb shell "cat /proc/version" >> "$OutDir\version.log"
         adb shell "cat /proc/cpuinfo" >> "$OutDir\cpuinfo.log"
 
+        # stream vrapi logs to file
+        $VrJob = Start-Job -ScriptBlock { adb logcat -s VrApi >> "$using:OutDir\logcat_VrApi.log" }
         # start logging metrics from the gaming PC
         if (-not($NoHostTrace)) {
-            $HostJob = Start-Job -ScriptBlock { python "$using:PSScriptRoot\sample-host-metrics.py" $using:OutDir }
+            $HostJob = Start-Job -ScriptBlock {
+                $Out = $using:OutDir
+                Write-Host "Writing host metrics to $Out"
+                python "$using:PSScriptRoot\sample-host-metrics.py" $Out
+            }
         }
 
         $Freq = [System.Diagnostics.Stopwatch]::Frequency
@@ -44,6 +73,14 @@ $functions = {
             While ($True) {
                 [System.DateTime]::Now.ToString("HH:mm:ss.fff")
 
+                if ($VrJob.State -ne "Running") {
+                    Write-Host "Oh no! Restarting adb VrApi log capture"
+                    $VrJob = Start-Job -ScriptBlock { adb logcat -s VrApi >> "$using:OutDir\logcat_VrApi.log" }
+                }
+                if (($S2Battery) -and ($BatteryJob.State -ne "Running")) {
+                    Write-Host "Oh no! Restarting adb battery log capture"
+                    $BatteryJob = Start-Job -ScriptBlock { adb shell 'logcat | grep "BatteryMgr:DataCollectionService"' >> "$using:OutDir\batterymanager-companion.log" }
+                }
                 # check if process that logs metrics from gaming PC is still running
                 # if not, restart
                 if ((-not($NoHostTrace)) -and ($HostJob.State -ne "Running")) {
@@ -62,6 +99,7 @@ $functions = {
                 adb shell "dumpsys OVRRemoteService" >> "$OutDir\OVRRemoteService.log"
                 adb shell "dumpsys CompanionService" >> "$OutDir\CompanionService.log"
 
+                # https://xkln.net/blog/powershell-sleep-duration-accuracy-and-windows-timers/
                 # calculate how long to sleep to maintain sample frequency of 1Hz
                 $End = [System.Diagnostics.Stopwatch]::GetTimestamp()
                 Do {
@@ -73,22 +111,21 @@ $functions = {
             }
         }
         finally {
-            # get logcat logs from trace
-            adb logcat -d >> "$OutDir\logcat.log"
-
-            # get only VrApi logs
-            adb logcat -d -s VrApi >> "$OutDir\logcat_VrApi.log"
+            Write-Host "Stopping VR monitor..."
+            Stop-Job $VrJob
+            Receive-Job $VrJob
 
             # stop process collecting metrics from gaming PC
             Write-Host "Stopping host monitor..."
             Stop-Job $HostJob
+            Receive-Job $HostJob
 
             if ($S2Battery) {
                 Write-Host "Stopping battery measurements..."
                 # stop app collecting battery measurements
                 adb shell am stopservice com.example.batterymanager_utility/com.example.batterymanager_utility.DataCollectionService
-                # get the battery measurements from the VR device
-                adb logcat -d | Select-String "BatteryMgr:DataCollectionService" >> "$OutDir\batterymanager-companion.log"
+                Stop-Job $BatteryJob
+                Receive-Job $BatteryJob
             }
         }
     }
@@ -116,7 +153,9 @@ try {
     Set-Content -Path $modeFilePath -Value "$Mode $TraceFile"
 
     # Start tracing
-    $TraceJob = Start-Job -InitializationScript $functions -ScriptBlock { Trace-Metrics $using:OutDir $using:PSScriptRoot }
+    $TraceJob = Start-ThreadJob -StreamingHost $Host -InitializationScript $functions -ScriptBlock {
+        Trace-Metrics $using:OutDir $using:S2Battery $using:NoHostTrace $using:PSScriptRoot
+    }
 
     if ($Autodriver) {
         adb shell setprop debug.oculus.vrapilayers AutoDriver
@@ -129,8 +168,10 @@ try {
         else {
             adb shell setprop debug.oculus.autoDriverMode Record
         }
-        adb shell am start -S $Class/$Activity  > nul 2>&1
+        adb shell dumpsys package $Class >> "$OutDir/apk-package-dumpsys.txt"
+        adb shell am start -S $Class/$Activity > nul 2>&1
 
+        Write-Host "Sleeping for $Duration seconds..."
         Start-Sleep -Seconds $Duration
     }
     else {

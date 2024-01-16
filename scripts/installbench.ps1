@@ -20,7 +20,7 @@ if (!(Test-Path $Path)) {
 Set-ItemProperty -Path $Path -Name $Name -Value 0 -Type DWord
 
 # Create librnr directory
-New-Item -ItemType Directory $rnrDirPath
+New-Item -Force -ItemType Directory $rnrDirPath
 
 # Download manifest.json
 Write-Output "downloading library manifest..."

@@ -1,7 +1,9 @@
 import psutil
 import GPUtil
 import time
+import sys
 from datetime import datetime
+from pathlib import Path
 
 
 def key_or_val(li, key, value, header):
@@ -12,9 +14,12 @@ def key_or_val(li, key, value, header):
 
 
 def main():
+    outdirstr = sys.argv[1] if len(sys.argv) > 1 else "."
+    outdir = Path(outdirstr)
+
     start = datetime.now().timestamp()
-    with open("host_gpu_metrics.log", "a") as f_gpu, open(
-            "host_sys_metrics.log", "a"
+    with open(outdir / "host_gpu_metrics.log", "a") as f_gpu, open(
+            outdir / "host_sys_metrics.log", "a"
     ) as f_sys:
         f_gpu.write(
             "timestamp,id,uuid,load,memoryUtil,memoryTotal,memoryUsed,memoryFree,driver,name,serial,display_mode,display_active\n"
