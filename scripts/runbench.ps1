@@ -15,7 +15,7 @@ param (
 Set-StrictMode -Version latest
 
 # if the trace file path is relative and outdir has been specified, look for / write trace file in outdir
-if ($PSBoundParameters.ContainsKey('OutDir') -and (-not ([System.IO.Path]::IsPathRooted($TraceFile)))) {
+if ($PSBoundParameters.ContainsKey('OutDir') -and (-not([System.IO.Path]::IsPathRooted($TraceFile)))) {
     $TraceFile = Join-Path $OutDir $TraceFile
 }
 
@@ -207,6 +207,11 @@ finally {
 
         if ($Mode -eq "record") {
             adb pull "$VrStorage/Android/data/$Class/AutoDriver/default.autodriver" $TraceFile  > nul
+        }
+        else {
+            # replay mode
+            # remove file so that next time we start the app it does not automatically start replaying
+            adb shell rm "$VrStorage/Android/data/$Class/AutoDriver/default.autodriver"
         }
     }
     elseif ($PSBoundParameters.ContainsKey('App')) {
