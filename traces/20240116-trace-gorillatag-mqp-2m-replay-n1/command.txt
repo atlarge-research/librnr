@@ -1,0 +1,11 @@
+
+Key       Value
+---       -----
+OutDir    C:\Users\atl_gaming\Desktop\trace-gorillatag-mqp-2m-replay-n1
+Class     com.AnotherAxiom.GorillaTag
+Activity  com.unity3d.player.UnityPlayerActivity
+Duration  120
+S2Battery True
+Mode      replay
+TraceFile trace.txt
+

@@ -1,0 +1,166 @@
+Activity Resolver Table:
+  Non-Data Actions:
+      android.intent.action.MAIN:
+        5814187 com.polyarc.MossGame/com.epicgames.ue4.GameActivity filter f6a38b4
+          Action: "android.intent.action.MAIN"
+          Category: "android.intent.category.INFO"
+
+Receiver Resolver Table:
+  Non-Data Actions:
+      com.google.android.gms.analytics.ANALYTICS_DISPATCH:
+        ea66f23 com.polyarc.MossGame/com.google.android.gms.analytics.AnalyticsReceiver filter acc2c20
+          Action: "com.google.android.gms.analytics.ANALYTICS_DISPATCH"
+      com.android.vending.INSTALL_REFERRER:
+        cb92cdd com.polyarc.MossGame/com.epicgames.ue4.MulticastBroadcastReceiver filter 671a052
+          Action: "com.android.vending.INSTALL_REFERRER"
+        f20b9d9 com.polyarc.MossGame/com.google.android.gms.analytics.CampaignTrackingReceiver filter 656f9e
+          Action: "com.android.vending.INSTALL_REFERRER"
+
+Domain verification status:
+
+Key Set Manager:
+  [com.polyarc.MossGame]
+      Signing KeySets: 37
+
+Packages:
+  Package [com.polyarc.MossGame] (2332a23):
+    userId=10115
+    pkg=Package{b1cb20 com.polyarc.MossGame}
+    codePath=/data/app/~~RHWdwwvXWldPf4Yu-0Xweg==/com.polyarc.MossGame-aoc7a2pqvlRaSsKKSZPmLA==
+    resourcePath=/data/app/~~RHWdwwvXWldPf4Yu-0Xweg==/com.polyarc.MossGame-aoc7a2pqvlRaSsKKSZPmLA==
+    legacyNativeLibraryDir=/data/app/~~RHWdwwvXWldPf4Yu-0Xweg==/com.polyarc.MossGame-aoc7a2pqvlRaSsKKSZPmLA==/lib
+    extractNativeLibs=true
+    primaryCpuAbi=arm64-v8a
+    secondaryCpuAbi=null
+    cpuAbiOverride=null
+    versionCode=22600 minSdk=23 targetSdk=26
+    minExtensionVersions=[]
+    versionName=1.0.0.22600
+    usesNonSdkApi=false
+    splits=[base]
+    apkSigningVersion=2
+    applicationInfo=PackageImpl{b1cb20 com.polyarc.MossGame}
+    flags=[ HAS_CODE ALLOW_CLEAR_USER_DATA ALLOW_BACKUP ]
+    privateFlags=[ PRIVATE_FLAG_ACTIVITIES_RESIZE_MODE_RESIZEABLE_VIA_SDK_VERSION ALLOW_AUDIO_PLAYBACK_CAPTURE PRIVATE_FLAG_REQUEST_LEGACY_EXTERNAL_STORAGE PRIVATE_FLAG_ALLOW_NATIVE_HEAP_POINTER_TAGGING ]
+    privateFlagsExt=[ PROFILEABLE ]
+    forceQueryable=false
+    queriesPackages=[]
+    dataDir=/data/user/0/com.polyarc.MossGame
+    supportsScreens=[small, medium, large, xlarge, resizeable, anyDensity]
+    usesLibraries:
+      android.test.base
+      org.apache.http.legacy
+    usesLibraryFiles:
+      /system/framework/android.test.base.jar
+      /system/framework/org.apache.http.legacy.jar
+    timeStamp=2024-01-16 10:39:46
+    firstInstallTime=2024-01-16 10:39:47
+    lastUpdateTime=2024-01-16 10:39:47
+    installerPackageName=com.oculus.ocms
+    signatures=PackageSignatures{2576cd9 version:2, signatures:[b053cc22], past signatures:[]}
+    installPermissionsFixed=true
+    pkgFlags=[ HAS_CODE ALLOW_CLEAR_USER_DATA ALLOW_BACKUP ]
+    requested permissions:
+      android.permission.INTERNET
+      android.permission.WRITE_EXTERNAL_STORAGE
+      android.permission.ACCESS_NETWORK_STATE
+      android.permission.WAKE_LOCK
+      com.android.vending.CHECK_LICENSE
+      android.permission.ACCESS_WIFI_STATE
+      android.permission.READ_EXTERNAL_STORAGE
+      android.permission.ACCESS_MEDIA_LOCATION
+    install permissions:
+      android.permission.INTERNET: granted=true
+      android.permission.ACCESS_NETWORK_STATE: granted=true
+      android.permission.ACCESS_WIFI_STATE: granted=true
+      android.permission.WAKE_LOCK: granted=true
+    User 0: ceDataInode=106441 installed=true hidden=false suspended=false distractionFlags=0 stopped=true notLaunched=false enabled=0 instant=false virtual=false
+      gids=[3003]
+      runtime permissions:
+        android.permission.READ_EXTERNAL_STORAGE: granted=false, flags=[ REVOKE_WHEN_REQUESTED|USER_SENSITIVE_WHEN_GRANTED|USER_SENSITIVE_WHEN_DENIED|RESTRICTION_INSTALLER_EXEMPT]
+        android.permission.WRITE_EXTERNAL_STORAGE: granted=false, flags=[ USER_SENSITIVE_WHEN_GRANTED|USER_SENSITIVE_WHEN_DENIED|RESTRICTION_INSTALLER_EXEMPT]
+        android.permission.ACCESS_MEDIA_LOCATION: granted=false, flags=[ REVOKE_WHEN_REQUESTED|USER_SENSITIVE_WHEN_GRANTED|USER_SENSITIVE_WHEN_DENIED]
+
+Queries:
+  system apps queryable: false
+  queries via package name:
+  queries via intent:
+    com.facebook.orca:
+      com.polyarc.MossGame
+  queryable via interaction:
+    User 0:
+      [com.android.server.telecom,com.android.networkstack.tethering.inprocess,com.android.providers.settings,com.oculus.bugreportservice,com.android.location.fused,com.android.keychain,com.oculus.companion.server,com.oculus.notification_proxy,com.oculus.externalstorage,com.oculus.micservice,com.android.localtransport,android,com.oculus.deviceauthserver,com.oculus.nux.ota,com.oculus.vrcast,com.android.inputdevices,com.oculus.preloader,oculus.platform,com.oculus.preshutdowntaskservice,com.android.settings,com.oculus.os.cm,com.oculus.bugreportuploader,com.android.networkstack.inprocess,com.oculus.statscollector,com.oculus.os.chargecontrol,com.oculus.gatekeeperservice,com.oculus.assetdelivery,com.oculus.linefrequencyservice,com.oculus.os.vrlockscreen]:
+        com.polyarc.MossGame
+      com.oculus.ocms:
+        com.polyarc.MossGame
+      com.oculus.vrshell:
+        com.polyarc.MossGame
+      com.oculus.guardian:
+        com.polyarc.MossGame
+      com.oculus.systemdriver:
+        com.polyarc.MossGame
+      com.oculus.horizon:
+        com.polyarc.MossGame
+      com.oculus.ovrmonitormetricsservice:
+        com.polyarc.MossGame
+  queryable via uses-library:
+
+Package Changes:
+  Sequence number=23
+  User 0:
+    seq=0, package=com.android.bluetooth
+    seq=6, package=com.oculus.browser
+    seq=12, package=com.oculus.identitymanagement.service
+    seq=20, package=com.oculus.fitnesstracker
+    seq=22, package=com.oculus.socialplatform
+
+
+Dexopt state:
+  [com.polyarc.MossGame]
+    path: /data/app/~~RHWdwwvXWldPf4Yu-0Xweg==/com.polyarc.MossGame-aoc7a2pqvlRaSsKKSZPmLA==/base.apk
+      arm64: [status=verify] [reason=vdex]
+
+
+Compiler stats:
+  [com.polyarc.MossGame]
+     base.apk - 661
+Snapshot statistics
+   Unrecorded-hits: 873  Cork-level: 0
+   Summary stats               TotBlds     TotUsed     TotCork     BigBlds    ShortLvd     TotTime     MaxTime
+          0:13         now           0           0           0           0           0           0           0
+          1:13        0:13           4        5103           0           0           0           7           6
+          2:13        1:13           0           0           0           0           0           0           0
+          3:13        2:13          18        4152           0           0           2           5           1
+          4:13        3:13           3        1988           0           0           0           0           0
+          5:13        4:13           0           0           0           0           0           0           0
+          6:13        5:13           3        3469           0           0           0           1           0
+          7:13        6:13           0           0           0           0           0           0           0
+          8:13        7:13           0           0           0           0           0           0           0
+          9:13        8:13           3        1343           0           0           0           0           0
+         16:13         now         202       99817           0           1          26         107          10
+
+   Build times                  <= 1ms      <= 2ms      <= 5ms     <= 10ms     <= 20ms     <= 50ms    <= 100ms     > 100ms
+          0:13         now           0           0           0           0           0           0           0           0
+          1:13        0:13           3           0           0           1           0           0           0           0
+          2:13        1:13           0           0           0           0           0           0           0           0
+          3:13        2:13          18           0           0           0           0           0           0           0
+          4:13        3:13           3           0           0           0           0           0           0           0
+          5:13        4:13           0           0           0           0           0           0           0           0
+          6:13        5:13           3           0           0           0           0           0           0           0
+          7:13        6:13           0           0           0           0           0           0           0           0
+          8:13        7:13           0           0           0           0           0           0           0           0
+          9:13        8:13           3           0           0           0           0           0           0           0
+         16:13         now         195           1           4           2           0           0           0           0
+
+   Use counters                   <= 1        <= 2        <= 5       <= 10       <= 20       <= 50      <= 100       > 100
+          0:13         now           0           0           0           0           0           0           0           0
+          1:13        0:13           0           0           0           0           0           0           0           4
+          2:13        1:13           0           0           0           0           0           0           0           0
+          3:13        2:13           2           0           0           0           1           2           3          10
+          4:13        3:13           0           0           0           0           0           0           0           3
+          5:13        4:13           0           0           0           0           0           0           0           0
+          6:13        5:13           0           0           0           0           0           0           0           3
+          7:13        6:13           0           0           0           0           0           0           0           0
+          8:13        7:13           0           0           0           0           0           0           0           0
+          9:13        8:13           0           0           0           0           0           0           0           3
+         16:13         now          18           3           4          15          16          26          25          94
