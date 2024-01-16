@@ -14,6 +14,11 @@ param (
 # Give warnings/errors when using undefined variables and such
 Set-StrictMode -Version latest
 
+# if the trace file path is relative and outdir has been specified, look for / write trace file in outdir
+if ($PSBoundParameters.ContainsKey('OutDir') -and (-not ([System.IO.Path]::IsPathRooted($TraceFile)))) {
+    $TraceFile = Join-Path $OutDir $TraceFile
+}
+
 $Autodriver = $PSBoundParameters.ContainsKey('Class') -and $PSBoundParameters.ContainsKey('Activity') -and $PSBoundParameters.ContainsKey('Duration')
 
 # Delay starting script, if desired
