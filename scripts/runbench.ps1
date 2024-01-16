@@ -14,9 +14,6 @@ param (
 # Give warnings/errors when using undefined variables and such
 Set-StrictMode -Version latest
 
-# Store the command used this script in the output folder
-$PSBoundParameters >> "$OutDir/command.txt"
-
 $Autodriver = $PSBoundParameters.ContainsKey('Class') -and $PSBoundParameters.ContainsKey('Activity') -and $PSBoundParameters.ContainsKey('Duration')
 
 # Delay starting script, if desired
@@ -148,6 +145,9 @@ try {
 
     # Create the output directory, if needed
     New-Item $OutDir -ItemType Directory -Force | Out-Null
+
+    # Store the command used this script in the output folder
+    $PSBoundParameters >> "$OutDir/command.txt"
 
     # Set librnr to configured mode
     Set-Content -Path $modeFilePath -Value "$Mode $TraceFile"
