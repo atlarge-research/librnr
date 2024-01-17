@@ -1,0 +1,12 @@
+
+Key       Value
+---       -----
+OutDir    C:\Users\atl_gaming\Desktop\trace-explorevr-mqp-16m-n1
+Class     com.forcefieldxr.explorevr
+Activity  com.epicgames.ue4.GameActivity
+Duration  960
+S2Battery True
+Mode      record
+TraceFile trace.txt
+Delay     8
+

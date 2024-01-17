@@ -1,0 +1,158 @@
+Activity Resolver Table:
+  Non-Data Actions:
+      android.intent.action.MAIN:
+        1300e53 com.forcefieldxr.explorevr/com.epicgames.ue4.GameActivity filter d059390
+          Action: "android.intent.action.MAIN"
+          Category: "android.intent.category.INFO"
+
+Receiver Resolver Table:
+  Non-Data Actions:
+      com.android.vending.INSTALL_REFERRER:
+        fb5e489 com.forcefieldxr.explorevr/com.epicgames.ue4.MulticastBroadcastReceiver filter 70a3c8e
+          Action: "com.android.vending.INSTALL_REFERRER"
+
+Domain verification status:
+
+Key Set Manager:
+  [com.forcefieldxr.explorevr]
+      Signing KeySets: 18
+
+Packages:
+  Package [com.forcefieldxr.explorevr] (5b10873):
+    userId=10088
+    pkg=Package{8e5d330 com.forcefieldxr.explorevr}
+    codePath=/data/app/com.forcefieldxr.explorevr-_Bv6uM22DJ4u2vArk-rx6Q==
+    resourcePath=/data/app/com.forcefieldxr.explorevr-_Bv6uM22DJ4u2vArk-rx6Q==
+    legacyNativeLibraryDir=/data/app/com.forcefieldxr.explorevr-_Bv6uM22DJ4u2vArk-rx6Q==/lib
+    extractNativeLibs=true
+    primaryCpuAbi=arm64-v8a
+    secondaryCpuAbi=null
+    cpuAbiOverride=null
+    versionCode=674692 minSdk=23 targetSdk=26
+    minExtensionVersions=[]
+    versionName=1.2.1
+    usesNonSdkApi=false
+    splits=[base]
+    apkSigningVersion=2
+    applicationInfo=PackageImpl{8e5d330 com.forcefieldxr.explorevr}
+    flags=[ HAS_CODE ALLOW_CLEAR_USER_DATA ALLOW_BACKUP ]
+    privateFlags=[ PRIVATE_FLAG_ACTIVITIES_RESIZE_MODE_RESIZEABLE_VIA_SDK_VERSION ALLOW_AUDIO_PLAYBACK_CAPTURE PRIVATE_FLAG_REQUEST_LEGACY_EXTERNAL_STORAGE PRIVATE_FLAG_ALLOW_NATIVE_HEAP_POINTER_TAGGING ]
+    privateFlagsExt=[ PROFILEABLE ]
+    forceQueryable=false
+    queriesPackages=[]
+    dataDir=/data/user/0/com.forcefieldxr.explorevr
+    supportsScreens=[small, medium, large, xlarge, resizeable, anyDensity]
+    usesLibraries:
+      android.test.base
+      org.apache.http.legacy
+    usesLibraryFiles:
+      /system/framework/android.test.base.jar
+      /system/framework/org.apache.http.legacy.jar
+    timeStamp=2023-01-28 17:50:08
+    firstInstallTime=2023-01-28 17:50:10
+    lastUpdateTime=2023-01-28 17:50:10
+    installerPackageName=com.oculus.ocms
+    signatures=PackageSignatures{753bba9 version:2, signatures:[f53c98b2], past signatures:[]}
+    installPermissionsFixed=true
+    pkgFlags=[ HAS_CODE ALLOW_CLEAR_USER_DATA ALLOW_BACKUP ]
+    requested permissions:
+      android.permission.INTERNET
+      android.permission.ACCESS_NETWORK_STATE
+      android.permission.ACCESS_WIFI_STATE
+    install permissions:
+      android.permission.INTERNET: granted=true
+      android.permission.ACCESS_NETWORK_STATE: granted=true
+      android.permission.ACCESS_WIFI_STATE: granted=true
+    User 0: ceDataInode=46401 installed=true hidden=false suspended=false distractionFlags=0 stopped=true notLaunched=false enabled=0 instant=false virtual=false
+      gids=[3003]
+      runtime permissions:
+
+Queries:
+  system apps queryable: false
+  queries via package name:
+  queries via intent:
+    com.facebook.orca:
+      com.forcefieldxr.explorevr
+  queryable via interaction:
+    User 0:
+      [com.android.server.telecom,com.android.networkstack.tethering.inprocess,com.android.providers.settings,com.oculus.bugreportservice,com.android.location.fused,com.android.keychain,com.oculus.companion.server,com.oculus.notification_proxy,com.oculus.externalstorage,com.oculus.micservice,com.android.localtransport,android,com.oculus.deviceauthserver,com.oculus.nux.ota,com.oculus.vrcast,com.android.inputdevices,com.oculus.preloader,oculus.platform,com.oculus.preshutdowntaskservice,com.android.settings,com.oculus.os.cm,com.oculus.bugreportuploader,com.android.networkstack.inprocess,com.oculus.statscollector,com.oculus.os.chargecontrol,com.oculus.gatekeeperservice,com.oculus.assetdelivery,com.oculus.linefrequencyservice,com.oculus.os.vrlockscreen]:
+        com.forcefieldxr.explorevr
+      com.oculus.ocms:
+        com.forcefieldxr.explorevr
+      com.oculus.vrshell:
+        com.forcefieldxr.explorevr
+      com.oculus.guardian:
+        com.forcefieldxr.explorevr
+      com.oculus.systemdriver:
+        com.forcefieldxr.explorevr
+      com.oculus.horizon:
+        com.forcefieldxr.explorevr
+      com.oculus.ovrmonitormetricsservice:
+        com.forcefieldxr.explorevr
+  queryable via uses-library:
+
+Package Changes:
+  Sequence number=392
+  User 0:
+    seq=0, package=com.android.bluetooth
+    seq=6, package=com.oculus.browser
+    seq=51, package=com.vertigogames.azsq
+    seq=127, package=com.BigBoxVR.PopulationONE
+    seq=129, package=quest.eleven.forfunlabs
+    seq=131, package=com.oculus.ovrmonitormetricsservice
+    seq=215, package=com.vrchat.oculus.quest
+    seq=349, package=com.AgainstGravity.RecRoom
+    seq=375, package=com.oculus.identitymanagement.service
+    seq=389, package=com.oculus.fitnesstracker
+    seq=391, package=com.oculus.socialplatform
+
+
+Dexopt state:
+  [com.forcefieldxr.explorevr]
+    path: /data/app/com.forcefieldxr.explorevr-_Bv6uM22DJ4u2vArk-rx6Q==/base.apk
+      arm64: [status=verify] [reason=bg-dexopt]
+
+
+Compiler stats:
+  [com.forcefieldxr.explorevr]
+     base.apk - 298
+Snapshot statistics
+   Unrecorded-hits: 533  Cork-level: 0
+   Summary stats               TotBlds     TotUsed     TotCork     BigBlds    ShortLvd     TotTime     MaxTime
+          0:27         now           0           0           0           0           0           0           0
+          1:27        0:27           5        4324           0           0           1           2           1
+          2:27        1:27           0           0           0           0           0           0           0
+          3:27        2:27          14        6059           0           0           3           2           0
+          4:27        3:27           2        1131           0           0           0           0           0
+          5:27        4:27          13        6795           0           0           1           4           2
+          6:27        5:27           2        4851           0           0           0           0           0
+          7:27        6:27           0           0           0           0           0           0           0
+          8:27        7:27           1         538           0           0           0           0           0
+          9:27        8:27           2        6664           0           0           0           0           0
+      18:51:01         now         901      623958           0           1          84         339          10
+
+   Build times                  <= 1ms      <= 2ms      <= 5ms     <= 10ms     <= 20ms     <= 50ms    <= 100ms     > 100ms
+          0:27         now           0           0           0           0           0           0           0           0
+          1:27        0:27           5           0           0           0           0           0           0           0
+          2:27        1:27           0           0           0           0           0           0           0           0
+          3:27        2:27          14           0           0           0           0           0           0           0
+          4:27        3:27           2           0           0           0           0           0           0           0
+          5:27        4:27          12           1           0           0           0           0           0           0
+          6:27        5:27           2           0           0           0           0           0           0           0
+          7:27        6:27           0           0           0           0           0           0           0           0
+          8:27        7:27           1           0           0           0           0           0           0           0
+          9:27        8:27           2           0           0           0           0           0           0           0
+      18:51:01         now         888           6           5           2           0           0           0           0
+
+   Use counters                   <= 1        <= 2        <= 5       <= 10       <= 20       <= 50      <= 100       > 100
+          0:27         now           0           0           0           0           0           0           0           0
+          1:27        0:27           1           0           0           0           0           0           0           4
+          2:27        1:27           0           0           0           0           0           0           0           0
+          3:27        2:27           3           0           0           0           0           0           1          10
+          4:27        3:27           0           0           0           0           0           0           0           2
+          5:27        4:27           1           0           0           1           1           1           1           8
+          6:27        5:27           0           0           0           0           0           0           0           2
+          7:27        6:27           0           0           0           0           0           0           0           0
+          8:27        7:27           0           0           0           0           0           0           0           1
+          9:27        8:27           0           0           0           0           0           0           0           2
+      18:51:01         now          74           3           6          21          25          41          62         668
