@@ -97,6 +97,20 @@ data_logcat_vrapi %>%
 
 ``` r
 data_logcat_vrapi %>%
+  ggplot(aes(x = ts, y = fps_render)) +
+  geom_line() +
+  ylim(0, NA) +
+  theme_half_open() +
+  background_grid() +
+  theme(legend.position = "bottom") +
+  scale_color_viridis_d(begin = 0.3, direction = -1) + 
+  facet_grid(cols = vars(game), rows = vars(config))
+```
+
+![](Results_files/figure-gfm/unnamed-chunk-4-1.svg)<!-- -->
+
+``` r
+data_logcat_vrapi %>%
   # filter(ts >= start_time & ts <= end_time) %>%
   ggplot(aes(x = fps_render, y = config)) +
   geom_boxplot() +
@@ -108,7 +122,42 @@ data_logcat_vrapi %>%
   scale_color_viridis_d(begin = 0.3, direction = -1)
 ```
 
-![](Results_files/figure-gfm/unnamed-chunk-4-1.svg)<!-- -->
+![](Results_files/figure-gfm/unnamed-chunk-5-1.svg)<!-- --> \### Frame
+Time
+
+``` r
+data_logcat_vrapi %>%
+  filter(ts > 30) %>%
+  ggplot(aes(x = ts, y = app)) +
+  geom_line() +
+  ylim(0, NA) +
+  theme_half_open() +
+  background_grid() +
+  theme(legend.position = "bottom") +
+  scale_color_viridis_d(begin = 0.3, direction = -1) + 
+  facet_grid(cols = vars(game), rows = vars(config))
+```
+
+![](Results_files/figure-gfm/unnamed-chunk-6-1.svg)<!-- -->
+
+``` r
+data_logcat_vrapi %>%
+  filter(ts > 30) %>%
+  ggplot(aes(x = app, y = config)) +
+  geom_boxplot() +
+  geom_vline(xintercept = 11.1, color = "orange") +
+  geom_vline(xintercept = 13.9, color = "red") +
+  xlim(0, NA) +
+  theme_half_open() +
+  background_grid() +
+  theme(legend.position = "bottom") +
+  labs(x="Frame time [ms]", y="VR Device") +
+  facet_grid(cols = vars(game))
+```
+
+    ## Warning: Removed 8 rows containing non-finite values (`stat_boxplot()`).
+
+![](Results_files/figure-gfm/unnamed-chunk-7-1.svg)<!-- -->
 
 ### CPU
 
@@ -127,13 +176,13 @@ p <- data_logcat_vrapi %>%
 p
 ```
 
-![](Results_files/figure-gfm/unnamed-chunk-6-1.svg)<!-- -->
+![](Results_files/figure-gfm/unnamed-chunk-9-1.svg)<!-- -->
 
 ``` r
 p + facet_grid(cols = vars(game))
 ```
 
-![](Results_files/figure-gfm/unnamed-chunk-7-1.svg)<!-- -->
+![](Results_files/figure-gfm/unnamed-chunk-10-1.svg)<!-- -->
 
 ``` r
 p <- data_logcat_vrapi %>%
@@ -152,7 +201,7 @@ p <- data_logcat_vrapi %>%
 p
 ```
 
-![](Results_files/figure-gfm/unnamed-chunk-9-1.svg)<!-- -->
+![](Results_files/figure-gfm/unnamed-chunk-12-1.svg)<!-- -->
 
 ``` r
  data_logcat_vrapi %>%
@@ -168,7 +217,7 @@ p
   facet_grid(cols = vars(game), rows = vars(config))
 ```
 
-![](Results_files/figure-gfm/unnamed-chunk-10-1.svg)<!-- -->
+![](Results_files/figure-gfm/unnamed-chunk-13-1.svg)<!-- -->
 
 ``` r
 p <- data_logcat_vrapi %>%
@@ -185,13 +234,13 @@ p <- data_logcat_vrapi %>%
 p
 ```
 
-![](Results_files/figure-gfm/unnamed-chunk-12-1.svg)<!-- -->
+![](Results_files/figure-gfm/unnamed-chunk-15-1.svg)<!-- -->
 
 ``` r
 p + facet_grid(cols = vars(game))
 ```
 
-![](Results_files/figure-gfm/unnamed-chunk-13-1.svg)<!-- -->
+![](Results_files/figure-gfm/unnamed-chunk-16-1.svg)<!-- -->
 
 ``` r
 p <- data_logcat_vrapi %>%
@@ -208,13 +257,13 @@ p <- data_logcat_vrapi %>%
 p
 ```
 
-![](Results_files/figure-gfm/unnamed-chunk-15-1.svg)<!-- -->
+![](Results_files/figure-gfm/unnamed-chunk-18-1.svg)<!-- -->
 
 ``` r
 p + facet_grid(cols = vars(game))
 ```
 
-![](Results_files/figure-gfm/unnamed-chunk-16-1.svg)<!-- -->
+![](Results_files/figure-gfm/unnamed-chunk-19-1.svg)<!-- -->
 
 ### GPU
 
@@ -233,13 +282,13 @@ p <- data_logcat_vrapi %>%
 p
 ```
 
-![](Results_files/figure-gfm/unnamed-chunk-18-1.svg)<!-- -->
+![](Results_files/figure-gfm/unnamed-chunk-21-1.svg)<!-- -->
 
 ``` r
 p + facet_grid(cols = vars(game))
 ```
 
-![](Results_files/figure-gfm/unnamed-chunk-19-1.svg)<!-- -->
+![](Results_files/figure-gfm/unnamed-chunk-22-1.svg)<!-- -->
 
 ``` r
 p <- data_logcat_vrapi %>%
@@ -258,7 +307,7 @@ p <- data_logcat_vrapi %>%
 p
 ```
 
-![](Results_files/figure-gfm/unnamed-chunk-21-1.svg)<!-- -->
+![](Results_files/figure-gfm/unnamed-chunk-24-1.svg)<!-- -->
 
 ``` r
 data_logcat_vrapi %>%
@@ -272,7 +321,7 @@ data_logcat_vrapi %>%
   facet_grid(cols = vars(game), rows = vars(config))
 ```
 
-![](Results_files/figure-gfm/unnamed-chunk-22-1.svg)<!-- -->
+![](Results_files/figure-gfm/unnamed-chunk-25-1.svg)<!-- -->
 
 ``` r
 p <- data_logcat_vrapi %>%
@@ -288,13 +337,13 @@ p <- data_logcat_vrapi %>%
 p
 ```
 
-![](Results_files/figure-gfm/unnamed-chunk-24-1.svg)<!-- -->
+![](Results_files/figure-gfm/unnamed-chunk-27-1.svg)<!-- -->
 
 ``` r
 p + facet_grid(cols = vars(game))
 ```
 
-![](Results_files/figure-gfm/unnamed-chunk-25-1.svg)<!-- -->
+![](Results_files/figure-gfm/unnamed-chunk-28-1.svg)<!-- -->
 
 ``` r
 p <- data_logcat_vrapi %>%
@@ -310,13 +359,13 @@ p <- data_logcat_vrapi %>%
 p
 ```
 
-![](Results_files/figure-gfm/unnamed-chunk-27-1.svg)<!-- -->
+![](Results_files/figure-gfm/unnamed-chunk-30-1.svg)<!-- -->
 
 ``` r
 p + facet_grid(cols = vars(game))
 ```
 
-![](Results_files/figure-gfm/unnamed-chunk-28-1.svg)<!-- -->
+![](Results_files/figure-gfm/unnamed-chunk-31-1.svg)<!-- -->
 
 ### Battery Usage
 
@@ -359,7 +408,7 @@ p <- data_battery %>%
 p
 ```
 
-![](Results_files/figure-gfm/unnamed-chunk-31-1.svg)<!-- -->
+![](Results_files/figure-gfm/unnamed-chunk-34-1.svg)<!-- -->
 
 ``` r
 data_battery %>%
@@ -379,4 +428,4 @@ data_battery %>%
   facet_grid(cols = vars(game), rows = vars(config))
 ```
 
-![](Results_files/figure-gfm/unnamed-chunk-32-1.svg)<!-- -->
+![](Results_files/figure-gfm/unnamed-chunk-35-1.svg)<!-- -->

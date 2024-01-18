@@ -93,6 +93,18 @@ data_logcat_vrapi %>%
   scale_color_viridis_d(begin = 0.3, direction = -1)
 ```
 
+```{r, fig.width = 9, fig.height = 2.7}
+data_logcat_vrapi %>%
+  ggplot(aes(x = ts, y = fps_render)) +
+  geom_line() +
+  ylim(0, NA) +
+  theme_half_open() +
+  background_grid() +
+  theme(legend.position = "bottom") +
+  scale_color_viridis_d(begin = 0.3, direction = -1) + 
+  facet_grid(cols = vars(game), rows = vars(config))
+```
+
 ```{r, fig.width = 3, fig.height = 2}
 data_logcat_vrapi %>%
   # filter(ts >= start_time & ts <= end_time) %>%
@@ -104,6 +116,35 @@ data_logcat_vrapi %>%
   background_grid() +
   theme(legend.position = "bottom") +
   scale_color_viridis_d(begin = 0.3, direction = -1)
+```
+### Frame Time
+
+```{r, fig.width = 9, fig.height = 2.7}
+data_logcat_vrapi %>%
+  filter(ts > 30) %>%
+  ggplot(aes(x = ts, y = app)) +
+  geom_line() +
+  ylim(0, NA) +
+  theme_half_open() +
+  background_grid() +
+  theme(legend.position = "bottom") +
+  scale_color_viridis_d(begin = 0.3, direction = -1) + 
+  facet_grid(cols = vars(game), rows = vars(config))
+```
+
+```{r, fig.width = 6, fig.height = 2}
+data_logcat_vrapi %>%
+  filter(ts > 30) %>%
+  ggplot(aes(x = app, y = config)) +
+  geom_boxplot() +
+  geom_vline(xintercept = 11.1, color = "orange") +
+  geom_vline(xintercept = 13.9, color = "red") +
+  xlim(0, NA) +
+  theme_half_open() +
+  background_grid() +
+  theme(legend.position = "bottom") +
+  labs(x="Frame time [ms]", y="VR Device") +
+  facet_grid(cols = vars(game))
 ```
 
 ### CPU
