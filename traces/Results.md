@@ -338,11 +338,9 @@ data_battery <- data_battery %>%
 
 ``` r
 colors <- RColorBrewer::brewer.pal(3, "Greens")[2:3]
-tmax <- 1500
-tmin <- 500
-data_battery %>%
+
+p <- data_battery %>%
   group_by(config) %>%
-  filter(ts > tmin & ts < tmax) %>%
   mutate(ts = ts - min(ts)) %>%
   mutate(ts = ts / 60) %>%
   filter(config != "Wired") %>%
@@ -357,4 +355,28 @@ data_battery %>%
   scale_color_manual(name = "Config", values = colors)
 ```
 
-![](Results_files/figure-gfm/unnamed-chunk-30-1.svg)<!-- -->
+``` r
+p
+```
+
+![](Results_files/figure-gfm/unnamed-chunk-31-1.svg)<!-- -->
+
+``` r
+data_battery %>%
+  group_by(config) %>%
+  mutate(ts = ts - min(ts)) %>%
+  mutate(ts = ts / 60) %>%
+  filter(config != "Wired") %>%
+  # mutate(rel_battery = battery + 100 - max(battery)) %>%
+  ggplot(aes(x = ts, y = battery)) +
+  geom_line() +
+  theme_half_open() +
+  background_grid() +
+  theme(legend.position = c(0.05, 0.40)) +
+  ylim(0, NA) +
+  labs(x = "Time [m]", y = "Battery charge") +
+  scale_color_manual(name = "Config", values = colors) +
+  facet_grid(cols = vars(game), rows = vars(config))
+```
+
+![](Results_files/figure-gfm/unnamed-chunk-32-1.svg)<!-- -->
