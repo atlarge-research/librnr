@@ -3,6 +3,11 @@ Experiment
 
 - [Description](#description)
 - [Results](#results)
+  - [Evolution of Hardware](#evolution-of-hardware)
+    - [Frames per Second](#frames-per-second)
+    - [CPU](#cpu)
+    - [GPU](#gpu)
+    - [Battery Usage](#battery-usage)
 
 # Description
 
