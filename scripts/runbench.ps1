@@ -214,6 +214,10 @@ finally {
             # replay mode
             # remove file so that next time we start the app it does not automatically start replaying
             adb shell rm "$VrStorage/Android/data/$Class/AutoDriver/default.autodriver"
+
+            # Copy the trace used for during replay to the output directory
+            $TraceFileName = Split-Path $TraceFile -Leaf
+            Copy-Item $TraceFile (Join-Path $OutDir $TraceFileName)
         }
     }
     elseif ($PSBoundParameters.ContainsKey('App')) {
