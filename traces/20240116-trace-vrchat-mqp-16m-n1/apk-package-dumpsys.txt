@@ -1,0 +1,194 @@
+Activity Resolver Table:
+  Non-Data Actions:
+      android.intent.action.MAIN:
+        138a3c com.vrchat.oculus.quest/com.unity3d.player.UnityPlayerActivity filter 2d853c5
+          Action: "android.intent.action.MAIN"
+          Category: "android.intent.category.LAUNCHER"
+          Category: "com.oculus.intent.category.VR"
+
+Domain verification status:
+
+Permissions:
+  Permission [com.vrchat.oculus.quest.deveventspermission] (594d05a):
+    sourcePackage=com.vrchat.oculus.quest
+    uid=10119 gids=[] type=0 prot=signature
+    perm=PermissionInfo{5fc82cd com.vrchat.oculus.quest.deveventspermission}
+
+Registered ContentProviders:
+  com.vrchat.oculus.quest/io.sentry.android.core.SentryPerformanceProvider:
+    Provider{8ecb616 com.vrchat.oculus.quest/io.sentry.android.core.SentryPerformanceProvider}
+  com.vrchat.oculus.quest/io.sentry.android.core.SentryInitProvider:
+    Provider{7486b97 com.vrchat.oculus.quest/io.sentry.android.core.SentryInitProvider}
+
+ContentProvider Authorities:
+  [com.vrchat.oculus.quest.SentryPerformanceProvider]:
+    Provider{8ecb616 com.vrchat.oculus.quest/io.sentry.android.core.SentryPerformanceProvider}
+      applicationInfo=ApplicationInfo{774528b com.vrchat.oculus.quest}
+  [com.vrchat.oculus.quest.SentryInitProvider]:
+    Provider{7486b97 com.vrchat.oculus.quest/io.sentry.android.core.SentryInitProvider}
+      applicationInfo=ApplicationInfo{2faf68 com.vrchat.oculus.quest}
+
+Key Set Manager:
+  [com.vrchat.oculus.quest]
+      Signing KeySets: 39
+
+Packages:
+  Package [com.vrchat.oculus.quest] (cf9cbc7):
+    userId=10119
+    pkg=Package{55c95f4 com.vrchat.oculus.quest}
+    codePath=/data/app/~~MmLhnH69ihxjzLVGiPKN6g==/com.vrchat.oculus.quest-D2by3yvi7t_eX2-9xLqa8g==
+    resourcePath=/data/app/~~MmLhnH69ihxjzLVGiPKN6g==/com.vrchat.oculus.quest-D2by3yvi7t_eX2-9xLqa8g==
+    legacyNativeLibraryDir=/data/app/~~MmLhnH69ihxjzLVGiPKN6g==/com.vrchat.oculus.quest-D2by3yvi7t_eX2-9xLqa8g==/lib
+    extractNativeLibs=true
+    primaryCpuAbi=arm64-v8a
+    secondaryCpuAbi=null
+    cpuAbiOverride=null
+    versionCode=943800 minSdk=25 targetSdk=32
+    minExtensionVersions=[]
+    versionName=2023.4.2p4-1392-55e5aafaed-Release
+    usesNonSdkApi=false
+    splits=[base]
+    apkSigningVersion=3
+    applicationInfo=PackageImpl{55c95f4 com.vrchat.oculus.quest}
+    flags=[ HAS_CODE ALLOW_CLEAR_USER_DATA ]
+    privateFlags=[ PRIVATE_FLAG_ACTIVITIES_RESIZE_MODE_RESIZEABLE_VIA_SDK_VERSION ALLOW_AUDIO_PLAYBACK_CAPTURE PRIVATE_FLAG_REQUEST_LEGACY_EXTERNAL_STORAGE PRIVATE_FLAG_ALLOW_NATIVE_HEAP_POINTER_TAGGING ]
+    privateFlagsExt=[ PROFILEABLE ]
+    forceQueryable=false
+    queriesPackages=[]
+    queriesIntents=[Intent { act=com.android.vending.billing.InAppBillingService.BIND }]
+    dataDir=/data/user/0/com.vrchat.oculus.quest
+    supportsScreens=[small, medium, large, xlarge, resizeable, anyDensity]
+    timeStamp=2024-01-16 16:52:48
+    firstInstallTime=2024-01-16 16:52:50
+    lastUpdateTime=2024-01-16 16:52:50
+    installerPackageName=com.oculus.ocms
+    signatures=PackageSignatures{cd4611d version:3, signatures:[2ba6867b], past signatures:[]}
+    installPermissionsFixed=true
+    pkgFlags=[ HAS_CODE ALLOW_CLEAR_USER_DATA ]
+    declared permissions:
+      com.vrchat.oculus.quest.deveventspermission: prot=signature, INSTALLED
+    requested permissions:
+      android.permission.WRITE_EXTERNAL_STORAGE
+      android.permission.READ_EXTERNAL_STORAGE
+      android.permission.INTERNET
+      android.permission.CHANGE_WIFI_MULTICAST_STATE
+      android.permission.ACCESS_NETWORK_STATE
+      android.permission.ACCESS_WIFI_STATE
+      android.permission.RECORD_AUDIO
+      android.permission.MODIFY_AUDIO_SETTINGS
+      com.oculus.permission.HAND_TRACKING
+      com.oculus.permission.BODY_TRACKING
+      com.oculus.permission.FACE_TRACKING
+      com.oculus.permission.EYE_TRACKING
+      com.android.vending.BILLING
+      com.vrchat.oculus.quest.deveventspermission
+    install permissions:
+      android.permission.MODIFY_AUDIO_SETTINGS: granted=true
+      android.permission.CHANGE_WIFI_MULTICAST_STATE: granted=true
+      android.permission.INTERNET: granted=true
+      android.permission.ACCESS_NETWORK_STATE: granted=true
+      com.oculus.permission.HAND_TRACKING: granted=true
+      com.vrchat.oculus.quest.deveventspermission: granted=true
+      android.permission.ACCESS_WIFI_STATE: granted=true
+    User 0: ceDataInode=135741 installed=true hidden=false suspended=false distractionFlags=0 stopped=false notLaunched=false enabled=0 instant=false virtual=false
+      lastDisabledCaller: com.oculus.ocms
+      gids=[3003]
+      runtime permissions:
+        android.permission.READ_EXTERNAL_STORAGE: granted=true, flags=[ USER_SET|REVOKE_WHEN_REQUESTED|USER_SENSITIVE_WHEN_GRANTED|USER_SENSITIVE_WHEN_DENIED|RESTRICTION_INSTALLER_EXEMPT]
+        com.oculus.permission.FACE_TRACKING: granted=false, flags=[ USER_SENSITIVE_WHEN_GRANTED|USER_SENSITIVE_WHEN_DENIED]
+        com.oculus.permission.EYE_TRACKING: granted=false, flags=[ USER_SENSITIVE_WHEN_GRANTED|USER_SENSITIVE_WHEN_DENIED]
+        android.permission.WRITE_EXTERNAL_STORAGE: granted=true, flags=[ USER_SET|USER_SENSITIVE_WHEN_GRANTED|USER_SENSITIVE_WHEN_DENIED|RESTRICTION_INSTALLER_EXEMPT]
+        com.oculus.permission.BODY_TRACKING: granted=false
+        android.permission.RECORD_AUDIO: granted=true, flags=[ USER_SET|USER_SENSITIVE_WHEN_GRANTED|USER_SENSITIVE_WHEN_DENIED]
+
+Queries:
+  system apps queryable: false
+  queries via package name:
+  queries via intent:
+    com.facebook.orca:
+      com.vrchat.oculus.quest
+  queryable via interaction:
+    User 0:
+      [com.android.server.telecom,com.android.networkstack.tethering.inprocess,com.android.providers.settings,com.oculus.bugreportservice,com.android.location.fused,com.android.keychain,com.oculus.companion.server,com.oculus.notification_proxy,com.oculus.externalstorage,com.oculus.micservice,com.android.localtransport,android,com.oculus.deviceauthserver,com.oculus.nux.ota,com.oculus.vrcast,com.android.inputdevices,com.oculus.preloader,oculus.platform,com.oculus.preshutdowntaskservice,com.android.settings,com.oculus.os.cm,com.oculus.bugreportuploader,com.android.networkstack.inprocess,com.oculus.statscollector,com.oculus.os.chargecontrol,com.oculus.gatekeeperservice,com.oculus.assetdelivery,com.oculus.linefrequencyservice,com.oculus.os.vrlockscreen]:
+        com.vrchat.oculus.quest
+      com.oculus.bodyapiservice:
+        com.vrchat.oculus.quest
+      com.oculus.ocms:
+        com.vrchat.oculus.quest
+      com.android.permissioncontroller:
+        com.vrchat.oculus.quest
+      com.oculus.vrshell:
+        com.vrchat.oculus.quest
+      com.oculus.systemdriver:
+        com.vrchat.oculus.quest
+      com.oculus.horizon:
+        com.vrchat.oculus.quest
+      com.oculus.ovrmonitormetricsservice:
+        com.vrchat.oculus.quest
+  queryable via uses-library:
+
+Package Changes:
+  Sequence number=241
+  User 0:
+    seq=0, package=com.android.bluetooth
+    seq=6, package=com.oculus.browser
+    seq=51, package=com.vertigogames.azsq
+    seq=126, package=com.AgainstGravity.RecRoom
+    seq=127, package=com.BigBoxVR.PopulationONE
+    seq=129, package=quest.eleven.forfunlabs
+    seq=131, package=com.oculus.ovrmonitormetricsservice
+    seq=215, package=com.vrchat.oculus.quest
+    seq=236, package=com.oculus.socialplatform
+    seq=238, package=com.oculus.identitymanagement.service
+    seq=240, package=com.oculus.fitnesstracker
+
+
+Dexopt state:
+  [com.vrchat.oculus.quest]
+    path: /data/app/~~MmLhnH69ihxjzLVGiPKN6g==/com.vrchat.oculus.quest-D2by3yvi7t_eX2-9xLqa8g==/base.apk
+      arm64: [status=run-from-apk] [reason=unknown]
+
+
+Compiler stats:
+  [com.vrchat.oculus.quest]
+    (No recorded stats)
+Snapshot statistics
+   Unrecorded-hits: 1639  Cork-level: 0
+   Summary stats               TotBlds     TotUsed     TotCork     BigBlds    ShortLvd     TotTime     MaxTime
+          0:22         now           0           0           0           0           0           0           0
+          1:22        0:22           4        4063           0           0           1           0           0
+          2:22        1:22           0           0           0           0           0           0           0
+          3:22        2:22           3        2228           0           0           0           0           0
+          4:22        3:22           4        4678           0           0           1           0           0
+          5:22        4:22           0           0           0           0           0           0           0
+          6:22        5:22          12        9417           0           0           2           2           0
+          7:22        6:22           0           0           0           0           0           0           0
+          8:22        7:22           0           0           0           0           0           0           0
+          9:22        8:22           0           0           0           0           0           0           0
+      04:13:22         now         651      408581           0           1          73         236          10
+
+   Build times                  <= 1ms      <= 2ms      <= 5ms     <= 10ms     <= 20ms     <= 50ms    <= 100ms     > 100ms
+          0:22         now           0           0           0           0           0           0           0           0
+          1:22        0:22           4           0           0           0           0           0           0           0
+          2:22        1:22           0           0           0           0           0           0           0           0
+          3:22        2:22           3           0           0           0           0           0           0           0
+          4:22        3:22           4           0           0           0           0           0           0           0
+          5:22        4:22           0           0           0           0           0           0           0           0
+          6:22        5:22          12           0           0           0           0           0           0           0
+          7:22        6:22           0           0           0           0           0           0           0           0
+          8:22        7:22           0           0           0           0           0           0           0           0
+          9:22        8:22           0           0           0           0           0           0           0           0
+      04:13:22         now         640           4           5           2           0           0           0           0
+
+   Use counters                   <= 1        <= 2        <= 5       <= 10       <= 20       <= 50      <= 100       > 100
+          0:22         now           0           0           0           0           0           0           0           0
+          1:22        0:22           1           0           0           0           0           0           0           3
+          2:22        1:22           0           0           0           0           0           0           0           0
+          3:22        2:22           0           0           0           0           0           0           0           3
+          4:22        3:22           1           0           0           0           0           0           0           3
+          5:22        4:22           0           0           0           0           0           0           0           0
+          6:22        5:22           2           0           0           0           0           0           1           9
+          7:22        6:22           0           0           0           0           0           0           0           0
+          8:22        7:22           0           0           0           0           0           0           0           0
+          9:22        8:22           0           0           0           0           0           0           0           0
+      04:13:22         now          63           3           6          20          24          40          46         448

@@ -1,0 +1,11 @@
+
+Key       Value
+---       -----
+OutDir    C:\Users\atl_gaming\Desktop\trace-vrchat-mqp-16m-n1
+Class     com.vrchat.oculus.quest
+Activity  com.unity3d.player.UnityPlayerActivity
+Duration  960
+S2Battery True
+Mode      record
+TraceFile trace.txt
+

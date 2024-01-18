@@ -1,0 +1,12 @@
+
+Key       Value
+---       -----
+OutDir    C:\Users\atl_gaming\Desktop\trace-azsq-mqp-16m-replay-n1
+Class     com.vertigogames.azsq
+Activity  com.unity3d.player.UnityPlayerActivity
+Duration  960
+S2Battery True
+Mode      replay
+TraceFile trace.txt
+Delay     16
+

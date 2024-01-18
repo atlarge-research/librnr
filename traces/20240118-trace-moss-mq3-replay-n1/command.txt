@@ -1,0 +1,11 @@
+
+Key       Value
+---       -----
+OutDir    C:\Users\atl_gaming\Desktop\trace-moss-mq3-16m-replay-n1
+Class     com.polyarc.MossGame
+Activity  com.epicgames.ue4.GameActivity
+Duration  960
+S2Battery True
+Mode      replay
+TraceFile ..\traces\20240116-trace-moss-mqp-16m-n1\trace.txt
+
