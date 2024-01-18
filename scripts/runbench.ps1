@@ -14,8 +14,8 @@ param (
 # Give warnings/errors when using undefined variables and such
 Set-StrictMode -Version latest
 
-# if the trace file path is relative and outdir has been specified, look for / write trace file in outdir
-if ($PSBoundParameters.ContainsKey('OutDir') -and (-not([System.IO.Path]::IsPathRooted($TraceFile)))) {
+# if the trace file path is relative and outdir has been specified, write trace file in outdir
+if (($Mode -eq "record") -and $PSBoundParameters.ContainsKey('OutDir') -and (-not([System.IO.Path]::IsPathRooted($TraceFile)))) {
     $TraceFile = Join-Path $OutDir $TraceFile
 }
 
@@ -163,10 +163,11 @@ try {
     }
 
     if ($Autodriver) {
+        Write-Host "Using Autodriver"
         adb shell setprop debug.oculus.vrapilayers AutoDriver
         adb shell setprop debug.oculus.autoDriverApp $Class
         if ($Mode -eq "replay") {
-            adb push $TraceFile "$VrStorage/Android/data/$Class/AutoDriver/default.autodriver" > nul
+            adb push $TraceFile "$VrStorage/Android/data/$Class/AutoDriver/default.autodriver"
             adb shell setprop debug.oculus.autoDriverMode Playback
             adb shell setprop debug.oculus.autoDriverPlaybackHeadMode HeadLocked
         }
@@ -180,6 +181,7 @@ try {
         Start-Sleep -Seconds $Duration
     }
     else {
+        Write-Host "Using librnr"
         if ( $PSBoundParameters.ContainsKey('App')) {
             # Start app
             $Process = Start-Process -FilePath $App -PassThru
