@@ -228,12 +228,15 @@ p + facet_grid(cols = vars(game))
 
 ``` r
 p <- data_logcat_vrapi %>%
-  ggplot(aes(x = gpu_usage_ftp, y = config)) +
-  geom_boxplot() +
-  xlim(0, NA) +
-  labs(x = "GPU usage [fxp]", y = "VR Device") +
+  ggplot(aes(x = ts, y = gpu_level, color = config)) +
+  # geom_vline(xintercept = start_time, color = "black") +
+  # geom_vline(xintercept = end_time, color = "black") +
+  geom_line() +
+  ylim(0, NA) +
   theme_half_open() +
-  background_grid()
+  background_grid() +
+  theme(legend.position = "bottom") +
+  scale_color_viridis_d(begin = 0.3, direction = -1)
 ```
 
 ``` r
@@ -250,10 +253,10 @@ p + facet_grid(cols = vars(game))
 
 ``` r
 p <- data_logcat_vrapi %>%
-  ggplot(aes(x = gpu_usage_ltp, y = config)) +
+  ggplot(aes(x = gpu_usage_ftp, y = config)) +
   geom_boxplot() +
   xlim(0, NA) +
-  labs(x = "GPU usage [lxp]", y = "VR Device") +
+  labs(x = "GPU usage [fxp]", y = "VR Device") +
   theme_half_open() +
   background_grid()
 ```
@@ -269,6 +272,28 @@ p + facet_grid(cols = vars(game))
 ```
 
 ![](Results_files/figure-gfm/unnamed-chunk-25-1.svg)<!-- -->
+
+``` r
+p <- data_logcat_vrapi %>%
+  ggplot(aes(x = gpu_usage_ltp, y = config)) +
+  geom_boxplot() +
+  xlim(0, NA) +
+  labs(x = "GPU usage [lxp]", y = "VR Device") +
+  theme_half_open() +
+  background_grid()
+```
+
+``` r
+p
+```
+
+![](Results_files/figure-gfm/unnamed-chunk-27-1.svg)<!-- -->
+
+``` r
+p + facet_grid(cols = vars(game))
+```
+
+![](Results_files/figure-gfm/unnamed-chunk-28-1.svg)<!-- -->
 
 ### Battery Usage
 
@@ -309,4 +334,4 @@ data_battery %>%
   scale_color_manual(name = "Config", values = colors)
 ```
 
-![](Results_files/figure-gfm/unnamed-chunk-27-1.svg)<!-- -->
+![](Results_files/figure-gfm/unnamed-chunk-30-1.svg)<!-- -->

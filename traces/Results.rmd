@@ -210,6 +210,35 @@ p + facet_grid(cols = vars(game))
 
 ```{r}
 p <- data_logcat_vrapi %>%
+  ggplot(aes(x = ts, y = gpu_level, color = config)) +
+  # geom_vline(xintercept = start_time, color = "black") +
+  # geom_vline(xintercept = end_time, color = "black") +
+  geom_line() +
+  ylim(0, NA) +
+  theme_half_open() +
+  background_grid() +
+  theme(legend.position = "bottom") +
+  scale_color_viridis_d(begin = 0.3, direction = -1)
+```
+
+```{r, fig.width = 3, fig.height = 2}
+p
+```
+
+```{r, fig.width = 9, fig.height = 2}
+p <- data_logcat_vrapi %>%
+  ggplot(aes(x = ts, y = gpu_level)) +
+  geom_line() +
+  ylim(0, NA) +
+  theme_half_open() +
+  background_grid() +
+  theme(legend.position = "bottom") +
+  scale_color_viridis_d(begin = 0.3, direction = -1) %>%
+  facet_grid(cols = vars(game), rows = vars(config))
+```
+
+```{r}
+p <- data_logcat_vrapi %>%
   ggplot(aes(x = gpu_usage_ftp, y = config)) +
   geom_boxplot() +
   xlim(0, NA) +
