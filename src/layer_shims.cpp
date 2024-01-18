@@ -432,6 +432,7 @@ void recordGetActionStateFloat(const XrActionStateGetInfo *getInfo, XrActionStat
     auto isActive = state->isActive;
     auto lastChanged = state->lastChangeTime;
 
+    // we don't need all values. especially if there are long periods that nothing happens. check if we need to log
     if (changed || (previousWasChanged && !changed)) {
         if (auto search = actionBindingMap.find(getInfo->action); search != actionBindingMap.end()) {
             auto paths = actionBindingMap[getInfo->action];
@@ -505,16 +506,18 @@ void recordGetActionStateVector2f(const XrActionStateGetInfo *getInfo, XrActionS
     auto isActive = state->isActive;
     auto lastChanged = state->lastChangeTime;
 
+    // Check if the value has changed since the last update.
     if (changed || (previousWasChanged && !changed)) {
         if (auto search = actionBindingMap.find(getInfo->action); search != actionBindingMap.end()) {
 
+            // Look up the paths for the action.
             auto paths = actionBindingMap[getInfo->action];
             for (auto p : paths) {
 
                 auto ps = pathToString[p];
                 auto pss = pathToString[getInfo->subactionPath];
                 if (ps.rfind(pss, 0) == 0) {
-
+                    // Log.
                     tracer::traceEntry e = {frameTime, 'p', ps};
                     tracer::traceActionVector2f taf = {changed, value.x, value.y, isActive, lastChanged};
                     e.body = taf;
@@ -575,7 +578,7 @@ void recordGetActionStateBoolean(const XrActionStateGetInfo *getInfo, XrActionSt
     auto isActive = state->isActive;
     auto lastChanged = state->lastChangeTime;
 
-    // we don't need all values. especially if there are long periods that noting happens. check if we need to log
+    // we don't need all values. especially if there are long periods that nothing happens. check if we need to log
     if (changed || (previousWasChanged && !changed)) {
         // look up the paths mapped to this action
         if (auto search = actionBindingMap.find(getInfo->action); search != actionBindingMap.end()) {
