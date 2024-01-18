@@ -150,7 +150,17 @@ p
 ![](Results_files/figure-gfm/unnamed-chunk-9-1.svg)<!-- -->
 
 ``` r
-p + facet_grid(cols = vars(game))
+ data_logcat_vrapi %>%
+  ggplot(aes(x = ts, y = cpu_level)) +
+  # geom_vline(xintercept = start_time, color = "black") +
+  # geom_vline(xintercept = end_time, color = "black") +
+  geom_line() +
+  ylim(0, NA) +
+  theme_half_open() +
+  background_grid() +
+  theme(legend.position = "bottom") +
+  scale_color_viridis_d(begin = 0.3, direction = -1) + 
+  facet_grid(cols = vars(game), rows = vars(config))
 ```
 
 ![](Results_files/figure-gfm/unnamed-chunk-10-1.svg)<!-- -->
@@ -246,7 +256,15 @@ p
 ![](Results_files/figure-gfm/unnamed-chunk-21-1.svg)<!-- -->
 
 ``` r
-p + facet_grid(cols = vars(game))
+data_logcat_vrapi %>%
+  ggplot(aes(x = ts, y = gpu_level)) +
+  geom_line() +
+  ylim(0, NA) +
+  theme_half_open() +
+  background_grid() +
+  theme(legend.position = "bottom") +
+  scale_color_viridis_d(begin = 0.3, direction = -1) +
+  facet_grid(cols = vars(game), rows = vars(config))
 ```
 
 ![](Results_files/figure-gfm/unnamed-chunk-22-1.svg)<!-- -->
