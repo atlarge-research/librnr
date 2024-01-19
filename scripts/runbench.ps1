@@ -35,6 +35,9 @@ $functions = {
         # Give warnings/errors when using undefined variables and such
         Set-StrictMode -Version latest
 
+        # Create a temporary directory for logging metrics on device
+        $TempDir = adb shell mktemp -d
+
         # clear the log
         adb logcat -c
         # set the log to max size
@@ -45,18 +48,18 @@ $functions = {
             adb shell am start-foreground-service -n "com.example.batterymanager_utility/com.example.batterymanager_utility.DataCollectionService" --ei sampleRate 1000 --es "dataFields" "BATTERY_PROPERTY_CURRENT_NOW,EXTRA_VOLTAGE" --ez toCSV False
             # stream battery measurement logs to file
             $BatteryJob = Start-Job -ScriptBlock {
-                $Out = "$using:OutDir\batterymanager-companion.log"
+                $Out = "$using:TempDir/batterymanager-companion.log"
                 Write-Host "Writing S2 battery data measurements to $Out"
-                adb shell 'logcat | grep "BatteryMgr:DataCollectionService"' >> $Out
+                adb shell "logcat | grep 'BatteryMgr:DataCollectionService' >> $Out"
             }
         }
 
         # log the device hardware
-        adb shell "cat /proc/version" >> "$OutDir\version.log"
-        adb shell "cat /proc/cpuinfo" >> "$OutDir\cpuinfo.log"
+        adb shell "cat /proc/version >> $TempDir/version.log"
+        adb shell "cat /proc/cpuinfo >> $TempDir/cpuinfo.log"
 
         # stream vrapi logs to file
-        $VrJob = Start-Job -ScriptBlock { adb logcat -s VrApi >> "$using:OutDir\logcat_VrApi.log" }
+        $VrJob = Start-Job -ScriptBlock { adb shell "logcat -s VrApi >> $using:TempDir/logcat_VrApi.log" }
         # start logging metrics from the gaming PC
         if (-not($NoHostTrace)) {
             $HostJob = Start-Job -ScriptBlock {
@@ -77,11 +80,11 @@ $functions = {
 
                 if ($VrJob.State -ne "Running") {
                     Write-Host "Oh no! Restarting adb VrApi log capture"
-                    $VrJob = Start-Job -ScriptBlock { adb logcat -s VrApi >> "$using:OutDir\logcat_VrApi.log" }
+                    $VrJob = Start-Job -ScriptBlock { adb shell "logcat -s VrApi >> $using:TempDir/logcat_VrApi.log" }
                 }
                 if (($S2Battery) -and ($BatteryJob.State -ne "Running")) {
                     Write-Host "Oh no! Restarting adb battery log capture"
-                    $BatteryJob = Start-Job -ScriptBlock { adb shell 'logcat | grep "BatteryMgr:DataCollectionService"' >> "$using:OutDir\batterymanager-companion.log" }
+                    $BatteryJob = Start-Job -ScriptBlock { adb shell "logcat | grep 'BatteryMgr:DataCollectionService' >> $using:TempDir/batterymanager-companion.log" }
                 }
                 # check if process that logs metrics from gaming PC is still running
                 # if not, restart
@@ -91,15 +94,15 @@ $functions = {
                 }
 
                 # get metrics from the VR device
-                adb shell "cat /proc/uptime" >> "$OutDir\uptime.log"
-                adb shell "cat /proc/net/dev" >> "$OutDir\net_dev.log"
-                adb shell "cat /proc/meminfo" >> "$OutDir\meminfo.log"
-                adb shell "cat /proc/stat" >> "$OutDir\stat.log"
-                adb shell "cat /proc/loadavg" >> "$OutDir\loadavg.log"
+                adb shell "cat /proc/uptime >> $TempDir/uptime.log"
+                adb shell "cat /proc/net/dev >> $TempDir/net_dev.log"
+                adb shell "cat /proc/meminfo >> $TempDir/meminfo.log"
+                adb shell "cat /proc/stat >> $TempDir/stat.log"
+                adb shell "cat /proc/loadavg >> $TempDir/loadavg.log"
 
-                adb shell "dumpsys battery" >> "$OutDir\battery.log"
-                adb shell "dumpsys OVRRemoteService" >> "$OutDir\OVRRemoteService.log"
-                adb shell "dumpsys CompanionService" >> "$OutDir\CompanionService.log"
+                adb shell "dumpsys battery >> $TempDir/battery.log"
+                adb shell "dumpsys OVRRemoteService >> $TempDir/OVRRemoteService.log"
+                adb shell "dumpsys CompanionService >> $TempDir/CompanionService.log"
 
                 # https://xkln.net/blog/powershell-sleep-duration-accuracy-and-windows-timers/
                 # calculate how long to sleep to maintain sample frequency of 1Hz
@@ -129,6 +132,13 @@ $functions = {
                 Stop-Job $BatteryJob
                 Receive-Job $BatteryJob
             }
+
+            # Copy temp folder to output folder
+            adb pull $TempDir $OutDir
+            $LocalTempDir = Join-Path $OutDir (Split-Path -Leaf $TempDir)
+            Move-Item -Path "$LocalTempDir\*" -Destination $OutDir
+            Remove-Item $LocalTempDir
+            adb shell rm -rf $TempDir
         }
     }
 }
@@ -215,7 +225,8 @@ finally {
             # remove file so that next time we start the app it does not automatically start replaying
             adb shell rm "$VrStorage/Android/data/$Class/AutoDriver/default.autodriver"
 
-            # Copy the trace used for during replay to the output directory
+            # TODO move this out of if/else. Should be in finally > if(mode == replay)
+            # Copy the trace used during replay to the output directory
             $TraceFileName = Split-Path $TraceFile -Leaf
             Copy-Item $TraceFile (Join-Path $OutDir $TraceFileName)
         }
