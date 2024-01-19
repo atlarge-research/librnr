@@ -3,11 +3,16 @@ Experiment
 
 - [Description](#description)
 - [Results](#results)
+  - [Data Loading](#data-loading)
   - [Evolution of Hardware](#evolution-of-hardware)
     - [Frames per Second](#frames-per-second)
+    - [Frame Time](#frame-time)
     - [CPU](#cpu)
     - [GPU](#gpu)
     - [Battery Usage](#battery-usage)
+    - [Network Use](#network-use)
+  - [Performance Variability](#performance-variability)
+    - [Local Apps](#local-apps)
 
 # Description
 
@@ -24,6 +29,7 @@ library(gghighlight)
 library(zoo)
 library(RColorBrewer)
 library(stringr)
+library(fBasics)
 library(here)
 here::i_am("./Results.rmd")
 
@@ -47,27 +53,29 @@ to_human_name <- function(name) {
 }
 ```
 
-## Evolution of Hardware
-
-### Frames per Second
+## Data Loading
 
 ``` r
 pattern <- c(month="-?\\d+", "-", day="-?\\d+", "\\s+", hour="-?\\d+", ":", minute="-?\\d+", ":", second="-?\\d+", "\\.", millisecond="-?\\d+", "\\s+", pid="-?\\d+", "\\s+", tid="-?\\d+", "\\s+", level="\\w", "\\s+VrApi\\s+:\\s+FPS=",fps_render="-?\\d+", "/", fps_refresh="-?\\d+", ",Prd=", prd="-?\\d+", "ms,Tear=", tear="-?\\d+", ",Early=", early="-?\\d+", ",Stale=", stale="-?\\d+", ",Stale2/5/10/max=", stale2="-?\\d+", "/", stale5="-?\\d+", "/", stale10="-?\\d+", "/", stalemax="-?\\d+", ",VSnc=", vsnc="-?\\d+", ",Lat=", lat="-?-?\\d+", ",Fov=", fov="-?\\d+\\w*", ",CPU", cpun="\\d", "/GPU=", cpu_level="-?\\d+", "/", gpu_level="-?\\d+", ",", cpu_freq="-?\\d+", "/", gpu_freq="-?\\d+", "MHz,OC=", oc=".+", ",TA=", ta_atw="-?\\d+\\w*", "/", ta_main="-?\\d+\\w*", "/", ta_render="-?\\d+\\w*", ",SP=", sp_atw="\\w", "/", sp_main="\\w", "/", sp_render="\\w", ",Mem=", mem="-?\\d+", "MHz,Free=", free="-?\\d+", "MB,PLS=", pls="-?\\d+", ",Temp=", temp_bat="-?\\d+\\.\\d+", "C/", temp_sens="-?\\d+\\.\\d+", "C,TW=", tw="-?\\d+\\.\\d+", "ms,App=", app="-?\\d+\\.\\d+", "ms,GD=", gd="-?\\d+\\.\\d+", "ms,CPU&GPU=", cpu_gpu="-?\\d+\\.\\d+", "ms,LCnt=", lcnt="-?\\d+", "\\(DR", dr="-?\\d+", ",LM", lm="-?\\d+", "\\),GPU%=", gpu_percent="-?\\d+\\.\\d+", ",CPU%=", cpu_percent="-?\\d+\\.\\d+", "\\(W", cpu_percent_worst="-?\\d+\\.\\d+", "\\),DSF=", dsf="-?\\d+\\.\\d+", ",CFL=", cfl_min="-?\\d+\\.\\d+", "/", cfl_max="-?\\d+\\.\\d+", ",ICFLp95=", icflp95="-?\\d+\\.\\d+", ",LD=", ld="-?\\d+", ",SF=", sf="-?\\d+\\.\\d+", ",LP=", lp="-?\\d+", ",DVFS=", dvfs="-?\\d+")
-```
 
-``` r
 data_logcat_vrapi <- NULL
 for (f in traces_replays) {
   data_logcat_vrapi <- readLines(here(f, "logcat_VrApi.log")) %>%
     tibble(line = .) %>%
     mutate(game = str_split_i(f, "-", 3)) %>%
+    mutate(i = str_split_i(f, "-", -1) %>% str_split_i("n", 2)) %>%
     filter(grepl("^.+\\s+VrApi\\s+:\\s+FPS=", line)) %>%
     separate_wider_regex(line, pattern) %>%
     mutate(ts = as.numeric(second) + (60*as.numeric(minute)) + (60*60*as.numeric(hour))) %>%
     mutate(ts = ts - min(ts)) %>%
     mutate(cpu_util = 100 * as.numeric(cpu_percent)) %>%
+    mutate(cpu_freq_rel = (as.numeric(cpu_freq) - min(as.numeric(cpu_freq))) / max(as.numeric(cpu_freq))) %>%
+    rowwise() %>%
+    mutate(cpu_freq_rel = max(0.01, cpu_freq_rel)) %>%
+    ungroup() %>%
     mutate(cpu_usage_ltp = as.numeric(cpu_level) * as.numeric(cpu_percent)) %>%
     mutate(cpu_usage_ftp = as.numeric(cpu_freq) * as.numeric(cpu_percent)) %>%
+    mutate(cpu_usage_ftp_rel = as.numeric(cpu_freq_rel) * as.numeric(cpu_percent)) %>%
     mutate(cpu_util_worst = 100 * as.numeric(cpu_percent_worst)) %>%
     mutate(gpu_util = 100 * as.numeric(gpu_percent)) %>%
     mutate(gpu_usage_ltp = as.numeric(gpu_level) * as.numeric(gpu_percent)) %>%
@@ -79,6 +87,45 @@ data_logcat_vrapi <- data_logcat_vrapi %>%
   type.convert(as.is = TRUE) %>%
   mutate(config = map_chr(config, to_human_name))
 ```
+
+``` r
+#Inter-|   Receive                                                |  Transmit
+# face |bytes    packets errs drop fifo frame compressed multicast|bytes    packets errs drop fifo colls carrier compressed
+#  wlan0: 334462961  517107    0    0    0     0          0         0 110016326  375001    0    0    0     0       0          0
+pattern <- c("\\s+wlan0:\\s+", rx_bytes="\\d+", "\\s+", rx_packets="\\d+", "\\s+", rx_errs="\\d+", "\\s+", rx_drop="\\d+", "\\s+", rx_fifo="\\d+", "\\s+", rx_frame="\\d+", "\\s+", rx_compressed="\\d+", "\\s+", rx_multicast="\\d+", "\\s+", tx_bytes="\\d+", "\\s+", tx_packets="\\d+", "\\s+", tx_errs="\\d+", "\\s+", tx_drop="\\d+", "\\s+", tx_fifo="\\d+", "\\s+", tx_colls="\\d+", "\\s+", tx_carrier="\\d+", "\\s+", tx_compressed="\\d+")
+
+data_net_dev <- NULL
+for (f in traces_replays) {
+  data_net_dev <- readLines(here(f, "net_dev.log")) %>%
+    tibble(line = .) %>%
+    mutate(game = str_split_i(f, "-", 3)) %>%
+    mutate(i = str_split_i(f, "-", -1) %>% str_split_i("n", 2)) %>%
+    filter(grepl("^\\s+wlan0:\\s+", line)) %>%
+    separate_wider_regex(line, pattern) %>%
+    mutate(ts = 0:(n() - 1)) %>%
+    select(ts, everything()) %>%
+    mutate(config = f) %>%
+    bind_rows(data_net_dev, .)
+}
+data_net_dev <- data_net_dev %>%
+  type.convert(as.is = TRUE) %>%
+  mutate(config = map_chr(config, to_human_name)) %>%
+  group_by(config, game, i) %>%
+  mutate(bps_tx = 8 * (tx_bytes - lag(tx_bytes))) %>%
+  mutate(kbps_tx = bps_tx / 1000) %>%
+  mutate(Mbps_tx = bps_tx / 1000000) %>%
+  mutate(Gbps_tx = bps_tx / 1000000000) %>%
+  mutate(bps_rx = 8 * (rx_bytes - lag(rx_bytes))) %>%
+  mutate(kbps_rx = bps_rx / 1000) %>%
+  mutate(Mbps_rx = bps_rx / 1000000) %>%
+  mutate(Gbps_rx = bps_rx / 1000000000) %>%
+  drop_na() %>%
+  ungroup()
+```
+
+## Evolution of Hardware
+
+### Frames per Second
 
 ``` r
 data_logcat_vrapi %>%
@@ -122,12 +169,13 @@ data_logcat_vrapi %>%
   scale_color_viridis_d(begin = 0.3, direction = -1)
 ```
 
-![](Results_files/figure-gfm/unnamed-chunk-5-1.svg)<!-- --> \### Frame
-Time
+![](Results_files/figure-gfm/unnamed-chunk-5-1.svg)<!-- -->
+
+### Frame Time
 
 ``` r
 data_logcat_vrapi %>%
-  filter(ts > 30) %>%
+  filter(ts > 60) %>%
   ggplot(aes(x = ts, y = app)) +
   geom_line() +
   ylim(0, NA) +
@@ -142,7 +190,7 @@ data_logcat_vrapi %>%
 
 ``` r
 data_logcat_vrapi %>%
-  filter(ts > 30) %>%
+  filter(ts > 60) %>%
   ggplot(aes(x = app, y = config)) +
   geom_boxplot() +
   geom_vline(xintercept = 11.1, color = "orange") +
@@ -221,13 +269,15 @@ p
 
 ``` r
 p <- data_logcat_vrapi %>%
-  # filter(ts >= start_time & ts <= end_time) %>%
-  ggplot(aes(x = cpu_usage_ftp, y = config)) +
-  geom_boxplot() +
-  xlim(0, NA) +
-  labs(x = "CPU usage [fxp]", y = "VR Device") +
+  ggplot(aes(x = ts, y = cpu_freq, color = config)) +
+  # geom_vline(xintercept = start_time, color = "black") +
+  # geom_vline(xintercept = end_time, color = "black") +
+  geom_line() +
+  ylim(0, NA) +
   theme_half_open() +
-  background_grid()
+  background_grid() +
+  theme(legend.position = "bottom") +
+  scale_color_viridis_d(begin = 0.3, direction = -1)
 ```
 
 ``` r
@@ -237,7 +287,17 @@ p
 ![](Results_files/figure-gfm/unnamed-chunk-15-1.svg)<!-- -->
 
 ``` r
-p + facet_grid(cols = vars(game))
+ data_logcat_vrapi %>%
+  ggplot(aes(x = ts, y = cpu_freq)) +
+  # geom_vline(xintercept = start_time, color = "black") +
+  # geom_vline(xintercept = end_time, color = "black") +
+  geom_line() +
+  ylim(0, NA) +
+  theme_half_open() +
+  background_grid() +
+  theme(legend.position = "bottom") +
+  scale_color_viridis_d(begin = 0.3, direction = -1) + 
+  facet_grid(cols = vars(game), rows = vars(config))
 ```
 
 ![](Results_files/figure-gfm/unnamed-chunk-16-1.svg)<!-- -->
@@ -245,10 +305,10 @@ p + facet_grid(cols = vars(game))
 ``` r
 p <- data_logcat_vrapi %>%
   # filter(ts >= start_time & ts <= end_time) %>%
-  ggplot(aes(x = cpu_usage_ltp, y = config)) +
+  ggplot(aes(x = cpu_usage_ftp, y = config)) +
   geom_boxplot() +
   xlim(0, NA) +
-  labs(x = "CPU usage [lxp]", y = "VR Device") +
+  labs(x = "CPU usage [fxp]", y = "VR Device") +
   theme_half_open() +
   background_grid()
 ```
@@ -265,15 +325,12 @@ p + facet_grid(cols = vars(game))
 
 ![](Results_files/figure-gfm/unnamed-chunk-19-1.svg)<!-- -->
 
-### GPU
-
 ``` r
 p <- data_logcat_vrapi %>%
-  # filter(ts >= start_time & ts <= end_time) %>%
-  ggplot(aes(x = gpu_util, y = config)) +
+  ggplot(aes(x = cpu_usage_ftp_rel, y = config)) +
   geom_boxplot() +
   xlim(0, NA) +
-  labs(x = "GPU utilization [%]", y = "VR Device") +
+  labs(x = "CPU usage [fxpr]", y = "VR Device") +
   theme_half_open() +
   background_grid()
 ```
@@ -292,15 +349,13 @@ p + facet_grid(cols = vars(game))
 
 ``` r
 p <- data_logcat_vrapi %>%
-  ggplot(aes(x = ts, y = gpu_level, color = config)) +
-  # geom_vline(xintercept = start_time, color = "black") +
-  # geom_vline(xintercept = end_time, color = "black") +
-  geom_line() +
-  ylim(0, NA) +
+  # filter(ts >= start_time & ts <= end_time) %>%
+  ggplot(aes(x = cpu_usage_ltp, y = config)) +
+  geom_boxplot() +
+  xlim(0, NA) +
+  labs(x = "CPU usage [lxp]", y = "VR Device") +
   theme_half_open() +
-  background_grid() +
-  theme(legend.position = "bottom") +
-  scale_color_viridis_d(begin = 0.3, direction = -1)
+  background_grid()
 ```
 
 ``` r
@@ -310,25 +365,20 @@ p
 ![](Results_files/figure-gfm/unnamed-chunk-24-1.svg)<!-- -->
 
 ``` r
-data_logcat_vrapi %>%
-  ggplot(aes(x = ts, y = gpu_level)) +
-  geom_line() +
-  ylim(0, NA) +
-  theme_half_open() +
-  background_grid() +
-  theme(legend.position = "bottom") +
-  scale_color_viridis_d(begin = 0.3, direction = -1) +
-  facet_grid(cols = vars(game), rows = vars(config))
+p + facet_grid(cols = vars(game))
 ```
 
 ![](Results_files/figure-gfm/unnamed-chunk-25-1.svg)<!-- -->
 
+### GPU
+
 ``` r
 p <- data_logcat_vrapi %>%
-  ggplot(aes(x = gpu_usage_ftp, y = config)) +
+  # filter(ts >= start_time & ts <= end_time) %>%
+  ggplot(aes(x = gpu_util, y = config)) +
   geom_boxplot() +
   xlim(0, NA) +
-  labs(x = "GPU usage [fxp]", y = "VR Device") +
+  labs(x = "GPU utilization [%]", y = "VR Device") +
   theme_half_open() +
   background_grid()
 ```
@@ -347,6 +397,61 @@ p + facet_grid(cols = vars(game))
 
 ``` r
 p <- data_logcat_vrapi %>%
+  ggplot(aes(x = ts, y = gpu_level, color = config)) +
+  # geom_vline(xintercept = start_time, color = "black") +
+  # geom_vline(xintercept = end_time, color = "black") +
+  geom_line() +
+  ylim(0, NA) +
+  theme_half_open() +
+  background_grid() +
+  theme(legend.position = "bottom") +
+  scale_color_viridis_d(begin = 0.3, direction = -1)
+```
+
+``` r
+p
+```
+
+![](Results_files/figure-gfm/unnamed-chunk-30-1.svg)<!-- -->
+
+``` r
+data_logcat_vrapi %>%
+  ggplot(aes(x = ts, y = gpu_level)) +
+  geom_line() +
+  ylim(0, NA) +
+  theme_half_open() +
+  background_grid() +
+  theme(legend.position = "bottom") +
+  scale_color_viridis_d(begin = 0.3, direction = -1) +
+  facet_grid(cols = vars(game), rows = vars(config))
+```
+
+![](Results_files/figure-gfm/unnamed-chunk-31-1.svg)<!-- -->
+
+``` r
+p <- data_logcat_vrapi %>%
+  ggplot(aes(x = gpu_usage_ftp, y = config)) +
+  geom_boxplot() +
+  xlim(0, NA) +
+  labs(x = "GPU usage [fxp]", y = "VR Device") +
+  theme_half_open() +
+  background_grid()
+```
+
+``` r
+p
+```
+
+![](Results_files/figure-gfm/unnamed-chunk-33-1.svg)<!-- -->
+
+``` r
+p + facet_grid(cols = vars(game))
+```
+
+![](Results_files/figure-gfm/unnamed-chunk-34-1.svg)<!-- -->
+
+``` r
+p <- data_logcat_vrapi %>%
   ggplot(aes(x = gpu_usage_ltp, y = config)) +
   geom_boxplot() +
   xlim(0, NA) +
@@ -359,13 +464,13 @@ p <- data_logcat_vrapi %>%
 p
 ```
 
-![](Results_files/figure-gfm/unnamed-chunk-30-1.svg)<!-- -->
+![](Results_files/figure-gfm/unnamed-chunk-36-1.svg)<!-- -->
 
 ``` r
 p + facet_grid(cols = vars(game))
 ```
 
-![](Results_files/figure-gfm/unnamed-chunk-31-1.svg)<!-- -->
+![](Results_files/figure-gfm/unnamed-chunk-37-1.svg)<!-- -->
 
 ### Battery Usage
 
@@ -408,7 +513,7 @@ p <- data_battery %>%
 p
 ```
 
-![](Results_files/figure-gfm/unnamed-chunk-34-1.svg)<!-- -->
+![](Results_files/figure-gfm/unnamed-chunk-40-1.svg)<!-- -->
 
 ``` r
 data_battery %>%
@@ -428,4 +533,273 @@ data_battery %>%
   facet_grid(cols = vars(game), rows = vars(config))
 ```
 
-![](Results_files/figure-gfm/unnamed-chunk-35-1.svg)<!-- -->
+![](Results_files/figure-gfm/unnamed-chunk-41-1.svg)<!-- -->
+
+### Network Use
+
+``` r
+data_net_dev %>%
+  mutate(kbps = 8 * (rx_bytes - lag(rx_bytes)) / 1000) %>%
+  # filter(game != "explorevr") %>%
+  drop_na() %>%
+  group_by(game, config, i) %>%
+  slice(2:n()) %>%
+  ungroup() %>%
+  ggplot(aes(x = ts, y = kbps, color = i)) +
+  geom_line() +
+  xlim(0, NA) +
+  coord_cartesian(ylim=c(0, 1200)) +
+  labs(x = "Bytes received [kbps]", y = "Setup") +
+  facet_grid(cols = vars(game), rows = vars(config))
+```
+
+![](Results_files/figure-gfm/unnamed-chunk-42-1.svg)<!-- -->
+
+``` r
+data_net_dev %>%
+  group_by(game, config, i) %>%
+  mutate(kbps = 8 * (rx_bytes - lag(rx_bytes)) / 1000) %>%
+  drop_na() %>%
+  ungroup() %>%
+  ggplot(aes(x = kbps, y = config)) +
+  geom_boxplot() +
+  coord_cartesian(xlim=c(0, 1200)) +
+  labs(x = "Bytes received [kbps]", y = "Setup") +
+  facet_grid(cols = vars(game))
+```
+
+![](Results_files/figure-gfm/unnamed-chunk-43-1.svg)<!-- -->
+
+## Performance Variability
+
+### Local Apps
+
+#### Gorilla Tag
+
+##### Frames
+
+The plot below clearly shows the initialization phase of the experiment
+run. Every shade of blue is one run. In each run, the number of frames
+per second drops to zero for a brief moment, before maintaining constant
+good performance These first few seconds are typically spent in a
+loading screen, and do not reflect the performance of the system as
+experienced by the user. Therefore, it makes sense to cut out the first
+few seconds of the experiments in most plots.
+
+``` r
+data_logcat_vrapi %>%
+  filter(game == "gorillatag") %>%
+  filter(config == "MQ3") %>%
+  filter(ts < 60) %>%
+  ggplot(aes(x = ts, y = fps_render, group = i, color = i)) +
+  geom_line() +
+  ylim(0, NA) +
+  theme_half_open() +
+  background_grid() +
+  theme(legend.position = "none") +
+  labs(x = "Time [s]", y = "Frame time [ms]  ")
+```
+
+![](Results_files/figure-gfm/unnamed-chunk-44-1.svg)<!-- -->
+
+``` r
+data_logcat_vrapi %>%
+  filter(game == "gorillatag") %>%
+  filter(config == "MQ3") %>%
+  filter(ts > 60) %>%
+  ggplot(aes(x = fps_render, group = i, y = i)) +
+  geom_boxplot() +
+  xlim(0, NA) +
+  labs(x = "Frames per second", y = "Iteration") +
+  theme_half_open() +
+  background_grid() +
+  theme(legend.position = "bottom") +
+  scale_color_viridis_d(begin = 0.3, direction = -1)
+```
+
+![](Results_files/figure-gfm/unnamed-chunk-45-1.svg)<!-- -->
+
+``` r
+data_logcat_vrapi %>%
+  filter(game == "gorillatag") %>%
+  filter(config == "MQ3") %>%
+  filter(ts > 60) %>%
+  ggplot(aes(x = app, group = i, y = i)) +
+  geom_boxplot() +
+  geom_vline(xintercept = 11.1, color = "orange", linetype = "dashed") +
+  geom_vline(xintercept = 13.9, color = "red") +
+  xlim(0, NA) +
+  theme_half_open() +
+  background_grid() +
+  theme(legend.position = "bottom") +
+  labs(x="Frame time [ms]", y="Iteration")
+```
+
+![](Results_files/figure-gfm/unnamed-chunk-46-1.svg)<!-- -->
+
+##### GPU
+
+``` r
+data_logcat_vrapi %>%
+  filter(game == "gorillatag") %>%
+  filter(config == "MQ3") %>%
+  filter(ts > 60) %>%
+  ggplot(aes(x = gpu_util, group = i, y = i)) +
+  geom_boxplot() +
+  xlim(0, 100) +
+  labs(x = "GPU utilization [%]", y = "Iteration") +
+  theme_half_open() +
+  background_grid()
+```
+
+![](Results_files/figure-gfm/unnamed-chunk-47-1.svg)<!-- -->
+
+##### CPU
+
+``` r
+data_logcat_vrapi %>%
+  filter(game == "gorillatag") %>%
+  filter(config == "MQ3") %>%
+  filter(ts > 60) %>%
+  ggplot(aes(x = cpu_util, group = i, y = i)) +
+  geom_boxplot() +
+  xlim(0, 100) +
+  labs(x = "CPU utilization [%]", y = "Iteration") +
+  theme_half_open() +
+  background_grid()
+```
+
+![](Results_files/figure-gfm/unnamed-chunk-48-1.svg)<!-- -->
+
+##### Network
+
+Variability of network usage.
+
+``` r
+data_net_dev %>%
+  filter(game == "gorillatag") %>%
+  filter(config == "MQ3") %>%
+  filter(ts > 60) %>%
+  ggplot(aes(x = kbps_rx, y = i, group = i)) +
+  geom_boxplot() +
+  labs(x = "Bytes received [kbps]", y = "Iteration") +
+  theme_half_open() +
+  background_grid() +
+  coord_cartesian(xlim=c(0, 1200), clip="off") +
+  theme(legend.position = "none", plot.margin=margin(0,.5,0,0, "cm"))
+```
+
+![](Results_files/figure-gfm/unnamed-chunk-49-1.svg)<!-- -->
+
+``` r
+data_net_dev %>%
+  filter(game == "gorillatag") %>%
+  filter(config == "MQ3") %>%
+  filter(ts > 60) %>%
+  ggplot(aes(x = Mbps_tx, y = i, group = i)) +
+  geom_boxplot() +
+  labs(x = "Bytes sent [Mbps]", y = "Iteration") +
+  theme_half_open() +
+  background_grid() +
+  coord_cartesian(xlim=c(0, NA), clip="off") +
+  theme(legend.position = "none", plot.margin=margin(0,.5,0,0, "cm"))
+```
+
+![](Results_files/figure-gfm/unnamed-chunk-50-1.svg)<!-- -->
+
+``` r
+data_net_dev %>%
+  filter(game == "gorillatag") %>%
+  filter(config == "MQ3") %>%
+  filter(ts > 60) %>%
+  ggplot(aes(kbps_rx, group = i, color=i)) +
+  stat_ecdf(geom = "step", pad = FALSE) +
+  labs(x = "Bytes received [kbps]", y = "Fraction") +
+  theme_half_open() +
+  coord_cartesian(clip="off") +
+  theme(legend.position = "none", plot.margin=margin(0,.4,0,0, "cm")) +
+  background_grid()
+```
+
+![](Results_files/figure-gfm/unnamed-chunk-51-1.svg)<!-- -->
+
+``` r
+data_net_dev %>%
+  filter(game == "gorillatag") %>%
+  filter(config == "MQ3") %>%
+  filter(ts > 60) %>%
+  ggplot() +
+  stat_ecdf(aes(x = kbps_rx, y = log10(1 - after_stat(y)), group = i, color = i), pad=FALSE) +
+  scale_y_continuous(breaks = seq(-3, 0), 
+                     labels = 10^(seq(-3, 0)),
+                     limits = c(-3, 0)) +
+  labs(x = "Bytes received [kbps]", y = "Fraction") +
+  theme_half_open() +
+  coord_cartesian(clip="off") +
+  theme(legend.position = "none", plot.margin=margin(0,.4,0,0, "cm")) +
+  background_grid()
+```
+
+![](Results_files/figure-gfm/unnamed-chunk-52-1.svg)<!-- -->
+
+``` r
+ # test_data <- data_net_dev %>%
+ #   mutate(kbps = 8 * (rx_bytes - lag(rx_bytes)) / 1000) %>%
+ #   drop_na() %>%
+ #   filter(game == "gorillatag")
+ # test_data %>% filter(i== "n1") %>% pull(kbps)
+ # 
+ # ks2Test(rnorm(6000), 5+runif(6000))
+ # 
+ # ks2Test(test_data %>% filter(i== "n4") %>% pull(kbps), test_data %>% filter(i == "n3") %>% pull(kbps))
+```
+
+``` r
+data_net_dev %>%
+  filter(game == "gorillatag") %>%
+  filter(config == "MQ3") %>%
+  filter(ts > 60) %>%
+  ggplot(aes(Mbps_tx, group = i, color=i)) +
+  stat_ecdf(geom = "step", pad = FALSE) +
+  labs(x = "Bytes sent [Mbps]", y = "Fraction") +
+  theme_half_open() +
+  coord_cartesian(clip="off") +
+  theme(legend.position = "none", plot.margin=margin(0,.4,0,0, "cm")) +
+  background_grid()
+```
+
+![](Results_files/figure-gfm/unnamed-chunk-54-1.svg)<!-- -->
+
+``` r
+data_net_dev %>%
+  filter(game == "gorillatag") %>%
+  filter(config == "MQ3") %>%
+  filter(ts > 60) %>%
+  ggplot() +
+  stat_ecdf(aes(x = Mbps_tx, y = log10(1 - after_stat(y)), group = i, color = i), pad=FALSE) +
+  scale_y_continuous(breaks = seq(-3, 0), 
+                     labels = 10^(seq(-3, 0)),
+                     limits = c(-3, 0)) +
+  labs(x = "Bytes sent [Mbps]", y = "Fraction") +
+  theme_half_open() +
+  coord_cartesian(clip="off") +
+  theme(legend.position = "none", plot.margin=margin(0,.4,0,0, "cm")) +
+  background_grid()
+```
+
+![](Results_files/figure-gfm/unnamed-chunk-55-1.svg)<!-- -->
+
+``` r
+data_net_dev %>%
+  filter(game == "gorillatag") %>%
+  filter(config == "MQ3") %>%
+  ggplot(aes(x = ts, y = Mbps_tx, group = i, color = i)) +
+  geom_line() +
+  ylim(0, NA) +
+  theme_half_open() +
+  background_grid() +
+  theme(legend.position = "none") +
+  labs(x = "Time [s]", y = "Bytes sent [Mbps]    ")
+```
+
+![](Results_files/figure-gfm/unnamed-chunk-56-1.svg)<!-- -->
