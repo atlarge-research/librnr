@@ -37,6 +37,7 @@ $functions = {
 
         # Create a temporary directory for logging metrics on device
         $TempDir = adb shell mktemp -d
+        Write-Host "Storing metrics on device, at $TempDir"
 
         # clear the log
         adb logcat -c
@@ -47,7 +48,7 @@ $functions = {
             # start the battery measurement app
             adb shell am start-foreground-service -n "com.example.batterymanager_utility/com.example.batterymanager_utility.DataCollectionService" --ei sampleRate 1000 --es "dataFields" "BATTERY_PROPERTY_CURRENT_NOW,EXTRA_VOLTAGE" --ez toCSV False
             # stream battery measurement logs to file
-            $BatteryJob = Start-Job -ScriptBlock {
+            $BatteryJob = Start-ThreadJob -StreamingHost $Host -ScriptBlock {
                 $Out = "$using:TempDir/batterymanager-companion.log"
                 Write-Host "Writing S2 battery data measurements to $Out"
                 adb shell "logcat | grep 'BatteryMgr:DataCollectionService' >> $Out"
@@ -130,7 +131,6 @@ $functions = {
                 # stop app collecting battery measurements
                 adb shell am stopservice com.example.batterymanager_utility/com.example.batterymanager_utility.DataCollectionService
                 Stop-Job $BatteryJob
-                Receive-Job $BatteryJob
             }
 
             # Copy temp folder to output folder
