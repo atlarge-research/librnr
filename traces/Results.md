@@ -3,7 +3,6 @@ Experiment
 
 - [Description](#description)
 - [Results](#results)
-  - [Data Loading](#data-loading)
   - [Evolution of Hardware](#evolution-of-hardware)
     - [Frames per Second](#frames-per-second)
     - [Frame Time](#frame-time)
@@ -51,11 +50,27 @@ to_human_name <- function(name) {
     name
   }
 }
-```
 
-## Data Loading
+give_stats <- function(tb, colname) {
+  tb %>%
+    mutate(v = {{colname}}) %>%
+    summarise(mean = mean(v),
+              stdev = sd(v),
+              min = min(v),
+              q25 = quantile(v, 0.25),
+              median = median(v),
+              q75 = quantile(v, 0.75),
+              max = max(v),
+              .by = c(game, config, i)) %>%
+    mutate(mean_maxd = max(mean) - min(mean)) %>%
+    mutate(stdev_maxd = max(stdev) - min(stdev)) %>%
+    mutate(min_maxd = max(min) - min(min)) %>%
+    mutate(q25_maxd = max(q25) - min(q25)) %>%
+    mutate(median_maxd = max(median) - min(median)) %>%
+    mutate(q75_maxd = max(q75) - min(q75)) %>%
+    mutate(max_maxd = max(max) - min(max))
+}
 
-``` r
 pattern <- c(month="-?\\d+", "-", day="-?\\d+", "\\s+", hour="-?\\d+", ":", minute="-?\\d+", ":", second="-?\\d+", "\\.", millisecond="-?\\d+", "\\s+", pid="-?\\d+", "\\s+", tid="-?\\d+", "\\s+", level="\\w", "\\s+VrApi\\s+:\\s+FPS=",fps_render="-?\\d+", "/", fps_refresh="-?\\d+", ",Prd=", prd="-?\\d+", "ms,Tear=", tear="-?\\d+", ",Early=", early="-?\\d+", ",Stale=", stale="-?\\d+", ",Stale2/5/10/max=", stale2="-?\\d+", "/", stale5="-?\\d+", "/", stale10="-?\\d+", "/", stalemax="-?\\d+", ",VSnc=", vsnc="-?\\d+", ",Lat=", lat="-?-?\\d+", ",Fov=", fov="-?\\d+\\w*", ",CPU", cpun="\\d", "/GPU=", cpu_level="-?\\d+", "/", gpu_level="-?\\d+", ",", cpu_freq="-?\\d+", "/", gpu_freq="-?\\d+", "MHz,OC=", oc=".+", ",TA=", ta_atw="-?\\d+\\w*", "/", ta_main="-?\\d+\\w*", "/", ta_render="-?\\d+\\w*", ",SP=", sp_atw="\\w", "/", sp_main="\\w", "/", sp_render="\\w", ",Mem=", mem="-?\\d+", "MHz,Free=", free="-?\\d+", "MB,PLS=", pls="-?\\d+", ",Temp=", temp_bat="-?\\d+\\.\\d+", "C/", temp_sens="-?\\d+\\.\\d+", "C,TW=", tw="-?\\d+\\.\\d+", "ms,App=", app="-?\\d+\\.\\d+", "ms,GD=", gd="-?\\d+\\.\\d+", "ms,CPU&GPU=", cpu_gpu="-?\\d+\\.\\d+", "ms,LCnt=", lcnt="-?\\d+", "\\(DR", dr="-?\\d+", ",LM", lm="-?\\d+", "\\),GPU%=", gpu_percent="-?\\d+\\.\\d+", ",CPU%=", cpu_percent="-?\\d+\\.\\d+", "\\(W", cpu_percent_worst="-?\\d+\\.\\d+", "\\),DSF=", dsf="-?\\d+\\.\\d+", ",CFL=", cfl_min="-?\\d+\\.\\d+", "/", cfl_max="-?\\d+\\.\\d+", ",ICFLp95=", icflp95="-?\\d+\\.\\d+", ",LD=", ld="-?\\d+", ",SF=", sf="-?\\d+\\.\\d+", ",LP=", lp="-?\\d+", ",DVFS=", dvfs="-?\\d+")
 
 data_logcat_vrapi <- NULL
@@ -68,6 +83,7 @@ for (f in traces_replays) {
     separate_wider_regex(line, pattern) %>%
     mutate(ts = as.numeric(second) + (60*as.numeric(minute)) + (60*60*as.numeric(hour))) %>%
     mutate(ts = ts - min(ts)) %>%
+    mutate(ts_m = ts / 60) %>%
     mutate(cpu_util = 100 * as.numeric(cpu_percent)) %>%
     mutate(cpu_freq_rel = (as.numeric(cpu_freq) - min(as.numeric(cpu_freq))) / max(as.numeric(cpu_freq))) %>%
     rowwise() %>%
@@ -86,9 +102,7 @@ for (f in traces_replays) {
 data_logcat_vrapi <- data_logcat_vrapi %>%
   type.convert(as.is = TRUE) %>%
   mutate(config = map_chr(config, to_human_name))
-```
 
-``` r
 #Inter-|   Receive                                                |  Transmit
 # face |bytes    packets errs drop fifo frame compressed multicast|bytes    packets errs drop fifo colls carrier compressed
 #  wlan0: 334462961  517107    0    0    0     0          0         0 110016326  375001    0    0    0     0       0          0
@@ -104,6 +118,7 @@ for (f in traces_replays) {
     separate_wider_regex(line, pattern) %>%
     mutate(ts = 0:(n() - 1)) %>%
     select(ts, everything()) %>%
+    mutate(ts_m = ts / 60) %>%
     mutate(config = f) %>%
     bind_rows(data_net_dev, .)
 }
@@ -140,7 +155,7 @@ data_logcat_vrapi %>%
   scale_color_viridis_d(begin = 0.3, direction = -1)
 ```
 
-![](Results_files/figure-gfm/unnamed-chunk-3-1.svg)<!-- -->
+![](Results_files/figure-gfm/unnamed-chunk-1-1.svg)<!-- -->
 
 ``` r
 data_logcat_vrapi %>%
@@ -154,7 +169,7 @@ data_logcat_vrapi %>%
   facet_grid(cols = vars(game), rows = vars(config))
 ```
 
-![](Results_files/figure-gfm/unnamed-chunk-4-1.svg)<!-- -->
+![](Results_files/figure-gfm/unnamed-chunk-2-1.svg)<!-- -->
 
 ``` r
 data_logcat_vrapi %>%
@@ -169,7 +184,7 @@ data_logcat_vrapi %>%
   scale_color_viridis_d(begin = 0.3, direction = -1)
 ```
 
-![](Results_files/figure-gfm/unnamed-chunk-5-1.svg)<!-- -->
+![](Results_files/figure-gfm/unnamed-chunk-3-1.svg)<!-- -->
 
 ### Frame Time
 
@@ -186,7 +201,7 @@ data_logcat_vrapi %>%
   facet_grid(cols = vars(game), rows = vars(config))
 ```
 
-![](Results_files/figure-gfm/unnamed-chunk-6-1.svg)<!-- -->
+![](Results_files/figure-gfm/unnamed-chunk-4-1.svg)<!-- -->
 
 ``` r
 data_logcat_vrapi %>%
@@ -205,7 +220,7 @@ data_logcat_vrapi %>%
 
     ## Warning: Removed 8 rows containing non-finite values (`stat_boxplot()`).
 
-![](Results_files/figure-gfm/unnamed-chunk-7-1.svg)<!-- -->
+![](Results_files/figure-gfm/unnamed-chunk-5-1.svg)<!-- -->
 
 ### CPU
 
@@ -224,13 +239,13 @@ p <- data_logcat_vrapi %>%
 p
 ```
 
-![](Results_files/figure-gfm/unnamed-chunk-9-1.svg)<!-- -->
+![](Results_files/figure-gfm/unnamed-chunk-7-1.svg)<!-- -->
 
 ``` r
 p + facet_grid(cols = vars(game))
 ```
 
-![](Results_files/figure-gfm/unnamed-chunk-10-1.svg)<!-- -->
+![](Results_files/figure-gfm/unnamed-chunk-8-1.svg)<!-- -->
 
 ``` r
 p <- data_logcat_vrapi %>%
@@ -249,7 +264,7 @@ p <- data_logcat_vrapi %>%
 p
 ```
 
-![](Results_files/figure-gfm/unnamed-chunk-12-1.svg)<!-- -->
+![](Results_files/figure-gfm/unnamed-chunk-10-1.svg)<!-- -->
 
 ``` r
  data_logcat_vrapi %>%
@@ -265,7 +280,7 @@ p
   facet_grid(cols = vars(game), rows = vars(config))
 ```
 
-![](Results_files/figure-gfm/unnamed-chunk-13-1.svg)<!-- -->
+![](Results_files/figure-gfm/unnamed-chunk-11-1.svg)<!-- -->
 
 ``` r
 p <- data_logcat_vrapi %>%
@@ -284,7 +299,7 @@ p <- data_logcat_vrapi %>%
 p
 ```
 
-![](Results_files/figure-gfm/unnamed-chunk-15-1.svg)<!-- -->
+![](Results_files/figure-gfm/unnamed-chunk-13-1.svg)<!-- -->
 
 ``` r
  data_logcat_vrapi %>%
@@ -300,7 +315,7 @@ p
   facet_grid(cols = vars(game), rows = vars(config))
 ```
 
-![](Results_files/figure-gfm/unnamed-chunk-16-1.svg)<!-- -->
+![](Results_files/figure-gfm/unnamed-chunk-14-1.svg)<!-- -->
 
 ``` r
 p <- data_logcat_vrapi %>%
@@ -317,13 +332,13 @@ p <- data_logcat_vrapi %>%
 p
 ```
 
-![](Results_files/figure-gfm/unnamed-chunk-18-1.svg)<!-- -->
+![](Results_files/figure-gfm/unnamed-chunk-16-1.svg)<!-- -->
 
 ``` r
 p + facet_grid(cols = vars(game))
 ```
 
-![](Results_files/figure-gfm/unnamed-chunk-19-1.svg)<!-- -->
+![](Results_files/figure-gfm/unnamed-chunk-17-1.svg)<!-- -->
 
 ``` r
 p <- data_logcat_vrapi %>%
@@ -339,13 +354,13 @@ p <- data_logcat_vrapi %>%
 p
 ```
 
-![](Results_files/figure-gfm/unnamed-chunk-21-1.svg)<!-- -->
+![](Results_files/figure-gfm/unnamed-chunk-19-1.svg)<!-- -->
 
 ``` r
 p + facet_grid(cols = vars(game))
 ```
 
-![](Results_files/figure-gfm/unnamed-chunk-22-1.svg)<!-- -->
+![](Results_files/figure-gfm/unnamed-chunk-20-1.svg)<!-- -->
 
 ``` r
 p <- data_logcat_vrapi %>%
@@ -362,13 +377,13 @@ p <- data_logcat_vrapi %>%
 p
 ```
 
-![](Results_files/figure-gfm/unnamed-chunk-24-1.svg)<!-- -->
+![](Results_files/figure-gfm/unnamed-chunk-22-1.svg)<!-- -->
 
 ``` r
 p + facet_grid(cols = vars(game))
 ```
 
-![](Results_files/figure-gfm/unnamed-chunk-25-1.svg)<!-- -->
+![](Results_files/figure-gfm/unnamed-chunk-23-1.svg)<!-- -->
 
 ### GPU
 
@@ -387,13 +402,13 @@ p <- data_logcat_vrapi %>%
 p
 ```
 
-![](Results_files/figure-gfm/unnamed-chunk-27-1.svg)<!-- -->
+![](Results_files/figure-gfm/unnamed-chunk-25-1.svg)<!-- -->
 
 ``` r
 p + facet_grid(cols = vars(game))
 ```
 
-![](Results_files/figure-gfm/unnamed-chunk-28-1.svg)<!-- -->
+![](Results_files/figure-gfm/unnamed-chunk-26-1.svg)<!-- -->
 
 ``` r
 p <- data_logcat_vrapi %>%
@@ -412,7 +427,7 @@ p <- data_logcat_vrapi %>%
 p
 ```
 
-![](Results_files/figure-gfm/unnamed-chunk-30-1.svg)<!-- -->
+![](Results_files/figure-gfm/unnamed-chunk-28-1.svg)<!-- -->
 
 ``` r
 data_logcat_vrapi %>%
@@ -426,7 +441,7 @@ data_logcat_vrapi %>%
   facet_grid(cols = vars(game), rows = vars(config))
 ```
 
-![](Results_files/figure-gfm/unnamed-chunk-31-1.svg)<!-- -->
+![](Results_files/figure-gfm/unnamed-chunk-29-1.svg)<!-- -->
 
 ``` r
 p <- data_logcat_vrapi %>%
@@ -442,13 +457,13 @@ p <- data_logcat_vrapi %>%
 p
 ```
 
-![](Results_files/figure-gfm/unnamed-chunk-33-1.svg)<!-- -->
+![](Results_files/figure-gfm/unnamed-chunk-31-1.svg)<!-- -->
 
 ``` r
 p + facet_grid(cols = vars(game))
 ```
 
-![](Results_files/figure-gfm/unnamed-chunk-34-1.svg)<!-- -->
+![](Results_files/figure-gfm/unnamed-chunk-32-1.svg)<!-- -->
 
 ``` r
 p <- data_logcat_vrapi %>%
@@ -464,13 +479,13 @@ p <- data_logcat_vrapi %>%
 p
 ```
 
-![](Results_files/figure-gfm/unnamed-chunk-36-1.svg)<!-- -->
+![](Results_files/figure-gfm/unnamed-chunk-34-1.svg)<!-- -->
 
 ``` r
 p + facet_grid(cols = vars(game))
 ```
 
-![](Results_files/figure-gfm/unnamed-chunk-37-1.svg)<!-- -->
+![](Results_files/figure-gfm/unnamed-chunk-35-1.svg)<!-- -->
 
 ### Battery Usage
 
@@ -513,7 +528,7 @@ p <- data_battery %>%
 p
 ```
 
-![](Results_files/figure-gfm/unnamed-chunk-40-1.svg)<!-- -->
+![](Results_files/figure-gfm/unnamed-chunk-38-1.svg)<!-- -->
 
 ``` r
 data_battery %>%
@@ -533,7 +548,7 @@ data_battery %>%
   facet_grid(cols = vars(game), rows = vars(config))
 ```
 
-![](Results_files/figure-gfm/unnamed-chunk-41-1.svg)<!-- -->
+![](Results_files/figure-gfm/unnamed-chunk-39-1.svg)<!-- -->
 
 ### Network Use
 
@@ -553,7 +568,7 @@ data_net_dev %>%
   facet_grid(cols = vars(game), rows = vars(config))
 ```
 
-![](Results_files/figure-gfm/unnamed-chunk-42-1.svg)<!-- -->
+![](Results_files/figure-gfm/unnamed-chunk-40-1.svg)<!-- -->
 
 ``` r
 data_net_dev %>%
@@ -568,7 +583,7 @@ data_net_dev %>%
   facet_grid(cols = vars(game))
 ```
 
-![](Results_files/figure-gfm/unnamed-chunk-43-1.svg)<!-- -->
+![](Results_files/figure-gfm/unnamed-chunk-41-1.svg)<!-- -->
 
 ## Performance Variability
 
@@ -600,180 +615,269 @@ data_logcat_vrapi %>%
   labs(x = "Time [s]", y = "Frame time [ms]  ")
 ```
 
-![](Results_files/figure-gfm/unnamed-chunk-44-1.svg)<!-- -->
+![](Results_files/figure-gfm/unnamed-chunk-42-1.svg)<!-- -->
 
 ``` r
 data_logcat_vrapi %>%
   filter(game == "gorillatag") %>%
   filter(config == "MQ3") %>%
+  filter(i <= 8) %>%
   filter(ts > 60) %>%
   ggplot(aes(x = fps_render, group = i, y = i)) +
   geom_boxplot() +
   xlim(0, NA) +
   labs(x = "Frames per second", y = "Iteration") +
-  theme_half_open() +
+  theme_cowplot(15) +
   background_grid() +
-  theme(legend.position = "bottom") +
-  scale_color_viridis_d(begin = 0.3, direction = -1)
+  coord_cartesian(clip="off") +
+  theme(plot.margin=margin(0,0,0,0, "cm"))
 ```
 
-![](Results_files/figure-gfm/unnamed-chunk-45-1.svg)<!-- -->
+![](Results_files/figure-gfm/val-playback-perfvar-fps-1.svg)<!-- -->
 
 ``` r
 data_logcat_vrapi %>%
   filter(game == "gorillatag") %>%
   filter(config == "MQ3") %>%
+  filter(i <= 8) %>%
   filter(ts > 60) %>%
   ggplot(aes(x = app, group = i, y = i)) +
   geom_boxplot() +
   geom_vline(xintercept = 11.1, color = "orange", linetype = "dashed") +
   geom_vline(xintercept = 13.9, color = "red") +
   xlim(0, NA) +
-  theme_half_open() +
+  theme_cowplot(15) +
   background_grid() +
-  theme(legend.position = "bottom") +
-  labs(x="Frame time [ms]", y="Iteration")
+  labs(x="Frame time [ms]", y="Iteration") +
+  coord_cartesian(clip="off") +
+  theme(plot.margin=margin(0,0,0,0, "cm"))
 ```
 
-![](Results_files/figure-gfm/unnamed-chunk-46-1.svg)<!-- -->
+![](Results_files/figure-gfm/val-playback-perfvar-frametime-1.svg)<!-- -->
 
 ##### GPU
 
 ``` r
-data_logcat_vrapi %>%
+d <- data_logcat_vrapi %>%
   filter(game == "gorillatag") %>%
   filter(config == "MQ3") %>%
-  filter(ts > 60) %>%
+  filter(i <= 8) %>%
+  filter(ts > 60)
+
+d %>%
+  give_stats(gpu_util)
+```
+
+    ## # A tibble: 8 × 17
+    ##   game       config     i  mean stdev   min   q25 median   q75   max mean_maxd
+    ##   <chr>      <chr>  <int> <dbl> <dbl> <int> <dbl>  <dbl> <dbl> <int>     <dbl>
+    ## 1 gorillatag MQ3        1  36.8  4.96    29    33     35    40    55      1.45
+    ## 2 gorillatag MQ3        2  36.5  5.09    28    32     35    40    51      1.45
+    ## 3 gorillatag MQ3        3  36.1  5.17    28    32     34    41    49      1.45
+    ## 4 gorillatag MQ3        4  36.0  4.62    28    32     35    39    50      1.45
+    ## 5 gorillatag MQ3        5  36.7  4.56    28    33     36    40    53      1.45
+    ## 6 gorillatag MQ3        6  35.4  4.83    27    31     34    39    50      1.45
+    ## 7 gorillatag MQ3        7  36.6  5.04    29    32     35    41    51      1.45
+    ## 8 gorillatag MQ3        8  36.7  4.69    28    33     36    40    51      1.45
+    ## # ℹ 6 more variables: stdev_maxd <dbl>, min_maxd <int>, q25_maxd <dbl>,
+    ## #   median_maxd <dbl>, q75_maxd <dbl>, max_maxd <int>
+
+``` r
+d %>%  
   ggplot(aes(x = gpu_util, group = i, y = i)) +
   geom_boxplot() +
   xlim(0, 100) +
   labs(x = "GPU utilization [%]", y = "Iteration") +
-  theme_half_open() +
-  background_grid()
+  theme_cowplot(15) +
+  background_grid() +
+  coord_cartesian(clip="off") +
+  theme(plot.margin=margin(0,0.2,0,0, "cm"))
 ```
 
-![](Results_files/figure-gfm/unnamed-chunk-47-1.svg)<!-- -->
+![](Results_files/figure-gfm/val-playback-perfvar-gpu-1.svg)<!-- -->
 
 ##### CPU
 
 ``` r
-data_logcat_vrapi %>%
+d <- data_logcat_vrapi %>%
   filter(game == "gorillatag") %>%
   filter(config == "MQ3") %>%
-  filter(ts > 60) %>%
+  filter(i <= 8) %>%
+  filter(ts > 60)
+
+d %>%
+  give_stats(cpu_util)
+```
+
+    ## # A tibble: 8 × 17
+    ##   game       config     i  mean stdev   min   q25 median   q75   max mean_maxd
+    ##   <chr>      <chr>  <int> <dbl> <dbl> <int> <dbl>  <dbl> <dbl> <int>     <dbl>
+    ## 1 gorillatag MQ3        1  51.2  5.41    37    47     51    55    87      10.4
+    ## 2 gorillatag MQ3        2  56.0  5.23    39    53     56    59    77      10.4
+    ## 3 gorillatag MQ3        3  48.9  5.27    36    45     49    52    82      10.4
+    ## 4 gorillatag MQ3        4  51.5  5.10    37    48     52    55    78      10.4
+    ## 5 gorillatag MQ3        5  58.3  4.59    43    55     58    61    79      10.4
+    ## 6 gorillatag MQ3        6  53.7  4.27    42    51     54    56    75      10.4
+    ## 7 gorillatag MQ3        7  59.3  4.50    47    56     59    62    75      10.4
+    ## 8 gorillatag MQ3        8  54.3  4.21    44    51     54    57    83      10.4
+    ## # ℹ 6 more variables: stdev_maxd <dbl>, min_maxd <int>, q25_maxd <dbl>,
+    ## #   median_maxd <dbl>, q75_maxd <dbl>, max_maxd <int>
+
+``` r
+d %>%
   ggplot(aes(x = cpu_util, group = i, y = i)) +
   geom_boxplot() +
   xlim(0, 100) +
   labs(x = "CPU utilization [%]", y = "Iteration") +
-  theme_half_open() +
-  background_grid()
+  theme_cowplot(15) +
+  background_grid() +
+  coord_cartesian(clip="off") +
+  theme(legend.position = "none", plot.margin=margin(0,0.2,0,0, "cm"))
 ```
 
-![](Results_files/figure-gfm/unnamed-chunk-48-1.svg)<!-- -->
+![](Results_files/figure-gfm/val-playback-perfvar-cpu-1.svg)<!-- -->
 
 ##### Network
 
 Variability of network usage.
 
 ``` r
-data_net_dev %>%
+d <- data_net_dev %>%
   filter(game == "gorillatag") %>%
   filter(config == "MQ3") %>%
-  filter(ts > 60) %>%
-  ggplot(aes(x = kbps_rx, y = i, group = i)) +
-  geom_boxplot() +
-  labs(x = "Bytes received [kbps]", y = "Iteration") +
-  theme_half_open() +
-  background_grid() +
-  coord_cartesian(xlim=c(0, 1200), clip="off") +
-  theme(legend.position = "none", plot.margin=margin(0,.5,0,0, "cm"))
+  filter(i <= 8) %>%
+  filter(ts > 60)
+
+d %>%
+  give_stats(Mbps_rx)
 ```
 
-![](Results_files/figure-gfm/unnamed-chunk-49-1.svg)<!-- -->
+    ## # A tibble: 8 × 17
+    ##   game       config     i  mean  stdev    min   q25 median   q75   max mean_maxd
+    ##   <chr>      <chr>  <int> <dbl>  <dbl>  <dbl> <dbl>  <dbl> <dbl> <dbl>     <dbl>
+    ## 1 gorillatag MQ3        1 0.204 0.0304 0.137  0.185  0.201 0.219 0.438    0.0495
+    ## 2 gorillatag MQ3        2 0.190 0.0384 0.0294 0.171  0.189 0.205 0.409    0.0495
+    ## 3 gorillatag MQ3        3 0.213 0.0363 0.132  0.191  0.208 0.229 0.452    0.0495
+    ## 4 gorillatag MQ3        4 0.168 0.0358 0.0708 0.149  0.167 0.183 0.382    0.0495
+    ## 5 gorillatag MQ3        5 0.199 0.0463 0.136  0.177  0.192 0.212 0.985    0.0495
+    ## 6 gorillatag MQ3        6 0.210 0.0341 0.142  0.189  0.205 0.225 0.409    0.0495
+    ## 7 gorillatag MQ3        7 0.218 0.0384 0.131  0.193  0.214 0.237 0.450    0.0495
+    ## 8 gorillatag MQ3        8 0.217 0.0466 0.161  0.196  0.212 0.229 1.17     0.0495
+    ## # ℹ 6 more variables: stdev_maxd <dbl>, min_maxd <dbl>, q25_maxd <dbl>,
+    ## #   median_maxd <dbl>, q75_maxd <dbl>, max_maxd <dbl>
+
+``` r
+d %>%
+  ggplot(aes(x = Mbps_rx, y = i, group = i)) +
+  geom_boxplot() +
+  labs(x = "Bytes received [Mbps]", y = "Iteration") +
+  theme_cowplot(15) +
+  background_grid() +
+  coord_cartesian(clip="off") +
+  theme(legend.position = "none", plot.margin=margin(0,0.2,0,0, "cm"))
+```
+
+![](Results_files/figure-gfm/val-playback-perfvar-rx_bytes_box-1.svg)<!-- -->
 
 ``` r
 data_net_dev %>%
   filter(game == "gorillatag") %>%
   filter(config == "MQ3") %>%
+  filter(i <= 8) %>%
   filter(ts > 60) %>%
   ggplot(aes(x = Mbps_tx, y = i, group = i)) +
   geom_boxplot() +
   labs(x = "Bytes sent [Mbps]", y = "Iteration") +
-  theme_half_open() +
+  theme_cowplot(15) +
   background_grid() +
-  coord_cartesian(xlim=c(0, NA), clip="off") +
-  theme(legend.position = "none", plot.margin=margin(0,.5,0,0, "cm"))
-```
-
-![](Results_files/figure-gfm/unnamed-chunk-50-1.svg)<!-- -->
-
-``` r
-data_net_dev %>%
-  filter(game == "gorillatag") %>%
-  filter(config == "MQ3") %>%
-  filter(ts > 60) %>%
-  ggplot(aes(kbps_rx, group = i, color=i)) +
-  stat_ecdf(geom = "step", pad = FALSE) +
-  labs(x = "Bytes received [kbps]", y = "Fraction") +
-  theme_half_open() +
   coord_cartesian(clip="off") +
-  theme(legend.position = "none", plot.margin=margin(0,.4,0,0, "cm")) +
-  background_grid()
+  theme(legend.position = "none", plot.margin=margin(0,0.2,0,0, "cm"))
 ```
 
-![](Results_files/figure-gfm/unnamed-chunk-51-1.svg)<!-- -->
+![](Results_files/figure-gfm/val-playback-perfvar-tx_bytes_box-1.svg)<!-- -->
 
 ``` r
 data_net_dev %>%
   filter(game == "gorillatag") %>%
   filter(config == "MQ3") %>%
+  filter(i <= 8) %>%
+  filter(ts > 60) %>%
+  ggplot(aes(Mbps_rx, group = i, color=i)) +
+  stat_ecdf(geom = "step", pad = FALSE) +
+  labs(x = "Bytes received [Mbps]", y = "Fraction") +
+  theme_cowplot(15) +
+  background_grid() +
+  coord_cartesian(clip="off") +
+  theme(legend.position = "none", plot.margin=margin(0,0.2,0,0, "cm"))
+```
+
+![](Results_files/figure-gfm/val-playback-perfvar-rx_bytes_cdf-1.svg)<!-- -->
+
+``` r
+data_net_dev %>%
+  filter(game == "gorillatag") %>%
+  filter(config == "MQ3") %>%
+  filter(i <= 8) %>%
   filter(ts > 60) %>%
   ggplot() +
-  stat_ecdf(aes(x = kbps_rx, y = log10(1 - after_stat(y)), group = i, color = i), pad=FALSE) +
+  stat_ecdf(aes(x = Mbps_rx, y = log10(1 - after_stat(y)), group = i, color = i), pad=FALSE) +
   scale_y_continuous(breaks = seq(-3, 0), 
                      labels = 10^(seq(-3, 0)),
                      limits = c(-3, 0)) +
-  labs(x = "Bytes received [kbps]", y = "Fraction") +
-  theme_half_open() +
+  labs(x = "Bytes received [Mbps]   ", y = "Fraction") +
+  theme_cowplot(15) +
+  background_grid() +
   coord_cartesian(clip="off") +
-  theme(legend.position = "none", plot.margin=margin(0,.4,0,0, "cm")) +
-  background_grid()
+  theme(legend.position = "none", plot.margin=margin(0,0.2,0,0, "cm"))
 ```
 
-![](Results_files/figure-gfm/unnamed-chunk-52-1.svg)<!-- -->
+![](Results_files/figure-gfm/val-playback-perfvar-rx_bytes_rcdf-1.svg)<!-- -->
 
 ``` r
- # test_data <- data_net_dev %>%
- #   mutate(kbps = 8 * (rx_bytes - lag(rx_bytes)) / 1000) %>%
- #   drop_na() %>%
- #   filter(game == "gorillatag")
- # test_data %>% filter(i== "n1") %>% pull(kbps)
- # 
- # ks2Test(rnorm(6000), 5+runif(6000))
- # 
- # ks2Test(test_data %>% filter(i== "n4") %>% pull(kbps), test_data %>% filter(i == "n3") %>% pull(kbps))
+test_data <- data_net_dev %>%
+  filter(game == "gorillatag") %>%
+  filter(config == "MQ3")
+
+ # ks2Test(test_data %>% filter(i == 4) %>% pull(Mbps_tx), test_data %>% filter(i == 3) %>% pull(Mbps_tx),321')
+ 
+ ks.test(test_data %>% filter(i == 4) %>% pull(Mbps_tx),  test_data %>% filter(i == 3) %>% pull(Mbps_tx), alternative = "two.sided", exact = FALSE, conf.level = 0.1)
 ```
+
+    ## Warning in ks.test.default(test_data %>% filter(i == 4) %>% pull(Mbps_tx), :
+    ## Parameter(s) conf.level ignored
+
+    ## Warning in ks.test.default(test_data %>% filter(i == 4) %>% pull(Mbps_tx), :
+    ## p-value will be approximate in the presence of ties
+
+    ## 
+    ##  Asymptotic two-sample Kolmogorov-Smirnov test
+    ## 
+    ## data:  test_data %>% filter(i == 4) %>% pull(Mbps_tx) and test_data %>% filter(i == 3) %>% pull(Mbps_tx)
+    ## D = 0.14375, p-value = 4.85e-09
+    ## alternative hypothesis: two-sided
 
 ``` r
 data_net_dev %>%
   filter(game == "gorillatag") %>%
   filter(config == "MQ3") %>%
+  filter(i <= 8) %>%
   filter(ts > 60) %>%
   ggplot(aes(Mbps_tx, group = i, color=i)) +
   stat_ecdf(geom = "step", pad = FALSE) +
   labs(x = "Bytes sent [Mbps]", y = "Fraction") +
-  theme_half_open() +
+  theme_cowplot(15) +
+  background_grid() +
   coord_cartesian(clip="off") +
-  theme(legend.position = "none", plot.margin=margin(0,.4,0,0, "cm")) +
-  background_grid()
+  theme(legend.position = "none", plot.margin=margin(0,0,0,0, "cm"))
 ```
 
-![](Results_files/figure-gfm/unnamed-chunk-54-1.svg)<!-- -->
+![](Results_files/figure-gfm/val-playback-perfvar-tx_bytes_cdf-1.svg)<!-- -->
 
 ``` r
 data_net_dev %>%
   filter(game == "gorillatag") %>%
   filter(config == "MQ3") %>%
+  filter(i <= 8) %>%
   filter(ts > 60) %>%
   ggplot() +
   stat_ecdf(aes(x = Mbps_tx, y = log10(1 - after_stat(y)), group = i, color = i), pad=FALSE) +
@@ -781,25 +885,33 @@ data_net_dev %>%
                      labels = 10^(seq(-3, 0)),
                      limits = c(-3, 0)) +
   labs(x = "Bytes sent [Mbps]", y = "Fraction") +
-  theme_half_open() +
+  theme_cowplot(15) +
+  background_grid() +
   coord_cartesian(clip="off") +
-  theme(legend.position = "none", plot.margin=margin(0,.4,0,0, "cm")) +
-  background_grid()
+  theme(legend.position = "none", plot.margin=margin(0,0,0,0, "cm"))
 ```
 
-![](Results_files/figure-gfm/unnamed-chunk-55-1.svg)<!-- -->
+![](Results_files/figure-gfm/val-playback-perfvar-tx_bytes_rcdf-1.svg)<!-- -->
+
+Unexpected result: while replaying a trace using wired ADB (so we’re
+sure metrics are not being sent to the host PC over wireless network),
+there is still significant wireless network activity while playing
+Gorilla Tag. Much larger than what I would expect for a game such as
+this. Why the \>1Mbps network spikes?S
 
 ``` r
 data_net_dev %>%
   filter(game == "gorillatag") %>%
   filter(config == "MQ3") %>%
-  ggplot(aes(x = ts, y = Mbps_tx, group = i, color = i)) +
+  filter(i <= 8) %>%
+  ggplot(aes(x = ts_m, y = Mbps_tx, group = i, color = i)) +
   geom_line() +
   ylim(0, NA) +
-  theme_half_open() +
+  labs(x = "Time [m]", y = "Bytes sent [Mbps]      ") +
+  theme_cowplot(15) +
   background_grid() +
-  theme(legend.position = "none") +
-  labs(x = "Time [s]", y = "Bytes sent [Mbps]    ")
+  coord_cartesian(clip="off") +
+  theme(legend.position = "none", plot.margin=margin(0,0,0,0, "cm"))
 ```
 
-![](Results_files/figure-gfm/unnamed-chunk-56-1.svg)<!-- -->
+![](Results_files/figure-gfm/val-playback-perfvar-tx_bytes_time-1.svg)<!-- -->
