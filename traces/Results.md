@@ -136,6 +136,33 @@ data_net_dev <- data_net_dev %>%
   mutate(Gbps_rx = bps_rx / 1000000000) %>%
   drop_na() %>%
   ungroup()
+
+# 01-18 18:54:21.709  6038  6148 I BatteryMgr:DataCollectionService: stats => 1705600461709,-1312532,3835
+pattern <- c(month="\\d+", "-", day="\\d+", "\\s+", hour="\\d+", ":", minute="\\d+", ":", second="\\d+", "\\.", millisecond="\\d+", "\\s+", pid="\\d+", "\\s+", tid="\\d+", "\\s+I\\s+BatteryMgr:DataCollectionService:\\s+stats\\s+=>\\s+", ts_milli="\\d+", ",", current="-?\\d+", ",", voltage="\\d+")
+
+data_batterymanager_companion <- NULL
+for (f in traces_replays) {
+  data_batterymanager_companion <- readLines(here(f, "batterymanager-companion.log")) %>%
+    tibble(line = .) %>%
+    mutate(game = str_split_i(f, "-", 3)) %>%
+    mutate(i = str_split_i(f, "-", -1) %>% str_split_i("n", 2)) %>%
+    filter(grepl("\\WBatteryMgr:DataCollectionService:\\s+stats\\s+=>", line)) %>%
+    separate_wider_regex(line, pattern) %>%
+    mutate(config = f) %>%
+    bind_rows(data_batterymanager_companion, .)
+}
+data_batterymanager_companion <- data_batterymanager_companion %>%
+  type.convert(as.is = TRUE) %>%
+  mutate(config = map_chr(config, to_human_name)) %>%
+  group_by(config, game, i) %>%
+  mutate(ts_milli = ts_milli - min(ts_milli)) %>%
+  ungroup() %>%
+  mutate(ts = ts_milli / 1000) %>%
+  mutate(ts_m = ts / 60) %>%
+  mutate(current_ma = current / 1000) %>%
+  mutate(current_a = current / 1000000) %>%
+  mutate(voltage_v = voltage / 1000) %>%
+  mutate(power_w = current_a * voltage_v)
 ```
 
 ## Evolution of Hardware
@@ -144,29 +171,31 @@ data_net_dev <- data_net_dev %>%
 
 ``` r
 data_logcat_vrapi %>%
-  ggplot(aes(x = ts, y = fps_render, color = config)) +
+  ggplot(aes(x = ts_m, y = fps_render, color = config)) +
   # geom_vline(xintercept = start_time, color = "black") +
   # geom_vline(xintercept = end_time, color = "black") +
   geom_line() +
   ylim(0, NA) +
-  theme_half_open() +
+  theme_cowplot(15) +
   background_grid() +
-  theme(legend.position = "bottom") +
-  scale_color_viridis_d(begin = 0.3, direction = -1)
+  labs(x="Time [m]", y="Frame rate [fps]  ") +
+  coord_cartesian(clip="off") +
+  theme(plot.margin=margin(0,0,0,0, "cm"))
 ```
 
 ![](Results_files/figure-gfm/unnamed-chunk-1-1.svg)<!-- -->
 
 ``` r
 data_logcat_vrapi %>%
-  ggplot(aes(x = ts, y = fps_render)) +
+  filter(game == "explorevr") %>%
+  ggplot(aes(x = ts_m, y = fps_render, color = config)) +
   geom_line() +
   ylim(0, NA) +
-  theme_half_open() +
+  theme_cowplot(15) +
   background_grid() +
-  theme(legend.position = "bottom") +
-  scale_color_viridis_d(begin = 0.3, direction = -1) + 
-  facet_grid(cols = vars(game), rows = vars(config))
+  labs(x="Time [m]", y="Frames per second") +
+  coord_cartesian(clip="off") +
+  theme(plot.margin=margin(0,0,0,0, "cm"))
 ```
 
 ![](Results_files/figure-gfm/unnamed-chunk-2-1.svg)<!-- -->
@@ -187,6 +216,250 @@ data_logcat_vrapi %>%
 ![](Results_files/figure-gfm/unnamed-chunk-3-1.svg)<!-- -->
 
 ### Frame Time
+
+``` r
+data_logcat_vrapi %>%
+  filter(game == "moss") %>%
+  filter(ts > 60) %>%
+  filter(app > 0) %>%
+  ggplot() +
+  geom_vline(xintercept = 11.1, color = "orange", linetype = "dashed") +
+  geom_vline(xintercept = 13.9, color = "red") +
+  stat_ecdf(aes(x = app, y = log10(1 - after_stat(y)), group = config, color = config), pad=FALSE) +
+  scale_y_continuous(breaks = seq(-3, 0), 
+                     labels = 10^(seq(-3, 0)),
+                     limits = c(-3, 0)) +
+  xlim(0, NA) +
+  labs(x = "Frame time [ms]", y = "Fraction", color = "Device") +
+  theme_half_open() +
+  background_grid() +
+  theme(legend.position = c(.04,.3), legend.title = element_text("Device"))
+```
+
+    ## Warning in grid.Call(C_stringMetric, as.graphicsAnnot(x$label)): font family
+    ## 'Device' not found in PostScript font database
+
+    ## Warning in grid.Call(C_stringMetric, as.graphicsAnnot(x$label)): font family
+    ## 'Device' not found in PostScript font database
+
+    ## Warning in grid.Call(C_stringMetric, as.graphicsAnnot(x$label)): font family
+    ## 'Device' not found in PostScript font database
+
+    ## Warning in grid.Call(C_stringMetric, as.graphicsAnnot(x$label)): font family
+    ## 'Device' not found in PostScript font database
+
+    ## Warning in grid.Call(C_stringMetric, as.graphicsAnnot(x$label)): font family
+    ## 'Device' not found in PostScript font database
+
+    ## Warning in grid.Call(C_stringMetric, as.graphicsAnnot(x$label)): font family
+    ## 'Device' not found in PostScript font database
+
+    ## Warning in grid.Call(C_stringMetric, as.graphicsAnnot(x$label)): font family
+    ## 'Device' not found in PostScript font database
+
+    ## Warning in grid.Call(C_stringMetric, as.graphicsAnnot(x$label)): font family
+    ## 'Device' not found in PostScript font database
+
+    ## Warning in grid.Call(C_stringMetric, as.graphicsAnnot(x$label)): font family
+    ## 'Device' not found in PostScript font database
+
+    ## Warning in grid.Call(C_stringMetric, as.graphicsAnnot(x$label)): font family
+    ## 'Device' not found in PostScript font database
+
+    ## Warning in grid.Call(C_stringMetric, as.graphicsAnnot(x$label)): font family
+    ## 'Device' not found in PostScript font database
+
+    ## Warning in grid.Call(C_stringMetric, as.graphicsAnnot(x$label)): font family
+    ## 'Device' not found in PostScript font database
+
+    ## Warning in grid.Call(C_stringMetric, as.graphicsAnnot(x$label)): font family
+    ## 'Device' not found in PostScript font database
+
+    ## Warning in grid.Call(C_stringMetric, as.graphicsAnnot(x$label)): font family
+    ## 'Device' not found in PostScript font database
+
+    ## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, : font
+    ## family 'Device' not found in PostScript font database
+
+    ## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, : font
+    ## family 'Device' not found in PostScript font database
+
+    ## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, : font
+    ## family 'Device' not found in PostScript font database
+
+    ## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, : font
+    ## family 'Device' not found in PostScript font database
+
+    ## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, : font
+    ## family 'Device' not found in PostScript font database
+
+    ## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, : font
+    ## family 'Device' not found in PostScript font database
+
+    ## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, : font
+    ## family 'Device' not found in PostScript font database
+
+    ## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, : font
+    ## family 'Device' not found in PostScript font database
+
+    ## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, : font
+    ## family 'Device' not found in PostScript font database
+
+    ## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, : font
+    ## family 'Device' not found in PostScript font database
+
+    ## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, : font
+    ## family 'Device' not found in PostScript font database
+
+    ## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, : font
+    ## family 'Device' not found in PostScript font database
+
+    ## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, : font
+    ## family 'Device' not found in PostScript font database
+
+    ## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, : font
+    ## family 'Device' not found in PostScript font database
+
+    ## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, : font
+    ## family 'Device' not found in PostScript font database
+
+    ## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, : font
+    ## family 'Device' not found in PostScript font database
+
+    ## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, : font
+    ## family 'Device' not found in PostScript font database
+
+    ## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, : font
+    ## family 'Device' not found in PostScript font database
+
+    ## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, : font
+    ## family 'Device' not found in PostScript font database
+
+    ## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, : font
+    ## family 'Device' not found in PostScript font database
+
+    ## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, : font
+    ## family 'Device' not found in PostScript font database
+
+    ## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, : font
+    ## family 'Device' not found in PostScript font database
+
+    ## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, : font
+    ## family 'Device' not found in PostScript font database
+
+    ## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, : font
+    ## family 'Device' not found in PostScript font database
+
+    ## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, : font
+    ## family 'Device' not found in PostScript font database
+
+    ## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+    ## font family 'Device' not found in PostScript font database
+
+![](Results_files/figure-gfm/exp-device-evo-frametime-moss-rcdf-1.svg)<!-- -->
+
+``` r
+data_logcat_vrapi %>%
+  filter(game != "noapp") %>%
+  filter(ts > 60) %>%
+  filter(app > 0) %>%
+  ggplot() +
+  geom_vline(xintercept = 11.1, color = "orange", linetype = "dashed") +
+  geom_vline(xintercept = 13.9, color = "red") +
+  stat_ecdf(aes(x = app, y = log10(1 - after_stat(y)), group = config, color = config), pad=FALSE) +
+  scale_y_continuous(breaks = seq(-3, 0), 
+                     labels = 10^(seq(-3, 0)),
+                     limits = c(-3, 0)) +
+  xlim(0, NA) +
+  labs(x = "Frame time [ms]", y = "Fraction", color = "Device") +
+  theme_half_open() +
+  background_grid() +
+  theme(legend.position = c(.1,.4), legend.title = element_text("Device"), strip.background=element_rect(fill="white")) +
+  facet_grid(cols = vars(game))
+```
+
+    ## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, : font
+    ## family 'Device' not found in PostScript font database
+
+    ## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, : font
+    ## family 'Device' not found in PostScript font database
+
+    ## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, : font
+    ## family 'Device' not found in PostScript font database
+
+    ## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, : font
+    ## family 'Device' not found in PostScript font database
+
+    ## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, : font
+    ## family 'Device' not found in PostScript font database
+
+    ## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, : font
+    ## family 'Device' not found in PostScript font database
+
+    ## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, : font
+    ## family 'Device' not found in PostScript font database
+
+    ## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, : font
+    ## family 'Device' not found in PostScript font database
+
+    ## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, : font
+    ## family 'Device' not found in PostScript font database
+
+    ## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, : font
+    ## family 'Device' not found in PostScript font database
+
+    ## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, : font
+    ## family 'Device' not found in PostScript font database
+
+    ## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, : font
+    ## family 'Device' not found in PostScript font database
+
+    ## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, : font
+    ## family 'Device' not found in PostScript font database
+
+    ## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, : font
+    ## family 'Device' not found in PostScript font database
+
+    ## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, : font
+    ## family 'Device' not found in PostScript font database
+
+    ## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, : font
+    ## family 'Device' not found in PostScript font database
+
+    ## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, : font
+    ## family 'Device' not found in PostScript font database
+
+    ## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, : font
+    ## family 'Device' not found in PostScript font database
+
+    ## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, : font
+    ## family 'Device' not found in PostScript font database
+
+    ## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, : font
+    ## family 'Device' not found in PostScript font database
+
+    ## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, : font
+    ## family 'Device' not found in PostScript font database
+
+    ## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, : font
+    ## family 'Device' not found in PostScript font database
+
+    ## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, : font
+    ## family 'Device' not found in PostScript font database
+
+    ## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, : font
+    ## family 'Device' not found in PostScript font database
+
+    ## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, : font
+    ## family 'Device' not found in PostScript font database
+
+    ## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, : font
+    ## family 'Device' not found in PostScript font database
+
+    ## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+    ## font family 'Device' not found in PostScript font database
+
+![](Results_files/figure-gfm/exp-device-evo-frametime-all-rcdf-1.svg)<!-- -->
 
 ``` r
 data_logcat_vrapi %>%
@@ -226,7 +499,8 @@ data_logcat_vrapi %>%
 
 ``` r
 p <- data_logcat_vrapi %>%
-  # filter(ts >= start_time & ts <= end_time) %>%
+  filter(game != "noapp") %>%
+  filter(ts > 60) %>%
   ggplot(aes(x = cpu_util, y = config)) +
   geom_boxplot() +
   xlim(0, NA) +
@@ -242,10 +516,12 @@ p
 ![](Results_files/figure-gfm/unnamed-chunk-7-1.svg)<!-- -->
 
 ``` r
-p + facet_grid(cols = vars(game))
+p +
+  theme(strip.background=element_rect(fill="white")) +
+  facet_grid(cols = vars(game))
 ```
 
-![](Results_files/figure-gfm/unnamed-chunk-8-1.svg)<!-- -->
+![](Results_files/figure-gfm/exp-device-evo-cpu-util-all-box-1.svg)<!-- -->
 
 ``` r
 p <- data_logcat_vrapi %>%
@@ -264,7 +540,7 @@ p <- data_logcat_vrapi %>%
 p
 ```
 
-![](Results_files/figure-gfm/unnamed-chunk-10-1.svg)<!-- -->
+![](Results_files/figure-gfm/unnamed-chunk-9-1.svg)<!-- -->
 
 ``` r
  data_logcat_vrapi %>%
@@ -280,7 +556,7 @@ p
   facet_grid(cols = vars(game), rows = vars(config))
 ```
 
-![](Results_files/figure-gfm/unnamed-chunk-11-1.svg)<!-- -->
+![](Results_files/figure-gfm/unnamed-chunk-10-1.svg)<!-- -->
 
 ``` r
 p <- data_logcat_vrapi %>%
@@ -299,7 +575,7 @@ p <- data_logcat_vrapi %>%
 p
 ```
 
-![](Results_files/figure-gfm/unnamed-chunk-13-1.svg)<!-- -->
+![](Results_files/figure-gfm/unnamed-chunk-12-1.svg)<!-- -->
 
 ``` r
  data_logcat_vrapi %>%
@@ -315,7 +591,7 @@ p
   facet_grid(cols = vars(game), rows = vars(config))
 ```
 
-![](Results_files/figure-gfm/unnamed-chunk-14-1.svg)<!-- -->
+![](Results_files/figure-gfm/unnamed-chunk-13-1.svg)<!-- -->
 
 ``` r
 p <- data_logcat_vrapi %>%
@@ -332,13 +608,13 @@ p <- data_logcat_vrapi %>%
 p
 ```
 
-![](Results_files/figure-gfm/unnamed-chunk-16-1.svg)<!-- -->
+![](Results_files/figure-gfm/unnamed-chunk-15-1.svg)<!-- -->
 
 ``` r
 p + facet_grid(cols = vars(game))
 ```
 
-![](Results_files/figure-gfm/unnamed-chunk-17-1.svg)<!-- -->
+![](Results_files/figure-gfm/unnamed-chunk-16-1.svg)<!-- -->
 
 ``` r
 p <- data_logcat_vrapi %>%
@@ -354,13 +630,13 @@ p <- data_logcat_vrapi %>%
 p
 ```
 
-![](Results_files/figure-gfm/unnamed-chunk-19-1.svg)<!-- -->
+![](Results_files/figure-gfm/unnamed-chunk-18-1.svg)<!-- -->
 
 ``` r
 p + facet_grid(cols = vars(game))
 ```
 
-![](Results_files/figure-gfm/unnamed-chunk-20-1.svg)<!-- -->
+![](Results_files/figure-gfm/unnamed-chunk-19-1.svg)<!-- -->
 
 ``` r
 p <- data_logcat_vrapi %>%
@@ -377,19 +653,20 @@ p <- data_logcat_vrapi %>%
 p
 ```
 
-![](Results_files/figure-gfm/unnamed-chunk-22-1.svg)<!-- -->
+![](Results_files/figure-gfm/unnamed-chunk-21-1.svg)<!-- -->
 
 ``` r
 p + facet_grid(cols = vars(game))
 ```
 
-![](Results_files/figure-gfm/unnamed-chunk-23-1.svg)<!-- -->
+![](Results_files/figure-gfm/unnamed-chunk-22-1.svg)<!-- -->
 
 ### GPU
 
 ``` r
 p <- data_logcat_vrapi %>%
-  # filter(ts >= start_time & ts <= end_time) %>%
+  filter(game != "noapp") %>%
+  filter(ts > 60) %>%
   ggplot(aes(x = gpu_util, y = config)) +
   geom_boxplot() +
   xlim(0, NA) +
@@ -402,13 +679,29 @@ p <- data_logcat_vrapi %>%
 p
 ```
 
-![](Results_files/figure-gfm/unnamed-chunk-25-1.svg)<!-- -->
+![](Results_files/figure-gfm/unnamed-chunk-24-1.svg)<!-- -->
 
 ``` r
-p + facet_grid(cols = vars(game))
+p +
+  theme(strip.background=element_rect(fill="white")) +
+  facet_grid(cols = vars(game))
 ```
 
-![](Results_files/figure-gfm/unnamed-chunk-26-1.svg)<!-- -->
+![](Results_files/figure-gfm/exp-device-evo-gpu-util-all-box-1.svg)<!-- -->
+
+``` r
+data_logcat_vrapi %>%
+  filter(game == "moss") %>%
+  filter(ts > 60) %>%
+  ggplot(aes(x = gpu_util, y = config)) +
+  geom_boxplot() +
+  xlim(0, 100) +
+  labs(x = "GPU utilization [%]", y = "VR Device") +
+  theme_half_open() +
+  background_grid()
+```
+
+![](Results_files/figure-gfm/exp-device-evo-gpu-util-moss-box-1.svg)<!-- -->
 
 ``` r
 p <- data_logcat_vrapi %>%
@@ -427,7 +720,7 @@ p <- data_logcat_vrapi %>%
 p
 ```
 
-![](Results_files/figure-gfm/unnamed-chunk-28-1.svg)<!-- -->
+![](Results_files/figure-gfm/unnamed-chunk-26-1.svg)<!-- -->
 
 ``` r
 data_logcat_vrapi %>%
@@ -441,7 +734,7 @@ data_logcat_vrapi %>%
   facet_grid(cols = vars(game), rows = vars(config))
 ```
 
-![](Results_files/figure-gfm/unnamed-chunk-29-1.svg)<!-- -->
+![](Results_files/figure-gfm/unnamed-chunk-27-1.svg)<!-- -->
 
 ``` r
 p <- data_logcat_vrapi %>%
@@ -457,13 +750,13 @@ p <- data_logcat_vrapi %>%
 p
 ```
 
-![](Results_files/figure-gfm/unnamed-chunk-31-1.svg)<!-- -->
+![](Results_files/figure-gfm/unnamed-chunk-29-1.svg)<!-- -->
 
 ``` r
 p + facet_grid(cols = vars(game))
 ```
 
-![](Results_files/figure-gfm/unnamed-chunk-32-1.svg)<!-- -->
+![](Results_files/figure-gfm/unnamed-chunk-30-1.svg)<!-- -->
 
 ``` r
 p <- data_logcat_vrapi %>%
@@ -479,13 +772,13 @@ p <- data_logcat_vrapi %>%
 p
 ```
 
-![](Results_files/figure-gfm/unnamed-chunk-34-1.svg)<!-- -->
+![](Results_files/figure-gfm/unnamed-chunk-32-1.svg)<!-- -->
 
 ``` r
 p + facet_grid(cols = vars(game))
 ```
 
-![](Results_files/figure-gfm/unnamed-chunk-35-1.svg)<!-- -->
+![](Results_files/figure-gfm/unnamed-chunk-33-1.svg)<!-- -->
 
 ### Battery Usage
 
@@ -528,7 +821,7 @@ p <- data_battery %>%
 p
 ```
 
-![](Results_files/figure-gfm/unnamed-chunk-38-1.svg)<!-- -->
+![](Results_files/figure-gfm/unnamed-chunk-36-1.svg)<!-- -->
 
 ``` r
 data_battery %>%
@@ -548,7 +841,76 @@ data_battery %>%
   facet_grid(cols = vars(game), rows = vars(config))
 ```
 
-![](Results_files/figure-gfm/unnamed-chunk-39-1.svg)<!-- -->
+![](Results_files/figure-gfm/unnamed-chunk-37-1.svg)<!-- -->
+
+``` r
+data_batterymanager_companion %>%
+  filter(ts > 60) %>%
+  filter(game != "noapp") %>%
+  filter(i == 1) %>%
+  ggplot() +
+  geom_line(aes(x=ts_m, y=-current_a, color = config)) +
+  facet_grid(cols = vars(game)) +
+  theme_cowplot(15) +
+  background_grid() +
+  theme(legend.position=c(0.15,.5), strip.background=element_rect(fill="white")) +
+  xlim(0, NA) +
+  ylim(0, NA) +
+  labs(x = "Time [m]", y = "Current [A]")
+```
+
+![](Results_files/figure-gfm/exp-device-evo-battery-current-all-time-1.svg)<!-- -->
+
+``` r
+data_batterymanager_companion %>%
+  filter(ts > 60) %>%
+  filter(game != "noapp") %>%
+  filter(i == 1) %>%
+  ggplot() +
+  geom_boxplot(aes(x=-current_a, y=config)) +
+  facet_grid(cols = vars(game)) +
+  theme_cowplot(15) +
+  background_grid() +
+  theme(legend.position=c(0.15,.5), strip.background=element_rect(fill="white")) +
+  xlim(0, NA) +
+  labs(y = "VR Device", x = "Current [A]")
+```
+
+![](Results_files/figure-gfm/exp-device-evo-battery-current-all-box-1.svg)<!-- -->
+
+``` r
+data_batterymanager_companion %>%
+  filter(ts > 60) %>%
+  filter(game != "noapp") %>%
+  filter(i == 1) %>%
+  ggplot() +
+  geom_boxplot(aes(x=voltage_v, y=config)) +
+  facet_grid(cols = vars(game)) +
+  theme_cowplot(15) +
+  background_grid() +
+  theme(legend.position=c(0.15,.5), strip.background=element_rect(fill="white")) +
+  xlim(0, NA) +
+  labs(y = "VR Device", x = "Voltage [V]")
+```
+
+![](Results_files/figure-gfm/exp-device-evo-battery-voltage-all-box-1.svg)<!-- -->
+
+``` r
+data_batterymanager_companion %>%
+  filter(ts > 60) %>%
+  filter(game != "noapp") %>%
+  filter(i == 1) %>%
+  ggplot() +
+  geom_boxplot(aes(x=-power_w, y=config)) +
+  facet_grid(cols = vars(game)) +
+  theme_cowplot(15) +
+  background_grid() +
+  theme(legend.position=c(0.15,.5), strip.background=element_rect(fill="white")) +
+  xlim(0, 15) +
+  labs(y = "VR Device", x = "Power [W]")
+```
+
+![](Results_files/figure-gfm/exp-device-evo-battery-power-all-box-1.svg)<!-- -->
 
 ### Network Use
 
@@ -568,7 +930,7 @@ data_net_dev %>%
   facet_grid(cols = vars(game), rows = vars(config))
 ```
 
-![](Results_files/figure-gfm/unnamed-chunk-40-1.svg)<!-- -->
+![](Results_files/figure-gfm/unnamed-chunk-38-1.svg)<!-- -->
 
 ``` r
 data_net_dev %>%
@@ -583,7 +945,7 @@ data_net_dev %>%
   facet_grid(cols = vars(game))
 ```
 
-![](Results_files/figure-gfm/unnamed-chunk-41-1.svg)<!-- -->
+![](Results_files/figure-gfm/unnamed-chunk-39-1.svg)<!-- -->
 
 ## Performance Variability
 
@@ -615,7 +977,7 @@ data_logcat_vrapi %>%
   labs(x = "Time [s]", y = "Frame time [ms]  ")
 ```
 
-![](Results_files/figure-gfm/unnamed-chunk-42-1.svg)<!-- -->
+![](Results_files/figure-gfm/unnamed-chunk-40-1.svg)<!-- -->
 
 ``` r
 data_logcat_vrapi %>%
