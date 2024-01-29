@@ -1,0 +1,156 @@
+Activity Resolver Table:
+  Non-Data Actions:
+      android.intent.action.MAIN:
+        f5430f7 com.AnotherAxiom.GorillaTag/com.unity3d.player.UnityPlayerActivity filter 3ce4b64
+          Action: "android.intent.action.MAIN"
+          Category: "com.oculus.intent.category.VR"
+          Category: "android.intent.category.LAUNCHER"
+
+Domain verification status:
+
+Key Set Manager:
+  [com.AnotherAxiom.GorillaTag]
+      Signing KeySets: 35
+
+Packages:
+  Package [com.AnotherAxiom.GorillaTag] (65eeeed):
+    userId=10073
+    pkg=Package{b862122 com.AnotherAxiom.GorillaTag}
+    codePath=/data/app/~~5M3WlWRlBf6htqRBkxY0Dg==/com.AnotherAxiom.GorillaTag-DG1zd70TOGLwrp7BimK1kQ==
+    resourcePath=/data/app/~~5M3WlWRlBf6htqRBkxY0Dg==/com.AnotherAxiom.GorillaTag-DG1zd70TOGLwrp7BimK1kQ==
+    legacyNativeLibraryDir=/data/app/~~5M3WlWRlBf6htqRBkxY0Dg==/com.AnotherAxiom.GorillaTag-DG1zd70TOGLwrp7BimK1kQ==/lib
+    extractNativeLibs=true
+    primaryCpuAbi=arm64-v8a
+    secondaryCpuAbi=null
+    cpuAbiOverride=null
+    versionCode=2866 minSdk=29 targetSdk=32
+    minExtensionVersions=[]
+    versionName=1.1.70
+    usesNonSdkApi=false
+    splits=[base]
+    apkSigningVersion=2
+    applicationInfo=PackageImpl{b862122 com.AnotherAxiom.GorillaTag}
+    flags=[ HAS_CODE ALLOW_CLEAR_USER_DATA ]
+    privateFlags=[ PRIVATE_FLAG_ACTIVITIES_RESIZE_MODE_RESIZEABLE_VIA_SDK_VERSION ALLOW_AUDIO_PLAYBACK_CAPTURE PRIVATE_FLAG_ALLOW_NATIVE_HEAP_POINTER_TAGGING ]
+    privateFlagsExt=[ PROFILEABLE ]
+    forceQueryable=false
+    queriesPackages=[]
+    dataDir=/data/user/0/com.AnotherAxiom.GorillaTag
+    supportsScreens=[small, medium, large, xlarge, resizeable, anyDensity]
+    timeStamp=2024-01-29 13:32:05
+    firstInstallTime=2024-01-18 08:27:43
+    lastUpdateTime=2024-01-29 13:32:07
+    installerPackageName=com.oculus.ocms
+    signatures=PackageSignatures{880a7b3 version:2, signatures:[f1ddb963], past signatures:[]}
+    installPermissionsFixed=true
+    pkgFlags=[ HAS_CODE ALLOW_CLEAR_USER_DATA ]
+    requested permissions:
+      android.permission.INTERNET
+      android.permission.RECORD_AUDIO
+      android.permission.ACCESS_NETWORK_STATE
+    install permissions:
+      android.permission.INTERNET: granted=true
+      android.permission.ACCESS_NETWORK_STATE: granted=true
+    User 0: ceDataInode=34437 installed=true hidden=false suspended=false distractionFlags=0 stopped=true notLaunched=false enabled=0 instant=false virtual=false
+      gids=[3003]
+      runtime permissions:
+        android.permission.RECORD_AUDIO: granted=true, flags=[ USER_SET|USER_SENSITIVE_WHEN_GRANTED|USER_SENSITIVE_WHEN_DENIED]
+    User 10: ceDataInode=41110 installed=true hidden=false suspended=false distractionFlags=0 stopped=true notLaunched=false enabled=0 instant=false virtual=false
+      gids=[3003]
+      runtime permissions:
+        android.permission.RECORD_AUDIO: granted=false, flags=[ USER_SENSITIVE_WHEN_GRANTED|USER_SENSITIVE_WHEN_DENIED]
+
+Queries:
+  system apps queryable: false
+  queries via package name:
+  queries via intent:
+    com.facebook.orca:
+      com.AnotherAxiom.GorillaTag
+  queryable via interaction:
+    User 0:
+      [com.oculus.assetdelivery,com.oculus.linefrequencyservice,oculus.platform,com.oculus.statscollector,com.oculus.notification_proxy,com.android.keychain,com.oculus.externalstorage,com.android.location.fused,com.android.inputdevices,com.oculus.bugreportuploader,com.android.networkstack.tethering.inprocess,com.oculus.vrcast,com.oculus.os.chargecontrol,com.oculus.preshutdowntaskservice,com.android.localtransport,com.android.networkstack.inprocess,com.oculus.os.vrlockscreen,com.oculus.gatekeeperservice,com.android.settings,com.oculus.deviceauthserver,com.oculus.micservice,com.android.server.telecom,com.android.providers.settings,com.oculus.companion.server,com.oculus.preloader,com.oculus.os.cm,com.oculus.bugreportservice,com.oculus.nux.ota,android]:
+        com.AnotherAxiom.GorillaTag
+      com.oculus.ocms:
+        com.AnotherAxiom.GorillaTag
+      com.oculus.vrshell:
+        com.AnotherAxiom.GorillaTag
+      com.oculus.systemdriver:
+        com.AnotherAxiom.GorillaTag
+      com.oculus.horizon:
+        com.AnotherAxiom.GorillaTag
+    User 10:
+  queryable via uses-library:
+
+Package Changes:
+  Sequence number=7665
+  User 0:
+    seq=36, package=com.whatsapp
+    seq=46, package=com.oculus.accountscenter
+    seq=71, package=com.facebook.orca
+    seq=86, package=com.oculus.fitnesstracker
+    seq=6538, package=com.example.batterymanager_utility
+    seq=6604, package=com.oculus.identitymanagement.service
+    seq=7652, package=com.android.bluetooth
+    seq=7664, package=com.oculus.socialplatform
+  User 10:
+    seq=46, package=com.oculus.accountscenter
+    seq=86, package=com.oculus.fitnesstracker
+    seq=788, package=com.whatsapp
+    seq=795, package=com.facebook.orca
+    seq=1118, package=com.vrchat.oculus.quest
+    seq=1632, package=com.vertigogames.azsq
+    seq=6614, package=com.oculus.identitymanagement.service
+    seq=6620, package=com.oculus.socialplatform
+    seq=7648, package=com.oculus.horizon
+    seq=7649, package=com.android.bluetooth
+
+
+Dexopt state:
+  [com.AnotherAxiom.GorillaTag]
+    path: /data/app/~~5M3WlWRlBf6htqRBkxY0Dg==/com.AnotherAxiom.GorillaTag-DG1zd70TOGLwrp7BimK1kQ==/base.apk
+      arm64: [status=verify] [reason=bg-dexopt]
+
+
+Compiler stats:
+  [com.AnotherAxiom.GorillaTag]
+     base.apk - 100
+Snapshot statistics
+   Unrecorded-hits: 569  Cork-level: 0
+   Summary stats               TotBlds     TotUsed     TotCork     BigBlds    ShortLvd     TotTime     MaxTime
+          0:14         now           2        1020           0           0           0           0           0
+          1:14        0:14          12       10432           0           0           2           2           0
+          2:14        1:14           1         642           0           0           0           0           0
+          3:14        2:14          10        7164           0           0           1           1           0
+          4:14        3:14           9        3513           0           0           1           1           0
+          5:14        4:14           9        1468           0           0           0           3           0
+          6:14        5:14          71       16621           0           0          11          16           1
+          7:14        6:14         185       20406           0           0          25          39           0
+          8:14        7:14         172       19593           0           0          11          41           1
+          9:14        8:14         182       19164           0           0          18          40           0
+      08:24:57         now        9316     2200665           0           1        1555        2116          14
+
+   Build times                  <= 1ms      <= 2ms      <= 5ms     <= 10ms     <= 20ms     <= 50ms    <= 100ms     > 100ms
+          0:14         now           2           0           0           0           0           0           0           0
+          1:14        0:14          12           0           0           0           0           0           0           0
+          2:14        1:14           1           0           0           0           0           0           0           0
+          3:14        2:14          10           0           0           0           0           0           0           0
+          4:14        3:14           9           0           0           0           0           0           0           0
+          5:14        4:14           9           0           0           0           0           0           0           0
+          6:14        5:14          71           0           0           0           0           0           0           0
+          7:14        6:14         185           0           0           0           0           0           0           0
+          8:14        7:14         172           0           0           0           0           0           0           0
+          9:14        8:14         182           0           0           0           0           0           0           0
+      08:24:57         now        9297           9           6           3           1           0           0           0
+
+   Use counters                   <= 1        <= 2        <= 5       <= 10       <= 20       <= 50      <= 100       > 100
+          0:14         now           0           0           0           0           0           0           0           2
+          1:14        0:14           2           0           0           0           0           0           1           9
+          2:14        1:14           0           0           0           0           0           0           0           1
+          3:14        2:14           1           0           0           0           0           0           0           9
+          4:14        3:14           1           0           0           1           0           0           0           7
+          5:14        4:14           0           0           0           0           0           2           1           6
+          6:14        5:14          10           0           1           0           1          11          21          27
+          7:14        6:14          24           1           0           2           0          38          63          57
+          8:14        7:14          10           1           0           0           0          38          67          56
+          9:14        8:14          17           1           0           1           2          40          69          52
+      08:24:57         now         948         107         499         126         186        1633        2674        3142
