@@ -134,6 +134,7 @@ $functions = {
             }
 
             # Copy temp folder to output folder
+            Write-Host "Pulling data from VR device..."
             adb pull $TempDir $OutDir
             $LocalTempDir = Join-Path $OutDir (Split-Path -Leaf $TempDir)
             Move-Item -Path "$LocalTempDir\*" -Destination $OutDir
