@@ -362,6 +362,12 @@ Start-UnattendedInstall $ipport $isopath
 Wait-Init
 Show-SshAccess $sshpath $vmip $username
 
+# TODO
+# 1. Add a parameter to the script to only delete / cleanup everything, not delete
+# 2. Make the network interfaces for the bridge / hostonly also parameters
+#   - And show the users how to list available options
+# 3. Continue with Sacheen's tutorial
+
 #-----------------------------------
 # vboxmanage guestcontrol metaverse copyto --target-directory=/home/metabench .\setup.sh 
 # vboxmanage guestcontrol $global:vm run --exe /home/metabench/setup.sh --username root 
