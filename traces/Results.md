@@ -51,6 +51,25 @@ to_human_name <- function(name) {
   }
 }
 
+g_moss <- "Moss"
+g_explorevr <- "Nat. Geo. Explore VR"
+g_gorillatag <- "Gorilla Tag"
+g_vrchat <- "VRChat"
+
+game_to_human_name <- function(name) {
+  if (name == "moss") {
+    g_moss
+  } else if (name == "explorevr") {
+    g_explorevr
+  } else if (name == "gorillatag") {
+    g_gorillatag
+  } else if (name == "vrchat") {
+    g_vrchat
+  } else {
+    name
+  }
+}
+
 give_stats <- function(tb, colname) {
   tb %>%
     mutate(v = {{colname}}) %>%
@@ -102,7 +121,8 @@ for (f in traces_replays) {
 }
 data_logcat_vrapi <- data_logcat_vrapi %>%
   type.convert(as.is = TRUE) %>%
-  mutate(config = map_chr(config, to_human_name))
+  mutate(config = map_chr(config, to_human_name)) %>%
+  mutate(game_h = map_chr(game, game_to_human_name))
 
 #Inter-|   Receive                                                |  Transmit
 # face |bytes    packets errs drop fifo frame compressed multicast|bytes    packets errs drop fifo colls carrier compressed
@@ -126,6 +146,7 @@ for (f in traces_replays) {
 data_net_dev <- data_net_dev %>%
   type.convert(as.is = TRUE) %>%
   mutate(config = map_chr(config, to_human_name)) %>%
+  mutate(game_h = map_chr(game, game_to_human_name)) %>%
   group_by(config, game, i) %>%
   mutate(bps_tx = 8 * (tx_bytes - lag(tx_bytes))) %>%
   mutate(kbps_tx = bps_tx / 1000) %>%
@@ -155,6 +176,7 @@ for (f in traces_replays) {
 data_batterymanager_companion <- data_batterymanager_companion %>%
   type.convert(as.is = TRUE) %>%
   mutate(config = map_chr(config, to_human_name)) %>%
+  mutate(game_h = map_chr(game, game_to_human_name)) %>%
   group_by(config, game, i) %>%
   mutate(ts_milli = ts_milli - min(ts_milli)) %>%
   ungroup() %>%
@@ -165,10 +187,10 @@ data_batterymanager_companion <- data_batterymanager_companion %>%
   mutate(voltage_v = voltage / 1000) %>%
   mutate(power_w = current_a * voltage_v)
 
-game_colors <- c("moss" = "#ccbb44",
-                 "gorillatag"="#66ccee",
-                 "explorevr"="#ee6677",
-                 "vrchat" = "#aa3377")
+game_colors <- c(g_moss = "#ccbb44",
+                 g_gorillatag="#66ccee",
+                 g_explorevr="#ee6677",
+                 g_vrchat = "#aa3377")
 
 device_colors <- c("MQ2" = "#bbbbbb",
                  "MQ3"="#4477aa",
@@ -288,7 +310,7 @@ data_logcat_vrapi %>%
   theme_half_open() +
   background_grid() +
   theme(legend.position = c(.65,.5), strip.background=element_rect(fill="white"), legend.background = element_rect(fill=alpha("white", 0.9))) +
-  facet_grid(~factor(game, levels=c("gorillatag", "moss", "explorevr", "vrchat")), scales = "free_x") +
+  facet_grid(~factor(game_h, levels=c(g_gorillatag, g_moss, g_explorevr, g_vrchat)), scales = "free_x") +
   expand_limits(x = c(0,15)) +
   scale_color_manual(values=device_colors)
 ```
@@ -490,7 +512,7 @@ p
 ``` r
 p +
   theme(legend.position="none", strip.background=element_rect(fill="white")) +
-  facet_grid(~factor(game, levels=c("gorillatag", "moss", "explorevr", "vrchat")))+
+  facet_grid(~factor(game_h, levels=c(g_gorillatag, g_moss, g_explorevr, g_vrchat)), scales = "free_x") +
   scale_fill_manual(values=device_colors)
 ```
 
@@ -582,7 +604,7 @@ p
 ``` r
 p +
   theme(legend.position = "none", strip.background=element_rect(fill="white")) +
-  facet_grid(~factor(game, levels=c("gorillatag", "moss", "explorevr", "vrchat")))+
+  facet_grid(~factor(game_h, levels=c(g_gorillatag, g_moss, g_explorevr, g_vrchat)), scales = "free_x") +
   scale_fill_manual(values=device_colors)
 ```
 
@@ -737,7 +759,7 @@ data_batterymanager_companion %>%
   ggplot() +
   geom_boxplot(aes(x=-power_w, y=config, fill = config)) +
   theme(strip.background=element_rect(fill="white")) +
-  facet_grid(~factor(game, levels=c("gorillatag", "moss", "explorevr", "vrchat"))) +
+  facet_grid(~factor(game_h, levels=c(g_gorillatag, g_moss, g_explorevr, g_vrchat)), scales = "free_x") +
   theme_cowplot(15) +
   background_grid() +
   theme(legend.position="none", strip.background=element_rect(fill="white")) +
