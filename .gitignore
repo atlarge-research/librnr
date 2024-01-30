@@ -419,3 +419,7 @@ BeatSaberVersion.txt
 *.pem
 !traces/**/*.log
 !traces/**/*.csv
+
+# Large files
+traces/20240116-trace-azsq-mqp-16m-n1/trace.txt
+traces/20240118-trace-azsq-mq2-16m-replay-n1/trace.txt
