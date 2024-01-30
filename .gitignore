@@ -1,3 +1,10 @@
+# Custom added
+scripts/network-emulate/config/
+scripts/network-emulate/ubuntu2204.iso
+scripts/network-emulate/metabench/
+scripts/network-emulate/metabench.vdi
+
+# ------------------------------
 # SPDX-FileCopyrightText: 2021 Arthur Brainville (Ybalrid) <ybalrid@ybalrid.info>
 #
 # SPDX-License-Identifier: CC0-1.0
