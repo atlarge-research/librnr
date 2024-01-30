@@ -60,7 +60,7 @@ $functions = {
         adb shell "cat /proc/cpuinfo >> $TempDir/cpuinfo.log"
 
         # stream vrapi logs to file
-        $VrJob = Start-Job -ScriptBlock { adb shell "logcat -s VrApi >> $using:TempDir/logcat_VrApi.log" }
+        $VrJob = Start-ThreadJob -StreamingHost $Host -ScriptBlock { adb shell "logcat -s VrApi >> $using:TempDir/logcat_VrApi.log" }
         # start logging metrics from the gaming PC
         if (-not($NoHostTrace)) {
             $HostJob = Start-Job -ScriptBlock {
@@ -81,11 +81,11 @@ $functions = {
 
                 if ($VrJob.State -ne "Running") {
                     Write-Host "Oh no! Restarting adb VrApi log capture"
-                    $VrJob = Start-Job -ScriptBlock { adb shell "logcat -s VrApi >> $using:TempDir/logcat_VrApi.log" }
+                    $VrJob = Start-ThreadJob -StreamingHost $Host -ScriptBlock { adb shell "logcat -s VrApi >> $using:TempDir/logcat_VrApi.log" }
                 }
                 if (($S2Battery) -and ($BatteryJob.State -ne "Running")) {
                     Write-Host "Oh no! Restarting adb battery log capture"
-                    $BatteryJob = Start-Job -ScriptBlock { adb shell "logcat | grep 'BatteryMgr:DataCollectionService' >> $using:TempDir/batterymanager-companion.log" }
+                    $BatteryJob = Start-ThreadJob -StreamingHost $Host -ScriptBlock { adb shell "logcat | grep 'BatteryMgr:DataCollectionService' >> $using:TempDir/batterymanager-companion.log" }
                 }
                 # check if process that logs metrics from gaming PC is still running
                 # if not, restart
