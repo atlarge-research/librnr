@@ -119,7 +119,6 @@ $functions = {
         finally {
             Write-Host "Stopping VR monitor..."
             Stop-Job $VrJob
-            Receive-Job $VrJob
 
             # stop process collecting metrics from gaming PC
             Write-Host "Stopping host monitor..."
