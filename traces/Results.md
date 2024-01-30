@@ -164,6 +164,15 @@ data_batterymanager_companion <- data_batterymanager_companion %>%
   mutate(current_a = current / 1000000) %>%
   mutate(voltage_v = voltage / 1000) %>%
   mutate(power_w = current_a * voltage_v)
+
+game_colors <- c("moss" = "#ccbb44",
+                 "gorillatag"="#66ccee",
+                 "explorevr"="#ee6677",
+                 "vrchat" = "#aa3377")
+
+device_colors <- c("MQ2" = "#bbbbbb",
+                 "MQ3"="#4477aa",
+                 "MQP"="#228833")
 ```
 
 ## Evolution of Hardware
@@ -264,8 +273,6 @@ data_logcat_vrapi %>%
 ``` r
 data_logcat_vrapi %>%
   filter(game != "noapp") %>%
-  filter(game != "vrchat") %>%
-  filter(game != "explorevr") %>%
   filter(game != "azsq") %>%
   filter(ts > 60) %>%
   filter(app > 0) %>%
@@ -280,8 +287,10 @@ data_logcat_vrapi %>%
   labs(x = "Frame time [ms]", y = "Fraction", color = "Device") +
   theme_half_open() +
   background_grid() +
-  theme(legend.position = c(.5,.45), legend.background = element_rect(fill=alpha("white", 0.9))) +
-  facet_grid(cols = vars(game))
+  theme(legend.position = c(.65,.5), strip.background=element_rect(fill="white"), legend.background = element_rect(fill=alpha("white", 0.9))) +
+  facet_grid(~factor(game, levels=c("gorillatag", "moss", "explorevr", "vrchat")), scales = "free_x") +
+  expand_limits(x = c(0,15)) +
+  scale_color_manual(values=device_colors)
 ```
 
 ![](Results_files/figure-gfm/exp-device-evo-frametime-all-rcdf-1.svg)<!-- -->
@@ -464,9 +473,9 @@ p <- data_logcat_vrapi %>%
   filter(game != "noapp") %>%
   filter(game != "azsq") %>%
   filter(ts > 60) %>%
-  ggplot(aes(x = cpu_util, y = config)) +
+  ggplot(aes(x = cpu_util, y = config, fill = config)) +
   geom_boxplot() +
-  xlim(0, NA) +
+  xlim(0, 100) +
   labs(x = "CPU utilization [%]", y = "VR Device") +
   theme_half_open() +
   background_grid()
@@ -480,8 +489,9 @@ p
 
 ``` r
 p +
-  theme(strip.background=element_rect(fill="white")) +
-  facet_grid(cols = vars(game))
+  theme(legend.position="none", strip.background=element_rect(fill="white")) +
+  facet_grid(~factor(game, levels=c("gorillatag", "moss", "explorevr", "vrchat")))+
+  scale_fill_manual(values=device_colors)
 ```
 
 ![](Results_files/figure-gfm/exp-device-evo-cpu-util-all-box-1.svg)<!-- -->
@@ -511,7 +521,8 @@ p <- data_logcat_vrapi %>%
   labs(y = "CPU level", x = "Time [m]") +
   theme(legend.position = "bottom") +
   scale_color_viridis_d(begin = 0.3, direction = -1) + 
-  facet_grid(cols = vars(game), rows = vars(config))
+  facet_grid(cols = vars(game), rows = vars(config)) +
+  theme(strip.background=element_rect(fill="white"))
 ```
 
 ![](Results_files/figure-gfm/exp-device-evo-cpu-util-all-time-1.svg)<!-- -->
@@ -541,7 +552,8 @@ p <- data_logcat_vrapi %>%
   labs(y = "CPU frequency [GHz]", x = "Time [m]") +
   theme(legend.position = "bottom") +
   scale_color_viridis_d(begin = 0.3, direction = -1) + 
-  facet_grid(cols = vars(game), rows = vars(config))
+  facet_grid(cols = vars(game), rows = vars(config)) +
+  theme(strip.background=element_rect(fill="white"))
 ```
 
 ![](Results_files/figure-gfm/exp-device-evo-cpu-freq-all-time-1.svg)<!-- -->
@@ -553,11 +565,11 @@ p <- data_logcat_vrapi %>%
   filter(game != "noapp") %>%
   filter(game != "azsq") %>%
   filter(ts > 60) %>%
-  ggplot(aes(x = gpu_util, y = config)) +
+  ggplot(aes(x = gpu_util, y = config, fill = config)) +
   geom_boxplot() +
   xlim(0, NA) +
   labs(x = "GPU utilization [%]", y = "VR Device") +
-  theme_half_open() +
+  theme_cowplot(15) +
   background_grid()
 ```
 
@@ -569,7 +581,9 @@ p
 
 ``` r
 p +
-  facet_grid(cols = vars(game))
+  theme(legend.position = "none", strip.background=element_rect(fill="white")) +
+  facet_grid(~factor(game, levels=c("gorillatag", "moss", "explorevr", "vrchat")))+
+  scale_fill_manual(values=device_colors)
 ```
 
 ![](Results_files/figure-gfm/exp-device-evo-gpu-util-all-box-1.svg)<!-- -->
@@ -721,13 +735,15 @@ data_batterymanager_companion %>%
   filter(game != "azsq") %>%
   filter(i == 1) %>%
   ggplot() +
-  geom_boxplot(aes(x=-power_w, y=config)) +
-  facet_grid(cols = vars(game)) +
+  geom_boxplot(aes(x=-power_w, y=config, fill = config)) +
+  theme(strip.background=element_rect(fill="white")) +
+  facet_grid(~factor(game, levels=c("gorillatag", "moss", "explorevr", "vrchat"))) +
   theme_cowplot(15) +
   background_grid() +
-  theme(legend.position=c(0.15,.5), strip.background=element_rect(fill="white")) +
+  theme(legend.position="none", strip.background=element_rect(fill="white")) +
   xlim(0, 15) +
-  labs(y = "VR Device", x = "Power [W]")
+  labs(y = "VR Device", x = "Power [W]") +
+  scale_fill_manual(values=device_colors)
 ```
 
 ![](Results_files/figure-gfm/exp-device-evo-battery-power-all-box-1.svg)<!-- -->
