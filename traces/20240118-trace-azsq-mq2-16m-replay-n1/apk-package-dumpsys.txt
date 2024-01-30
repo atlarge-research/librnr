@@ -1,0 +1,137 @@
+Activity Resolver Table:
+  Non-Data Actions:
+      android.intent.action.MAIN:
+        4a9c6b6 com.vertigogames.azsq/com.unity3d.player.UnityPlayerActivity filter d993fb7
+          Action: "android.intent.action.MAIN"
+          Category: "android.intent.category.INFO"
+
+Domain verification status:
+
+Key Set Manager:
+  [com.vertigogames.azsq]
+      Signing KeySets: 26
+
+Packages:
+  Package [com.vertigogames.azsq] (9aa3669):
+    userId=10103
+    pkg=Package{84358ee com.vertigogames.azsq}
+    codePath=/data/app/~~wjQbOyv9EoCsNx6ShO1jPA==/com.vertigogames.azsq-S2WJ6Lcx1vm7TGPPzGLuTA==
+    resourcePath=/data/app/~~wjQbOyv9EoCsNx6ShO1jPA==/com.vertigogames.azsq-S2WJ6Lcx1vm7TGPPzGLuTA==
+    legacyNativeLibraryDir=/data/app/~~wjQbOyv9EoCsNx6ShO1jPA==/com.vertigogames.azsq-S2WJ6Lcx1vm7TGPPzGLuTA==/lib
+    extractNativeLibs=true
+    primaryCpuAbi=arm64-v8a
+    secondaryCpuAbi=null
+    cpuAbiOverride=null
+    versionCode=21876 minSdk=25 targetSdk=30
+    minExtensionVersions=[]
+    versionName=1.6
+    usesNonSdkApi=false
+    splits=[base]
+    apkSigningVersion=3
+    applicationInfo=PackageImpl{84358ee com.vertigogames.azsq}
+    flags=[ HAS_CODE ALLOW_CLEAR_USER_DATA ]
+    privateFlags=[ PRIVATE_FLAG_ACTIVITIES_RESIZE_MODE_RESIZEABLE_VIA_SDK_VERSION ALLOW_AUDIO_PLAYBACK_CAPTURE PRIVATE_FLAG_ALLOW_NATIVE_HEAP_POINTER_TAGGING ]
+    privateFlagsExt=[ PROFILEABLE ]
+    forceQueryable=false
+    queriesPackages=[]
+    dataDir=/data/user/0/com.vertigogames.azsq
+    supportsScreens=[small, medium, large, xlarge, resizeable, anyDensity]
+    timeStamp=2024-01-30 00:06:35
+    firstInstallTime=2024-01-30 00:06:37
+    lastUpdateTime=2024-01-30 00:06:37
+    installerPackageName=com.oculus.ocms
+    signatures=PackageSignatures{fd9918f version:3, signatures:[83339a2b], past signatures:[]}
+    installPermissionsFixed=true
+    pkgFlags=[ HAS_CODE ALLOW_CLEAR_USER_DATA ]
+    requested permissions:
+      android.permission.INTERNET
+      android.permission.ACCESS_NETWORK_STATE
+      android.permission.RECORD_AUDIO
+      android.permission.MODIFY_AUDIO_SETTINGS
+      android.permission.BROADCAST_STICKY
+      android.permission.BLUETOOTH
+      android.permission.BLUETOOTH_SCAN
+      android.permission.BLUETOOTH_CONNECT
+      android.permission.BLUETOOTH_ADVERTISE
+    install permissions:
+      android.permission.MODIFY_AUDIO_SETTINGS: granted=true
+      android.permission.BLUETOOTH: granted=true
+      android.permission.INTERNET: granted=true
+      android.permission.BROADCAST_STICKY: granted=true
+      android.permission.ACCESS_NETWORK_STATE: granted=true
+    User 0: ceDataInode=8147 installed=true hidden=false suspended=false distractionFlags=0 stopped=false notLaunched=false enabled=0 instant=false virtual=false
+      gids=[3002, 3003]
+      runtime permissions:
+        android.permission.BLUETOOTH_CONNECT: granted=true, flags=[ REVOKE_WHEN_REQUESTED|USER_SENSITIVE_WHEN_GRANTED|USER_SENSITIVE_WHEN_DENIED]
+        android.permission.BLUETOOTH_ADVERTISE: granted=true, flags=[ REVOKE_WHEN_REQUESTED|USER_SENSITIVE_WHEN_GRANTED|USER_SENSITIVE_WHEN_DENIED]
+        android.permission.RECORD_AUDIO: granted=false, flags=[ USER_SENSITIVE_WHEN_GRANTED|USER_SENSITIVE_WHEN_DENIED]
+        android.permission.BLUETOOTH_SCAN: granted=true, flags=[ REVOKE_WHEN_REQUESTED|USER_SENSITIVE_WHEN_GRANTED|USER_SENSITIVE_WHEN_DENIED]
+
+Queries:
+  system apps queryable: false
+  queries via package name:
+  queries via intent:
+    com.facebook.orca:
+      com.vertigogames.azsq
+  queryable via interaction:
+    User 0:
+  queryable via uses-library:
+
+Package Changes:
+  Sequence number=21
+  User 0:
+    seq=0, package=com.android.bluetooth
+    seq=11, package=com.oculus.horizon
+    seq=18, package=com.oculus.identitymanagement.service
+    seq=20, package=com.oculus.socialplatform
+
+
+Dexopt state:
+  [com.vertigogames.azsq]
+    path: /data/app/~~wjQbOyv9EoCsNx6ShO1jPA==/com.vertigogames.azsq-S2WJ6Lcx1vm7TGPPzGLuTA==/base.apk
+      arm64: [status=extract] [reason=post-boot]
+
+
+Compiler stats:
+  [com.vertigogames.azsq]
+     base.apk - 241
+Snapshot statistics
+   Unrecorded-hits: 3253  Cork-level: 0
+   Summary stats               TotBlds     TotUsed     TotCork     BigBlds    ShortLvd     TotTime     MaxTime
+          0:52         now           0           0           0           0           0           0           0
+          1:52        0:52           0           0           0           0           0           0           0
+          2:52        1:52           0           0           0           0           0           0           0
+          3:52        2:52           0           0           0           0           0           0           0
+          4:52        3:52           5        7993           0           0           1           0           0
+          5:52        4:52           0           0           0           0           0           0           0
+          6:52        5:52           0           0           0           0           0           0           0
+          7:52        6:52           0           0           0           0           0           0           0
+          8:52        7:52           0           0           0           0           0           0           0
+          9:52        8:52           0           0           0           0           0           0           0
+         21:52         now         175       61590           0           0          23          74           5
+
+   Build times                  <= 1ms      <= 2ms      <= 5ms     <= 10ms     <= 20ms     <= 50ms    <= 100ms     > 100ms
+          0:52         now           0           0           0           0           0           0           0           0
+          1:52        0:52           0           0           0           0           0           0           0           0
+          2:52        1:52           0           0           0           0           0           0           0           0
+          3:52        2:52           0           0           0           0           0           0           0           0
+          4:52        3:52           5           0           0           0           0           0           0           0
+          5:52        4:52           0           0           0           0           0           0           0           0
+          6:52        5:52           0           0           0           0           0           0           0           0
+          7:52        6:52           0           0           0           0           0           0           0           0
+          8:52        7:52           0           0           0           0           0           0           0           0
+          9:52        8:52           0           0           0           0           0           0           0           0
+         21:52         now         167           5           3           0           0           0           0           0
+
+   Use counters                   <= 1        <= 2        <= 5       <= 10       <= 20       <= 50      <= 100       > 100
+          0:52         now           0           0           0           0           0           0           0           0
+          1:52        0:52           0           0           0           0           0           0           0           0
+          2:52        1:52           0           0           0           0           0           0           0           0
+          3:52        2:52           0           0           0           0           0           0           0           0
+          4:52        3:52           1           0           0           0           0           0           0           4
+          5:52        4:52           0           0           0           0           0           0           0           0
+          6:52        5:52           0           0           0           0           0           0           0           0
+          7:52        6:52           0           0           0           0           0           0           0           0
+          8:52        7:52           0           0           0           0           0           0           0           0
+          9:52        8:52           0           0           0           0           0           0           0           0
+         21:52         now          12           0          10           8           7          35          35          67

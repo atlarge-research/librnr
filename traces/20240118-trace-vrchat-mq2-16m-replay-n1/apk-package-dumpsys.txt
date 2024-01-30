@@ -1,0 +1,146 @@
+Activity Resolver Table:
+  Non-Data Actions:
+      android.intent.action.MAIN:
+        7bd78bb com.vrchat.oculus.quest/com.unity3d.player.UnityPlayerActivity filter 21791d8
+          Action: "android.intent.action.MAIN"
+          Category: "android.intent.category.LAUNCHER"
+          Category: "com.oculus.intent.category.VR"
+
+Domain verification status:
+
+Permissions:
+  Permission [com.vrchat.oculus.quest.deveventspermission] (83ac4f0):
+    sourcePackage=com.vrchat.oculus.quest
+    uid=10095 gids=[] type=0 prot=signature
+    perm=PermissionInfo{aa72a69 com.vrchat.oculus.quest.deveventspermission}
+
+Registered ContentProviders:
+  com.vrchat.oculus.quest/io.sentry.android.core.SentryPerformanceProvider:
+    Provider{e4f3cee com.vrchat.oculus.quest/io.sentry.android.core.SentryPerformanceProvider}
+  com.vrchat.oculus.quest/io.sentry.android.core.SentryInitProvider:
+    Provider{a61a58f com.vrchat.oculus.quest/io.sentry.android.core.SentryInitProvider}
+
+ContentProvider Authorities:
+  [com.vrchat.oculus.quest.SentryPerformanceProvider]:
+    Provider{e4f3cee com.vrchat.oculus.quest/io.sentry.android.core.SentryPerformanceProvider}
+      applicationInfo=ApplicationInfo{79f401c com.vrchat.oculus.quest}
+  [com.vrchat.oculus.quest.SentryInitProvider]:
+    Provider{a61a58f com.vrchat.oculus.quest/io.sentry.android.core.SentryInitProvider}
+      applicationInfo=ApplicationInfo{5ff0425 com.vrchat.oculus.quest}
+
+Key Set Manager:
+  [com.vrchat.oculus.quest]
+      Signing KeySets: 18
+
+Packages:
+  Package [com.vrchat.oculus.quest] (a7639fa):
+    userId=10095
+    pkg=Package{b5d0bab com.vrchat.oculus.quest}
+    codePath=/data/app/~~Qb6EY-wGaB1llaJK1ebxQg==/com.vrchat.oculus.quest-MyErwKFIXFvKhSFFGaA3WA==
+    resourcePath=/data/app/~~Qb6EY-wGaB1llaJK1ebxQg==/com.vrchat.oculus.quest-MyErwKFIXFvKhSFFGaA3WA==
+    legacyNativeLibraryDir=/data/app/~~Qb6EY-wGaB1llaJK1ebxQg==/com.vrchat.oculus.quest-MyErwKFIXFvKhSFFGaA3WA==/lib
+    extractNativeLibs=true
+    primaryCpuAbi=arm64-v8a
+    secondaryCpuAbi=null
+    cpuAbiOverride=null
+    versionCode=945670 minSdk=25 targetSdk=32
+    minExtensionVersions=[]
+    versionName=2023.4.2p5-1393-391d4ba1de-Release
+    usesNonSdkApi=false
+    splits=[base]
+    apkSigningVersion=3
+    applicationInfo=PackageImpl{b5d0bab com.vrchat.oculus.quest}
+    flags=[ HAS_CODE ALLOW_CLEAR_USER_DATA ]
+    privateFlags=[ PRIVATE_FLAG_ACTIVITIES_RESIZE_MODE_RESIZEABLE_VIA_SDK_VERSION ALLOW_AUDIO_PLAYBACK_CAPTURE PRIVATE_FLAG_REQUEST_LEGACY_EXTERNAL_STORAGE PRIVATE_FLAG_ALLOW_NATIVE_HEAP_POINTER_TAGGING ]
+    privateFlagsExt=[ PROFILEABLE ]
+    forceQueryable=false
+    queriesPackages=[]
+    queriesIntents=[Intent { act=com.android.vending.billing.InAppBillingService.BIND }]
+    dataDir=/data/user/0/com.vrchat.oculus.quest
+    supportsScreens=[small, medium, large, xlarge, resizeable, anyDensity]
+    timeStamp=2024-01-30 00:06:49
+    firstInstallTime=2024-01-29 22:49:35
+    lastUpdateTime=2024-01-30 00:06:52
+    installerPackageName=com.oculus.ocms
+    signatures=PackageSignatures{16e4208 version:3, signatures:[2ba6867b], past signatures:[]}
+    installPermissionsFixed=true
+    pkgFlags=[ HAS_CODE ALLOW_CLEAR_USER_DATA ]
+    declared permissions:
+      com.vrchat.oculus.quest.deveventspermission: prot=signature, INSTALLED
+    requested permissions:
+      android.permission.WRITE_EXTERNAL_STORAGE
+      android.permission.READ_EXTERNAL_STORAGE
+      android.permission.INTERNET
+      android.permission.CHANGE_WIFI_MULTICAST_STATE
+      android.permission.ACCESS_NETWORK_STATE
+      android.permission.ACCESS_WIFI_STATE
+      android.permission.RECORD_AUDIO
+      android.permission.MODIFY_AUDIO_SETTINGS
+      com.oculus.permission.HAND_TRACKING
+      com.oculus.permission.BODY_TRACKING
+      com.oculus.permission.FACE_TRACKING
+      com.oculus.permission.EYE_TRACKING
+      com.android.vending.BILLING
+      com.vrchat.oculus.quest.deveventspermission
+    install permissions:
+      android.permission.MODIFY_AUDIO_SETTINGS: granted=true
+      android.permission.CHANGE_WIFI_MULTICAST_STATE: granted=true
+      android.permission.INTERNET: granted=true
+      android.permission.ACCESS_NETWORK_STATE: granted=true
+      com.oculus.permission.HAND_TRACKING: granted=true
+      com.vrchat.oculus.quest.deveventspermission: granted=true
+      android.permission.ACCESS_WIFI_STATE: granted=true
+    User 0: ceDataInode=4631 installed=true hidden=false suspended=false distractionFlags=0 stopped=false notLaunched=false enabled=0 instant=false virtual=false
+      gids=[3003]
+      runtime permissions:
+        android.permission.READ_EXTERNAL_STORAGE: granted=true, flags=[ USER_SET|REVOKE_WHEN_REQUESTED|USER_SENSITIVE_WHEN_GRANTED|USER_SENSITIVE_WHEN_DENIED|RESTRICTION_INSTALLER_EXEMPT]
+        com.oculus.permission.FACE_TRACKING: granted=false, flags=[ USER_SENSITIVE_WHEN_GRANTED|USER_SENSITIVE_WHEN_DENIED]
+        com.oculus.permission.EYE_TRACKING: granted=false, flags=[ USER_SENSITIVE_WHEN_GRANTED|USER_SENSITIVE_WHEN_DENIED]
+        android.permission.WRITE_EXTERNAL_STORAGE: granted=true, flags=[ USER_SET|USER_SENSITIVE_WHEN_GRANTED|USER_SENSITIVE_WHEN_DENIED|RESTRICTION_INSTALLER_EXEMPT]
+        com.oculus.permission.BODY_TRACKING: granted=false
+        android.permission.RECORD_AUDIO: granted=true, flags=[ USER_SET|USER_SENSITIVE_WHEN_GRANTED|USER_SENSITIVE_WHEN_DENIED]
+
+Queries:
+  system apps queryable: false
+  queries via package name:
+  queries via intent:
+    com.facebook.orca:
+      com.vrchat.oculus.quest
+  queryable via interaction:
+    User 0:
+  queryable via uses-library:
+
+Package Changes:
+  Sequence number=13
+  User 0:
+    seq=0, package=com.android.bluetooth
+    seq=8, package=com.oculus.identitymanagement.service
+    seq=11, package=com.oculus.horizon
+    seq=12, package=com.oculus.socialplatform
+
+
+Dexopt state:
+  [com.vrchat.oculus.quest]
+    path: /data/app/~~Qb6EY-wGaB1llaJK1ebxQg==/com.vrchat.oculus.quest-MyErwKFIXFvKhSFFGaA3WA==/base.apk
+      arm64: [status=verify] [reason=install]
+
+
+Compiler stats:
+  [com.vrchat.oculus.quest]
+     base.apk - 520
+Snapshot statistics
+   Unrecorded-hits: 26  Cork-level: 0
+   Summary stats               TotBlds     TotUsed     TotCork     BigBlds    ShortLvd     TotTime     MaxTime
+          0:47         now           6        5664           0           0           1           3           1
+          1:47        0:47         147       34946           0           0          20          65           5
+          1:47         now         153       40610           0           0          21          69           5
+
+   Build times                  <= 1ms      <= 2ms      <= 5ms     <= 10ms     <= 20ms     <= 50ms    <= 100ms     > 100ms
+          0:47         now           6           0           0           0           0           0           0           0
+          1:47        0:47         139           5           3           0           0           0           0           0
+          1:47         now         145           5           3           0           0           0           0           0
+
+   Use counters                   <= 1        <= 2        <= 5       <= 10       <= 20       <= 50      <= 100       > 100
+          0:47         now           0           0           1           0           0           0           3           2
+          1:47        0:47          10           0           9           8           7          34          28          50
+          1:47         now          10           0          10           8           7          34          31          52
