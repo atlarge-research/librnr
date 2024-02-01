@@ -17,6 +17,7 @@ Set-StrictMode -Version latest
 # if the trace file path is relative and outdir has been specified, write trace file in outdir
 if (($Mode -eq "record") -and $PSBoundParameters.ContainsKey('OutDir') -and (-not([System.IO.Path]::IsPathRooted($TraceFile)))) {
     $TraceFile = Join-Path $OutDir $TraceFile
+    $TraceFile = [IO.Path]::GetFullPath($Tracefile, $PSScriptRoot)
 }
 
 $Autodriver = $PSBoundParameters.ContainsKey('Class') -and $PSBoundParameters.ContainsKey('Activity') -and $PSBoundParameters.ContainsKey('Duration')
