@@ -19,6 +19,11 @@ namespace tracer {
         string basespace;
     };
 
+    struct traceCreateReferenceSpace {
+        XrPosef pose;
+        uint32_t type;
+    };
+
     struct traceView {
         XrPosef pose;
         XrFovf fov;
@@ -39,7 +44,7 @@ namespace tracer {
         XrTime lastChanged;
     };
 
-    using traceBody = variant<traceLocation, traceView, traceActionBoolean, traceActionFloat>;
+    using traceBody = variant<traceLocation, traceCreateReferenceSpace, traceView, traceActionBoolean, traceActionFloat>;
 
     struct traceEntry {
         XrTime time;
@@ -59,6 +64,10 @@ namespace tracer {
     void writeSpace(traceEntry);
 
     bool readNextSpace(traceEntry *);
+
+    void writeCreateReferenceSpace(traceEntry);
+
+    bool readNextCreateReferenceSpace(traceEntry *);
 
     void writeActionFloat(traceEntry);
 
