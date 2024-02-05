@@ -1,17 +1,26 @@
 # Network Emulation
-1. We automate the creation of a VirtualBox VM (Ubuntu 22.04) on a Windows 11 host
-2. We route the network between the host and the VR headset through the VM
-3. We execute network emulation software (MahiMahi) on the VM to emulate networks that we don't have in hardware
+What this code does / will do:
+1. Automate the creation of a VirtualBox VM (Ubuntu 22.04) on a Windows 11 host
+2. Route the network between the host and the VR headset through the VM
+3. Execute network emulation software (MahiMahi) on the VM to emulate networks that you don't have in hardware
 
 ## Current Status
 * A script can automatically start a VM with correct network configurations and internet access. The VM can be accessed via SSH.
 
 ## Requirements
-1. Windows PowerShell with permissions to execute PowerShell scripts
-2. Have sshd enabled and a ~/.ssh folder
-3. Have Virtualbox installed, at least version 7
-4. Have Python3 installed. You can install this via the Microsoft Store
+1. Windows PowerShell with permissions to execute PowerShell scripts. We use PowerShell version 5, which is compatible with future versions. When executing the script mentioned in *Usage*, and PowerShell permission are not set correctly, Windows will explain how to update permissions. We recommend `Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser` for the most restricte policy that still allows execution of PowerShell scripts.
+2. Have sshd enabled and a ~/.ssh folder.
+3. Have Virtualbox installed, at least version 7.
+4. Have Python3 installed. You can install this via the Microsoft Store. For example, type `python3` in PowerShell, and it will automatically open the Store for you.
 5. Have the Microsoft Defender Network Firewall disabled. Otherwise you won't be able to detect devices on the network from your VM
+    * This needs to be investigated. I don't know if this is required.
+6. The name of your internet adapter, see the `$global:bridged` variable in `create-vm.ps1`. To list your network adapaters, search for "view network connections" in the Windows toolbar. Choose the network adapter that you get internet from. Not all adapters will work, we need an adapter that supports bridging (e.g., USB-to-Ethernet adapters often don't support this).
 
 ## Usage
 From Powershell: `.\create-vm.ps1`
+
+
+## Known Errors
+You may encounter errors during the execution of the script. We list some known errors below and how to resolve them.
+
+1. `VBoxManage.exe: error: Not in a hypervisor partition (HVP=0) (VERR_NEM_NOT_AVAILABLE). VBoxManage.exe: error: AMD-V is disabled in the BIOS (or by the host OS) (VERR_SVM_DISABLED)`. You need to enable AMD-V (or VT-x for Intel CPUs) in the Bios. These are the hardware acceleration features the CPU offers to execute VMs at acceptable performance. Without these options, the entire VM needs to be emulated, resulting in very slow performance.

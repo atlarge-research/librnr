@@ -6,8 +6,7 @@
 
 function Enable-Virtualbox {
     # Enable the use of VirtualBox via the command line
-    $virtualbox_exe_path = "C:\Program Files\Oracle\VirtualBox"
-    $env:PATH = $env:PATH + ";" + $virtualbox_exe_path
+    $env:PATH = $env:PATH + ";" + $global:virtualbox_exe_path
 }
 
 function Stop-BackgroundProcs {
@@ -141,16 +140,14 @@ function Get-Iso {
 function Set-VmCharacteristics {
     # Set various VM characteristics
     Write-Host("Set VM characteristics")
-    $hostonly = "VirtualBox Host-Only Ethernet Adapter"
-    $bridged = "Remote NDIS based Internet Sharing Device"
     vboxmanage modifyvm $global:vm --cpus 2
     vboxmanage modifyvm $global:vm --memory 2048
     vboxmanage modifyvm $global:vm --vram 128
     vboxmanage modifyvm $global:vm --acpi on
     vboxmanage modifyvm $global:vm --ioapic on
     vboxmanage modifyvm $global:vm --rtc-use-utc on
-    vboxmanage modifyvm $global:vm --nic1 hostonly --hostonlyadapter1 $hostonly
-    vboxmanage modifyvm $global:vm --nic2 bridged --bridgeadapter2 $bridged
+    vboxmanage modifyvm $global:vm --nic1 hostonly --hostonlyadapter1 $global:hostonly
+    vboxmanage modifyvm $global:vm --nic2 bridged --bridgeadapter2 $global:bridged
     vboxmanage modifyvm $global:vm --graphicscontroller vmsvga
 }
 
@@ -172,8 +169,8 @@ function New-SshKey {
     )
     if (-not (Test-Path -LiteralPath $sshpath)) {
         Write-Host("Create SSH key")
-        $output = ssh-keygen -t ed25519 -f "$sshpath" -N '"' -q 2>&1
-        if ($output[0].GetType().Name -contains "ErrorRecord") {
+        $output = ssh-keygen -t ed25519 -f "$sshpath" -N '""' -q 2>&1
+        if ($null -ne $output -and $output[0].GetType().Name -contains "ErrorRecord") {
             Write-Host("`tERROR: Could not create VM")
             Write-Host($output)
             Exit
@@ -331,9 +328,42 @@ function Show-SshAccess {
     Write-Host("Login with: ssh $username@$vmip -o StrictHostKeyChecking=no -i $sshpath")
 }
 
+function Wait-Up {
+    param (
+        [Parameter(Mandatory = $true, Position = 1)]
+        [string] $vmip
+    )
+    Write-Host("Wait for VM to be up")
+    DO {
+        $ping = Test-Connection $vmip -quiet
+    } Until ($ping -contains "True")
+    Write-Host("VM is up")
+
+    # Reset the known-hosts to prevent ssh problems
+    $sshpath = $env:USERPROFILE + "\.ssh\known_hosts"
+    ssh-keygen -f $sshpath -R $vmip
+}
+
 
 ########################################################
-# TODO: verify these have been fixed
+# These variables may differ from user to user but are hardcoded for now
+#####
+
+# Location of the virtualbox.exe
+$global:virtualbox_exe_path = "C:\Program Files\Oracle\VirtualBox"
+
+# The name of the host-only ethernet adapter of virtualbox
+# This is the default name for the virtualbox adapter
+$global:hostonly = "VirtualBox Host-Only Ethernet Adapter"
+
+# Interface the Virtualbox bridge connects to. This is your main internet adapter.
+# $global:bridged = "Remote NDIS based Internet Sharing Device"
+$global:bridged = "Intel(R) I211 Gigabit Network Connection"
+
+
+
+#####
+# Will be used throughout multiple functions - VM name and current path
 $global:vm = "metabench"
 $global:host_base_path = $(Get-Location).Path
 
@@ -353,7 +383,7 @@ $sshpath = $env:USERPROFILE + "\.ssh\id_ed25519_metabench"
 $configpath = $global:host_base_path + "\config"
 $username = "admin"
 $vmip = "192.168.56.10"
-$vmgateway = "192.168.56.1"
+$vmgateway = "192.168.56.1" # Default IP of the hostonly network, with mask 255.255.255.0
 
 New-SshKey $sshpath
 New-VmConfig $sshpath $configpath $username $vmip $vmgateway
@@ -361,6 +391,7 @@ New-VmConfig $sshpath $configpath $username $vmip $vmgateway
 Start-UnattendedInstall $ipport $isopath
 Wait-Init
 Show-SshAccess $sshpath $vmip $username
+Wait-Up $vmip
 
 # TODO
 # 1. Add a parameter to the script to only delete / cleanup everything, not delete
