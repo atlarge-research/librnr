@@ -357,8 +357,7 @@ $global:virtualbox_exe_path = "C:\Program Files\Oracle\VirtualBox"
 $global:hostonly = "VirtualBox Host-Only Ethernet Adapter"
 
 # Interface the Virtualbox bridge connects to. This is your main internet adapter.
-# $global:bridged = "Remote NDIS based Internet Sharing Device"
-$global:bridged = "Intel(R) I211 Gigabit Network Connection"
+$global:bridged = "DisplayLink Network Adapter NCM"
 
 
 

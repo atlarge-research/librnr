@@ -12,8 +12,7 @@ What this code does / will do:
 2. Have sshd enabled and a ~/.ssh folder.
 3. Have Virtualbox installed, at least version 7.
 4. Have Python3 installed. You can install this via the Microsoft Store. For example, type `python3` in PowerShell, and it will automatically open the Store for you.
-5. Have the Microsoft Defender Network Firewall disabled. Otherwise you won't be able to detect devices on the network from your VM
-    * This needs to be investigated. I don't know if this is required.
+5. If you are on a protected network (e.g., university network), disable the Microsoft Defender Network Firewall. Otherwise, you won't be able to detect devices on the network from the VM, which includes the netboot server we use to boot the VM. If your network is a private network, you only need to disable the firewall of the private network.
 6. The name of your internet adapter, see the `$global:bridged` variable in `create-vm.ps1`. To list your network adapaters, search for "view network connections" in the Windows toolbar. Choose the network adapter that you get internet from. Not all adapters will work, we need an adapter that supports bridging (e.g., USB-to-Ethernet adapters often don't support this).
 
 ## Usage
