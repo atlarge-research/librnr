@@ -1,4 +1,8 @@
 # Network Emulation
+THIS README IS OUTDATED
+
+
+
 What this repo does:
 1. Create a VirtualBox VM with Ubuntu 22.04 on a Windows 11 host
 2. Route the network between the host and the VR headset through the VM
@@ -6,25 +10,21 @@ What this repo does:
 
 ## Usage
 1. Download `metabench.ova` from Google Drive: https://drive.google.com/drive/folders/1YxRBExNQJShqcZJcoIcfZ6KbH5bMh0HB?usp=sharing. This is a 2 GB file. You can save it in any directory.
-2. Open VirtualBox and create a VM using the downloaded file. Use File -> Import Appliance. Update the network settings of the VM: Settings -> Network. Make sure that the Bridged Adapter (Adapter 2) is connected to the network adapter that your computer currently uses to get internet. Click on the Name dropdown menu to see the options.
-3. TBC
+2. Open VirtualBox and create a VM using the downloaded file. Use File -> Import Appliance. Update the network settings of the VM: Settings -> Network. Adapter 1 should be attached to a host-only adapter, specifically Virtualbox' host-only network, which is created when you install Virtualbox. Adapter 2 should be attached to a bridge, specifically the network adapter that your computer currently uses to get internet.
+3. Start the VM in VirtualBox. Wait for the VM to boot and login with username and password "metabench".
+4. Verify the VM's network is set up properly. Use `ping google.com` to check if internet works. Then, use `ip a` and verify there are 3 networks, *lo*, *enp0s3* (with IP 192.168.56.10, which is used to communicate between the host PC and the VM), and *enp0s8* (with an IP given by your local DHCP server, which you use to get internet on the VM).
+5. Enable ipv4 fowarding in the VM:
+    ```
+    sudo sed -i 's/#net.ipv4.ip_forward=1/net.ipv4.ip_forward=1/' /etc/sysctl.conf
+    sudo sysctl -p
+    ```
+6. Enable NAT on the bridged interface using iptables
+    ```
+    sudo iptables -t nat -I POSTROUTING --out-interface enp0s8 -j MASQUERADE
+    ```
+7. Open Windows PowerShell as administrator on the host. Use `Get-NetRoute` to list the network routes of the host. Search for the rule with as DestinationPrefix 0.0.0.0/0 and as NextHop something similar 192.168.1.1. This is the route that connects your PC to the internet. Delete it with `Remove-NetRoute -DestinationPrefix “0.0.0.0/0” -InterfaceIndex X`, with X being the ifIndex of the rule you just identified.
+8. Now, we create a new route that moves the host's internet through the VM. In the same PowerShell terminal, run `New-NetRoute -DestinationPrefix "0.0.0.0/0" -InterfaceIndex X -NextHop Y -ROuteMetric 1`. Here, X is the ifIndex of the route that your host-only adapter uses, which has a DestinationPrefix of 192.168.56.1/32 by default, unless you have modified VirtualBox's host-only adapter. Y is the IP of the VM, which is 192.168.56.10 by default, see step 4. Verify the routing table: Run `Get-NetRoute`, there should be only one entry with DestinationPrefix 0.0.0.0/0, and it should have a NextHop of 192.168.56.10. Test the setup by opening any webpage on any browser on your host. You should have internet, and if so, it is being routes through the VM.
 
-
-
-
-<!-- ## Requirements
-1. Windows PowerShell with permissions to execute PowerShell scripts. We use PowerShell version 5, which is compatible with future versions. When executing the script mentioned in *Usage*, and PowerShell permission are not set correctly, Windows will explain how to update permissions. We recommend `Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser` for the most restricte policy that still allows execution of PowerShell scripts.
-2. Have sshd enabled and a ~/.ssh folder.
-3. Have Virtualbox installed, at least version 7.
-4. Have Python3 installed. You can install this via the Microsoft Store. For example, type `python3` in PowerShell, and it will automatically open the Store for you.
-5. If you are on a protected network (e.g., university network), disable the Microsoft Defender Network Firewall. Otherwise, you won't be able to detect devices on the network from the VM, which includes the netboot server we use to boot the VM. If your network is a private network, you only need to disable the firewall of the private network.
-6. The name of your internet adapter, see the `$global:bridged` variable in `create-vm.ps1`. To list your network adapaters, search for "view network connections" in the Windows toolbar. Choose the network adapter that you get internet from. Not all adapters will work, we need an adapter that supports bridging (e.g., USB-to-Ethernet adapters often don't support this).
-
-## Usage
-From Powershell: `.\create-vm.ps1`
-
-
-## Known Errors
-You may encounter errors during the execution of the script. We list some known errors below and how to resolve them.
-
-1. `VBoxManage.exe: error: Not in a hypervisor partition (HVP=0) (VERR_NEM_NOT_AVAILABLE). VBoxManage.exe: error: AMD-V is disabled in the BIOS (or by the host OS) (VERR_SVM_DISABLED)`. You need to enable AMD-V (or VT-x for Intel CPUs) in the Bios. These are the hardware acceleration features the CPU offers to execute VMs at acceptable performance. Without these options, the entire VM needs to be emulated, resulting in very slow performance. -->
+## Requirements
+1. Have Virtualbox installed, at least version 7.
+2. Windows PowerShell. We have tested with versions 5 and 7.
