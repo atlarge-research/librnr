@@ -1,4 +1,3 @@
-log start time: 08-02-2024_03-23-39
 0 k /user/hand/left/output/haptic 1
 0 k /user/hand/right/output/haptic 1
 13886399 k /user/hand/left/output/haptic 1
