@@ -1,0 +1,5 @@
+test-script
+*Version.txt
+paths1.json
+__pycache__
+.ipynb_checkpoints

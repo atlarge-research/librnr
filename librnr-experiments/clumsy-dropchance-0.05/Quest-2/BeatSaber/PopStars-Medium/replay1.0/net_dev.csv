@@ -1,0 +1,13 @@
+interface,received-bytes,received-packets,received-errs,received-drop,received-fifo,received-frame,received-compressed,received-multicast,sent-bytes,sent-packets,sent-errs,sent-drop,sent-fifo,sent-colls,sent-carrier,sent-compressed,device,app,app_details,is_record,is_wireless,repetition
+wlan0,43468550520,36850383,0,0,0,0,0,0,3279784000,13288720,0,0,0,0,0,0,clumsy-dropchance-0.05,Quest-2,BeatSaber,False,False,PopStars-Medium
+wlan0,43473893108,36856608,0,0,0,0,0,0,3280944120,13292553,0,0,0,0,0,0,clumsy-dropchance-0.05,Quest-2,BeatSaber,False,False,PopStars-Medium
+wlan0,43477602314,36860800,0,0,0,0,0,0,3281131511,13294732,0,0,0,0,0,0,clumsy-dropchance-0.05,Quest-2,BeatSaber,False,False,PopStars-Medium
+wlan0,43482407504,36866545,0,0,0,0,0,0,3281390745,13297862,0,0,0,0,0,0,clumsy-dropchance-0.05,Quest-2,BeatSaber,False,False,PopStars-Medium
+wlan0,43488357968,36871954,0,0,0,0,0,0,3281661998,13300911,0,0,0,0,0,0,clumsy-dropchance-0.05,Quest-2,BeatSaber,False,False,PopStars-Medium
+wlan0,43490912471,36874452,0,0,0,0,0,0,3281786408,13302317,0,0,0,0,0,0,clumsy-dropchance-0.05,Quest-2,BeatSaber,False,False,PopStars-Medium
+wlan0,43496808736,36881585,0,0,0,0,0,0,3282090509,13306116,0,0,0,0,0,0,clumsy-dropchance-0.05,Quest-2,BeatSaber,False,False,PopStars-Medium
+wlan0,43497160184,36882303,0,0,0,0,0,0,3282115909,13306428,0,0,0,0,0,0,clumsy-dropchance-0.05,Quest-2,BeatSaber,False,False,PopStars-Medium
+wlan0,43497655110,36883298,0,0,0,0,0,0,3282151032,13306863,0,0,0,0,0,0,clumsy-dropchance-0.05,Quest-2,BeatSaber,False,False,PopStars-Medium
+wlan0,43498154147,36884297,0,0,0,0,0,0,3282187204,13307317,0,0,0,0,0,0,clumsy-dropchance-0.05,Quest-2,BeatSaber,False,False,PopStars-Medium
+wlan0,43498643513,36885278,0,0,0,0,0,0,3282223484,13307773,0,0,0,0,0,0,clumsy-dropchance-0.05,Quest-2,BeatSaber,False,False,PopStars-Medium
+wlan0,43499143711,36886281,0,0,0,0,0,0,3282258174,13308200,0,0,0,0,0,0,clumsy-dropchance-0.05,Quest-2,BeatSaber,False,False,PopStars-Medium
