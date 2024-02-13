@@ -1,0 +1,25 @@
+{
+    "experiment_name": "clumsy-dropchance-0.01",
+    "device": "Quest-Pro",
+    "clumsy": {
+        "clumsy_scripts_path": "C:\\Users\\damla\\Documents\\GitHub\\DistributedSystems-Traffic-Shaper\\Clumsy-Scripts\\",
+        "clumsy_path": "C:\\Program Files\\Clumsy\\clumsy.exe",
+        "delay": -1,
+        "delay_chance": -1,
+        "bandwidth_KBps": -1,
+        "drop_chance": 0.01
+    },
+    "repetitions": 3,
+    "apps": [
+        {
+            "name": "BeatSaber",
+            "variation": "PopStars-Medium",
+            "exe_name": "Beat Saber.exe",
+            "steam_app_id": "620980",
+            "startup_time": 5,
+            "trace_path": "BeatSaber\\PopStars-Medium\\record1\\PopStars-Medium.txt"
+        }
+    ],
+    "time_between_apps": 10,
+    "time_between_repetitions": 5
+}
