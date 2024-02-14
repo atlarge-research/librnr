@@ -1,0 +1,17 @@
+{
+    "experiment_name": "swap-vr",
+    "device": "Quest-2",
+    "repetitions": 10,
+    "apps": [
+        {
+            "name": "BeatSaber",
+            "variation": "PopStars-Medium",
+            "exe_name": "Beat Saber.exe",
+            "steam_app_id": "620980",
+            "startup_time": 5,
+            "trace_path": "BeatSaber\\PopStars-Medium\\record0\\PopStars-Medium.txt"
+        }
+    ],
+    "time_between_apps": 10,
+    "time_between_repetitions": 5
+}

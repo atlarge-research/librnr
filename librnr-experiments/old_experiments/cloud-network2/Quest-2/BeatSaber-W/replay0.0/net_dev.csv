@@ -1,0 +1,4 @@
+interface,received-bytes,received-packets,received-errs,received-drop,received-fifo,received-frame,received-compressed,received-multicast,sent-bytes,sent-packets,sent-errs,sent-drop,sent-fifo,sent-colls,sent-carrier,sent-compressed,device,app,app_details,is_record,is_wireless,repetition
+wlan0,26768823475,22967797,0,0,0,0,0,0,2324731235,9475814,0,0,0,0,0,0,old_experiments,cloud-network2,Quest-2,False,False,BeatSaber-W
+wlan0,27694687657,23764623,0,0,0,0,0,0,2389857279,9782490,0,0,0,0,0,0,old_experiments,cloud-network2,Quest-2,False,False,BeatSaber-W
+wlan0,28565130179,24520598,0,0,0,0,0,0,2453357078,10079964,0,0,0,0,0,0,old_experiments,cloud-network2,Quest-2,False,False,BeatSaber-W
