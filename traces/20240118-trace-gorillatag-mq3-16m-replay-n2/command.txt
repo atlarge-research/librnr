@@ -1,0 +1,11 @@
+
+Key       Value
+---       -----
+OutDir    ..\traces\20240118-trace-gorillatag-mq3-16m-replay-n2
+Class     com.AnotherAxiom.GorillaTag
+Activity  com.unity3d.player.UnityPlayerActivity
+Duration  960
+S2Battery True
+Mode      replay
+TraceFile ..\traces\20240116-trace-gorillatag-mqp-16m-n1\trace.txt
+

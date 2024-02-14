@@ -175,6 +175,19 @@ string refSpaceTypeToString(XrReferenceSpaceType ref) {
     return type;
 }
 
+bool recordCreateReferenceSpace(const XrReferenceSpaceCreateInfo *createInfo, XrSpace *space) {
+    tracer::traceEntry entry;
+    entry.time = 0;
+    entry.type = 'r';
+    entry.path = spaceToFullName[*space];
+    tracer::traceCreateReferenceSpace createRefSpace{};
+    createRefSpace.pose = createInfo->poseInReferenceSpace;
+    createRefSpace.type = createInfo->referenceSpaceType;
+    entry.body = createRefSpace;
+    tracer::writeCreateReferenceSpace(entry);
+    return true;
+}
+
 /// <summary>
 /// This method is called to create "spaces" which are handles used to locate the position of the headset and controllers.
 /// We need to figure out which handles correspond to which devices, so that we know which locations we are tracking.
@@ -188,6 +201,10 @@ XRAPI_CALL thisLayer_xrCreateReferenceSpace(XrSession session, const XrReference
     // Store string to space type, so that we can look it up later
     auto name = refSpaceTypeToString(createInfo->referenceSpaceType);
     spaceToFullName[*space] = name;
+
+    if (mode == tracer::Mode::RECORD) {
+        recordCreateReferenceSpace(createInfo, space);
+    }
 
     stringstream buffer;
     auto p = createInfo->poseInReferenceSpace;

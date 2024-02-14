@@ -1,0 +1,1004 @@
+---
+title: "Experiment"
+output:
+  github_document:
+    toc: yes
+    toc_depth: 3
+    dev: ["svg", "cairo_pdf"]
+---
+
+# Description
+
+
+# Results
+
+```{r setup, message = FALSE}
+
+library(tidyverse)
+theme_set(theme_bw())
+library(knitr)
+library(forcats)
+library(data.table)
+library(cowplot)
+library(gghighlight)
+library(zoo)
+library(RColorBrewer)
+library(stringr)
+library(fBasics)
+library(here)
+here::i_am("./Results.rmd")
+
+saveplot <- function(filename, ...) {
+  ggsave2(filename, ...)
+  knitr::plot_crop(filename)
+}
+
+traces_replays <- list.files(".", pattern="[0-9]+-trace-[a-z]+-mq[23p]-16m-replay-n[0-9]")
+
+to_human_name <- function(name) {
+  if (str_split_i(name, "-", 4) == "mq3") {
+    "MQ3"
+  } else if (str_split_i(name, "-", 4) == "mqp") {
+    "MQP"
+  } else if (str_split_i(name, "-", 4) == "mq2") {
+    "MQ2"
+  } else {
+    name
+  }
+}
+
+g_moss <- "Moss"
+g_explorevr <- "Nat. Geo. Explore VR"
+g_gorillatag <- "Gorilla Tag"
+g_vrchat <- "VRChat"
+
+game_to_human_name <- function(name) {
+  if (name == "moss") {
+    g_moss
+  } else if (name == "explorevr") {
+    g_explorevr
+  } else if (name == "gorillatag") {
+    g_gorillatag
+  } else if (name == "vrchat") {
+    g_vrchat
+  } else {
+    name
+  }
+}
+
+give_stats <- function(tb, colname) {
+  tb %>%
+    mutate(v = {{colname}}) %>%
+    summarise(mean = mean(v),
+              stdev = sd(v),
+              min = min(v),
+              q25 = quantile(v, 0.25),
+              median = median(v),
+              q75 = quantile(v, 0.75),
+              max = max(v),
+              .by = c(game, config, i)) %>%
+    mutate(mean_maxd = max(mean) - min(mean)) %>%
+    mutate(stdev_maxd = max(stdev) - min(stdev)) %>%
+    mutate(min_maxd = max(min) - min(min)) %>%
+    mutate(q25_maxd = max(q25) - min(q25)) %>%
+    mutate(median_maxd = max(median) - min(median)) %>%
+    mutate(q75_maxd = max(q75) - min(q75)) %>%
+    mutate(max_maxd = max(max) - min(max))
+}
+
+pattern <- c(month="-?\\d+", "-", day="-?\\d+", "\\s+", hour="-?\\d+", ":", minute="-?\\d+", ":", second="-?\\d+", "\\.", millisecond="-?\\d+", "\\s+", pid="-?\\d+", "\\s+", tid="-?\\d+", "\\s+", level="\\w", "\\s+VrApi\\s+:\\s+FPS=",fps_render="-?\\d+", "/", fps_refresh="-?\\d+", ",Prd=", prd="-?\\d+", "ms,Tear=", tear="-?\\d+", ",Early=", early="-?\\d+", ",Stale=", stale="-?\\d+", ",Stale2/5/10/max=", stale2="-?\\d+", "/", stale5="-?\\d+", "/", stale10="-?\\d+", "/", stalemax="-?\\d+", ",VSnc=", vsnc="-?\\d+", ",Lat=", lat="-?-?\\d+", ",Fov=", fov="-?\\d+\\w*", ",CPU", cpun="\\d", "/GPU=", cpu_level="-?\\d+", "/", gpu_level="-?\\d+", ",", cpu_freq="-?\\d+", "/", gpu_freq="-?\\d+", "MHz,OC=", oc=".+", ",TA=", ta_atw="-?\\d+\\w*", "/", ta_main="-?\\d+\\w*", "/", ta_render="-?\\d+\\w*", ",SP=", sp_atw="\\w", "/", sp_main="\\w", "/", sp_render="\\w", ",Mem=", mem="-?\\d+", "MHz,Free=", free="-?\\d+", "MB,PLS=", pls="-?\\d+", ",Temp=", temp_bat="-?\\d+\\.\\d+", "C/", temp_sens="-?\\d+\\.\\d+", "C,TW=", tw="-?\\d+\\.\\d+", "ms,App=", app="-?\\d+\\.\\d+", "ms,GD=", gd="-?\\d+\\.\\d+", "ms,CPU&GPU=", cpu_gpu="-?\\d+\\.\\d+", "ms,LCnt=", lcnt="-?\\d+", "\\(DR", dr="-?\\d+", ",LM", lm="-?\\d+", "\\),GPU%=", gpu_percent="-?\\d+\\.\\d+", ",CPU%=", cpu_percent="-?\\d+\\.\\d+", "\\(W", cpu_percent_worst="-?\\d+\\.\\d+", "\\),DSF=", dsf="-?\\d+\\.\\d+", ",CFL=", cfl_min="-?\\d+\\.\\d+", "/", cfl_max="-?\\d+\\.\\d+", ",ICFLp95=", icflp95="-?\\d+\\.\\d+", ",LD=", ld="-?\\d+", ",SF=", sf="-?\\d+\\.\\d+", ",LP=", lp="-?\\d+", ",DVFS=", dvfs="-?\\d+")
+
+data_logcat_vrapi <- NULL
+for (f in traces_replays) {
+  data_logcat_vrapi <- readLines(here(f, "logcat_VrApi.log")) %>%
+    tibble(line = .) %>%
+    mutate(game = str_split_i(f, "-", 3)) %>%
+    mutate(i = str_split_i(f, "-", -1) %>% str_split_i("n", 2)) %>%
+    filter(grepl("^.+\\s+VrApi\\s+:\\s+FPS=", line)) %>%
+    separate_wider_regex(line, pattern) %>%
+    mutate(ts = as.numeric(second) + (60*as.numeric(minute)) + (60*60*as.numeric(hour))) %>%
+    mutate(ts = ts - min(ts)) %>%
+    mutate(ts_m = ts / 60) %>%
+    mutate(cpu_util = 100 * as.numeric(cpu_percent)) %>%
+    mutate(cpu_freq_ghz = as.numeric(cpu_freq) / 1000) %>%
+    mutate(cpu_freq_rel = (as.numeric(cpu_freq) - min(as.numeric(cpu_freq))) / max(as.numeric(cpu_freq))) %>%
+    rowwise() %>%
+    mutate(cpu_freq_rel = max(0.01, cpu_freq_rel)) %>%
+    ungroup() %>%
+    mutate(cpu_usage_ltp = as.numeric(cpu_level) * as.numeric(cpu_percent)) %>%
+    mutate(cpu_usage_ftp = as.numeric(cpu_freq) * as.numeric(cpu_percent)) %>%
+    mutate(cpu_usage_ftp_rel = as.numeric(cpu_freq_rel) * as.numeric(cpu_percent)) %>%
+    mutate(cpu_util_worst = 100 * as.numeric(cpu_percent_worst)) %>%
+    mutate(gpu_util = 100 * as.numeric(gpu_percent)) %>%
+    mutate(gpu_usage_ltp = as.numeric(gpu_level) * as.numeric(gpu_percent)) %>%
+    mutate(gpu_usage_ftp = as.numeric(gpu_freq) * as.numeric(gpu_percent)) %>%
+    mutate(config = f) %>%
+    bind_rows(data_logcat_vrapi, .)
+}
+data_logcat_vrapi <- data_logcat_vrapi %>%
+  type.convert(as.is = TRUE) %>%
+  mutate(config = map_chr(config, to_human_name)) %>%
+  mutate(game_h = map_chr(game, game_to_human_name))
+
+#Inter-|   Receive                                                |  Transmit
+# face |bytes    packets errs drop fifo frame compressed multicast|bytes    packets errs drop fifo colls carrier compressed
+#  wlan0: 334462961  517107    0    0    0     0          0         0 110016326  375001    0    0    0     0       0          0
+pattern <- c("\\s+wlan0:\\s+", rx_bytes="\\d+", "\\s+", rx_packets="\\d+", "\\s+", rx_errs="\\d+", "\\s+", rx_drop="\\d+", "\\s+", rx_fifo="\\d+", "\\s+", rx_frame="\\d+", "\\s+", rx_compressed="\\d+", "\\s+", rx_multicast="\\d+", "\\s+", tx_bytes="\\d+", "\\s+", tx_packets="\\d+", "\\s+", tx_errs="\\d+", "\\s+", tx_drop="\\d+", "\\s+", tx_fifo="\\d+", "\\s+", tx_colls="\\d+", "\\s+", tx_carrier="\\d+", "\\s+", tx_compressed="\\d+")
+
+data_net_dev <- NULL
+for (f in traces_replays) {
+  data_net_dev <- readLines(here(f, "net_dev.log")) %>%
+    tibble(line = .) %>%
+    mutate(game = str_split_i(f, "-", 3)) %>%
+    mutate(i = str_split_i(f, "-", -1) %>% str_split_i("n", 2)) %>%
+    filter(grepl("^\\s+wlan0:\\s+", line)) %>%
+    separate_wider_regex(line, pattern) %>%
+    mutate(ts = 0:(n() - 1)) %>%
+    select(ts, everything()) %>%
+    mutate(ts_m = ts / 60) %>%
+    mutate(config = f) %>%
+    bind_rows(data_net_dev, .)
+}
+data_net_dev <- data_net_dev %>%
+  type.convert(as.is = TRUE) %>%
+  mutate(config = map_chr(config, to_human_name)) %>%
+  mutate(game_h = map_chr(game, game_to_human_name)) %>%
+  group_by(config, game, i) %>%
+  mutate(bps_tx = 8 * (tx_bytes - lag(tx_bytes))) %>%
+  mutate(kbps_tx = bps_tx / 1000) %>%
+  mutate(Mbps_tx = bps_tx / 1000000) %>%
+  mutate(Gbps_tx = bps_tx / 1000000000) %>%
+  mutate(bps_rx = 8 * (rx_bytes - lag(rx_bytes))) %>%
+  mutate(kbps_rx = bps_rx / 1000) %>%
+  mutate(Mbps_rx = bps_rx / 1000000) %>%
+  mutate(Gbps_rx = bps_rx / 1000000000) %>%
+  drop_na() %>%
+  ungroup()
+
+# 01-18 18:54:21.709  6038  6148 I BatteryMgr:DataCollectionService: stats => 1705600461709,-1312532,3835
+pattern <- c(month="\\d+", "-", day="\\d+", "\\s+", hour="\\d+", ":", minute="\\d+", ":", second="\\d+", "\\.", millisecond="\\d+", "\\s+", pid="\\d+", "\\s+", tid="\\d+", "\\s+I\\s+BatteryMgr:DataCollectionService:\\s+stats\\s+=>\\s+", ts_milli="\\d+", ",", current="-?\\d+", ",", voltage="\\d+")
+
+data_batterymanager_companion <- NULL
+for (f in traces_replays) {
+  data_batterymanager_companion <- readLines(here(f, "batterymanager-companion.log")) %>%
+    tibble(line = .) %>%
+    mutate(game = str_split_i(f, "-", 3)) %>%
+    mutate(i = str_split_i(f, "-", -1) %>% str_split_i("n", 2)) %>%
+    filter(grepl("\\WBatteryMgr:DataCollectionService:\\s+stats\\s+=>", line)) %>%
+    separate_wider_regex(line, pattern) %>%
+    mutate(config = f) %>%
+    bind_rows(data_batterymanager_companion, .)
+}
+data_batterymanager_companion <- data_batterymanager_companion %>%
+  type.convert(as.is = TRUE) %>%
+  mutate(config = map_chr(config, to_human_name)) %>%
+  mutate(game_h = map_chr(game, game_to_human_name)) %>%
+  group_by(config, game, i) %>%
+  mutate(ts_milli = ts_milli - min(ts_milli)) %>%
+  ungroup() %>%
+  mutate(ts = ts_milli / 1000) %>%
+  mutate(ts_m = ts / 60) %>%
+  mutate(current_ma = current / 1000) %>%
+  mutate(current_a = current / 1000000) %>%
+  mutate(voltage_v = voltage / 1000) %>%
+  mutate(power_w = current_a * voltage_v)
+
+game_colors <- c(g_moss = "#ccbb44",
+                 g_gorillatag="#66ccee",
+                 g_explorevr="#ee6677",
+                 g_vrchat = "#aa3377")
+
+device_colors <- c("MQ2" = "#bbbbbb",
+                 "MQ3"="#4477aa",
+                 "MQP"="#228833")
+```
+
+## Evolution of Hardware
+
+### Frames per Second
+
+```{r, fig.width = 9, fig.height = 2}
+data_logcat_vrapi %>%
+  ggplot(aes(x = ts_m, y = fps_render, group = game, color = game)) +
+  geom_line() +
+  ylim(0, NA) +
+  theme_cowplot(15) +
+  background_grid() +
+  labs(x="Time [m]", y="Frame rate [fps]  ") +
+  coord_cartesian(clip="off") +
+  theme(plot.margin=margin(0,0,0,0, "cm")) +
+  facet_grid(cols = vars(config))
+```
+
+```{r, fig.width = 3, fig.height = 2}
+data_logcat_vrapi %>%
+  filter(game == "explorevr") %>%
+  ggplot(aes(x = ts_m, y = fps_render, color = config)) +
+  geom_line() +
+  ylim(0, NA) +
+  theme_cowplot(15) +
+  background_grid() +
+  labs(x="Time [m]", y="Frames per second        ") +
+  coord_cartesian(clip="off") +
+  theme(plot.margin=margin(0,0,0,0, "cm"))
+```
+
+```{r, fig.width = 3, fig.height = 2}
+data_logcat_vrapi %>%
+  # filter(ts >= start_time & ts <= end_time) %>%
+  ggplot(aes(x = fps_render, y = config)) +
+  geom_boxplot() +
+  xlim(0, NA) +
+  labs(x = "Frames per second", y = "VR Device") +
+  theme_half_open() +
+  background_grid() +
+  theme(legend.position = "bottom") +
+  scale_color_viridis_d(begin = 0.3, direction = -1)
+```
+
+### Frame Time
+
+```{r exp-device-evo-frametime-all-box, fig.width = 6, fig.height = 2}
+data_logcat_vrapi %>%
+  filter(game != "noapp") %>%
+  filter(game != "vrchat") %>%
+  filter(game != "explorevr") %>%
+  filter(game != "azsq") %>%
+  filter(ts > 60) %>%
+  filter(app > 0) %>%
+  ggplot() +
+  geom_vline(xintercept = 11.1, color = "orange", linetype = "dashed") +
+  geom_vline(xintercept = 13.9, color = "red") +
+  geom_boxplot(aes(x = app, y = config)) +
+  xlim(0, NA) +
+  labs(x = "Frame time [ms]", y = "Device") +
+  theme_half_open() +
+  background_grid() +
+  theme(legend.position = c(.25,.45), legend.background = element_rect(fill=alpha("white", 0.75))) +
+  facet_grid(cols = vars(game))
+```
+
+```{r exp-device-evo-frametime-all-cdf, fig.width = 6, fig.height = 2}
+data_logcat_vrapi %>%
+  filter(game != "noapp") %>%
+  filter(game != "vrchat") %>%
+  filter(game != "explorevr") %>%
+  filter(game != "azsq") %>%
+  filter(ts > 60) %>%
+  filter(app > 0) %>%
+  ggplot() +
+  geom_vline(xintercept = 11.1, color = "orange", linetype = "dashed") +
+  geom_vline(xintercept = 13.9, color = "red") +
+  stat_ecdf(aes(x = app, group = config, color = config), pad=FALSE) +
+  xlim(0, NA) +
+  labs(x = "Frame time [ms]", y = "Fraction", color = "Device") +
+  theme_half_open() +
+  background_grid() +
+  theme(legend.position = c(.25,.45), legend.background = element_rect(fill=alpha("white", 0.75))) +
+  facet_grid(cols = vars(game))
+```
+
+```{r exp-device-evo-frametime-all-rcdf, fig.width = 12, fig.height = 2}
+data_logcat_vrapi %>%
+  filter(game != "noapp") %>%
+  filter(game != "azsq") %>%
+  filter(ts > 60) %>%
+  filter(app > 0) %>%
+  ggplot() +
+  geom_vline(xintercept = 11.1, color = "orange", linetype = "dashed") +
+  geom_vline(xintercept = 13.9, color = "red") +
+  stat_ecdf(aes(x = app, y = log10(1 - after_stat(y)), group = config, color = config), pad=FALSE) +
+  scale_y_continuous(breaks = seq(-3, 0), 
+                     labels = 10^(seq(-3, 0)),
+                     limits = c(-3, 0)) +
+  xlim(0, NA) +
+  labs(x = "Frame time [ms]", y = "Fraction", color = "Device") +
+  theme_half_open() +
+  background_grid() +
+  theme(legend.position = c(.65,.5), strip.background=element_rect(fill="white"), legend.background = element_rect(fill=alpha("white", 0.9))) +
+  facet_grid(~factor(game_h, levels=c(g_gorillatag, g_moss, g_explorevr, g_vrchat)), scales = "free_x") +
+  expand_limits(x = c(0,15)) +
+  scale_color_manual(values=device_colors)
+```
+
+```{r exp-device-evo-frametime-explorevr-box, fig.width = 3, fig.height = 2}
+data_logcat_vrapi %>%
+  filter(game == "explorevr") %>%
+  filter(ts > 60) %>%
+  filter(app > 0) %>%
+  ggplot() +
+  geom_vline(xintercept = 11.1, color = "orange", linetype = "dashed") +
+  geom_vline(xintercept = 13.9, color = "red") +
+  geom_boxplot(aes(x = app, y = config)) +
+  xlim(0, NA) +
+  labs(x = "Frame time [ms]", y = "Device") +
+  theme_half_open() +
+  background_grid() +
+  theme(legend.position = c(.5,.5))
+```
+
+```{r exp-device-evo-frametime-explorevr-cdf, fig.width = 3, fig.height = 2}
+data_logcat_vrapi %>%
+  filter(game == "explorevr") %>%
+  filter(ts > 60) %>%
+  filter(app > 0) %>%
+  ggplot() +
+  geom_vline(xintercept = 11.1, color = "orange", linetype = "dashed") +
+  geom_vline(xintercept = 13.9, color = "red") +
+  stat_ecdf(aes(x = app, group = config, color = config), pad=FALSE) +
+  xlim(0, NA) +
+  labs(x = "Frame time [ms]", y = "Fraction", color = "Device") +
+  theme_half_open() +
+  background_grid() +
+  theme(legend.position = c(.5,.5))
+```
+
+```{r exp-device-evo-frametime-explorevr-rcdf, fig.width = 3, fig.height = 2}
+data_logcat_vrapi %>%
+  filter(game == "explorevr") %>%
+  filter(ts > 60) %>%
+  filter(app > 0) %>%
+  ggplot() +
+  geom_vline(xintercept = 11.1, color = "orange", linetype = "dashed") +
+  geom_vline(xintercept = 13.9, color = "red") +
+  stat_ecdf(aes(x = app, y = log10(1 - after_stat(y)), group = config, color = config), pad=FALSE) +
+  scale_y_continuous(breaks = seq(-3, 0), 
+                     labels = 10^(seq(-3, 0)),
+                     limits = c(-3, 0)) +
+  xlim(0, NA) +
+  labs(x = "Frame time [ms]", y = "Fraction", color = "Device") +
+  theme_half_open() +
+  background_grid() +
+  theme(legend.position = c(.5,.5))
+```
+
+```{r exp-device-evo-frametime-vrchat-box, fig.width = 3, fig.height = 2}
+data_logcat_vrapi %>%
+  filter(game == "vrchat") %>%
+  filter(ts > 60) %>%
+  filter(app > 0) %>%
+  ggplot() +
+  geom_vline(xintercept = 11.1, color = "orange", linetype = "dashed") +
+  geom_vline(xintercept = 13.9, color = "red") +
+  geom_boxplot(aes(x = app, y = config)) +
+  xlim(0, NA) +
+  labs(x = "Frame time [ms]", y = "Device") +
+  theme_half_open() +
+  background_grid() +
+  theme(legend.position = c(.5,.6))
+```
+
+```{r exp-device-evo-frametime-vrchat-cdf, fig.width = 3, fig.height = 2}
+data_logcat_vrapi %>%
+  filter(game == "vrchat") %>%
+  filter(ts > 60) %>%
+  filter(app > 0) %>%
+  ggplot() +
+  geom_vline(xintercept = 11.1, color = "orange", linetype = "dashed") +
+  geom_vline(xintercept = 13.9, color = "red") +
+  stat_ecdf(aes(x = app, group = config, color = config), pad=FALSE) +
+  xlim(0, NA) +
+  labs(x = "Frame time [ms]", y = "Fraction", color = "Device") +
+  theme_half_open() +
+  background_grid() +
+  theme(legend.position = c(.5,.6))
+```
+
+```{r exp-device-evo-frametime-vrchat-rcdf, fig.width = 3, fig.height = 2}
+data_logcat_vrapi %>%
+  filter(game == "vrchat") %>%
+  filter(ts > 60) %>%
+  filter(app > 0) %>%
+  ggplot() +
+  geom_vline(xintercept = 11.1, color = "orange", linetype = "dashed") +
+  geom_vline(xintercept = 13.9, color = "red") +
+  stat_ecdf(aes(x = app, y = log10(1 - after_stat(y)), group = config, color = config), pad=FALSE) +
+  scale_y_continuous(breaks = seq(-3, 0), 
+                     labels = 10^(seq(-3, 0)),
+                     limits = c(-3, 0)) +
+  xlim(0, NA) +
+  labs(x = "Frame time [ms]", y = "Fraction", color = "Device") +
+  theme_half_open() +
+  background_grid() +
+  theme(legend.position = c(.5,.6))
+```
+
+```{r exp-device-evo-frametime-moss-box, fig.width = 3, fig.height = 2}
+data_logcat_vrapi %>%
+  filter(game == "moss") %>%
+  filter(ts > 60) %>%
+  filter(app > 0) %>%
+  ggplot() +
+  geom_vline(xintercept = 11.1, color = "orange", linetype = "dashed") +
+  geom_vline(xintercept = 13.9, color = "red") +
+  geom_boxplot(aes(x = app, y = config)) +
+  xlim(0, NA) +
+  labs(x = "Frame time [ms]", y = "Device") +
+  theme_half_open() +
+  background_grid() +
+  theme(legend.position = c(.6,.35))
+```
+
+```{r exp-device-evo-frametime-moss-cdf, fig.width = 3, fig.height = 2}
+data_logcat_vrapi %>%
+  filter(game == "moss") %>%
+  filter(ts > 60) %>%
+  filter(app > 0) %>%
+  ggplot() +
+  geom_vline(xintercept = 11.1, color = "orange", linetype = "dashed") +
+  geom_vline(xintercept = 13.9, color = "red") +
+  stat_ecdf(aes(x = app, group = config, color = config), pad=FALSE) +
+  xlim(0, NA) +
+  labs(x = "Frame time [ms]", y = "Fraction", color = "Device") +
+  theme_half_open() +
+  background_grid() +
+  theme(legend.position = c(.6,.35))
+```
+
+```{r exp-device-evo-frametime-moss-rcdf, fig.width = 3, fig.height = 2}
+data_logcat_vrapi %>%
+  filter(game == "moss") %>%
+  filter(ts > 60) %>%
+  filter(app > 0) %>%
+  ggplot() +
+  geom_vline(xintercept = 11.1, color = "orange", linetype = "dashed") +
+  geom_vline(xintercept = 13.9, color = "red") +
+  stat_ecdf(aes(x = app, y = log10(1 - after_stat(y)), group = config, color = config), pad=FALSE) +
+  scale_y_continuous(breaks = seq(-3, 0), 
+                     labels = 10^(seq(-3, 0)),
+                     limits = c(-3, 0)) +
+  xlim(0, NA) +
+  labs(x = "Frame time [ms]", y = "Fraction", color = "Device") +
+  theme_half_open() +
+  background_grid() +
+  theme(legend.position = c(.04,.35))
+```
+
+### CPU
+
+```{r}
+p <- data_logcat_vrapi %>%
+  filter(game != "noapp") %>%
+  filter(game != "azsq") %>%
+  filter(ts > 60) %>%
+  ggplot(aes(x = cpu_util, y = config, fill = config)) +
+  geom_boxplot() +
+  xlim(0, 100) +
+  labs(x = "CPU utilization [%]", y = "VR Device") +
+  theme_half_open() +
+  background_grid()
+```
+
+```{r, fig.width = 3, fig.height = 2}
+p
+```
+
+```{r exp-device-evo-cpu-util-all-box, fig.width = 12, fig.height = 1.5}
+p +
+  theme(legend.position="none", strip.background=element_rect(fill="white")) +
+  facet_grid(~factor(game_h, levels=c(g_gorillatag, g_moss, g_explorevr, g_vrchat)), scales = "free_x") +
+  scale_fill_manual(values=device_colors)
+```
+
+```{r}
+p <- data_logcat_vrapi %>%
+  ggplot(aes(x = ts, y = cpu_level, color = config)) +
+  # geom_vline(xintercept = start_time, color = "black") +
+  # geom_vline(xintercept = end_time, color = "black") +
+  geom_line() +
+  ylim(0, NA) +
+  theme_half_open() +
+  background_grid() +
+  theme(legend.position = "bottom") +
+  scale_color_viridis_d(begin = 0.3, direction = -1)
+```
+
+```{r exp-device-evo-cpu-util-all-time, fig.width = 6, fig.height = 5}
+ data_logcat_vrapi %>%
+  filter(game != "azsq") %>%
+  filter(game != "noapp") %>%
+  ggplot(aes(x = ts_m, y = cpu_level)) +
+  geom_line() +
+  ylim(0, NA) +
+  theme_cowplot(15) +
+  background_grid() +
+  labs(y = "CPU level", x = "Time [m]") +
+  theme(legend.position = "bottom") +
+  scale_color_viridis_d(begin = 0.3, direction = -1) + 
+  facet_grid(cols = vars(game), rows = vars(config)) +
+  theme(strip.background=element_rect(fill="white"))
+```
+
+
+```{r}
+p <- data_logcat_vrapi %>%
+  ggplot(aes(x = ts, y = cpu_freq, color = config)) +
+  # geom_vline(xintercept = start_time, color = "black") +
+  # geom_vline(xintercept = end_time, color = "black") +
+  geom_line() +
+  ylim(0, NA) +
+  theme_half_open() +
+  background_grid() +
+  theme(legend.position = "bottom") +
+  scale_color_viridis_d(begin = 0.3, direction = -1)
+```
+
+```{r exp-device-evo-cpu-freq-all-time, fig.width = 6, fig.height = 5}
+ data_logcat_vrapi %>%
+  filter(game != "azsq") %>%
+  filter(game != "noapp") %>%
+  ggplot(aes(x = ts_m, y = cpu_freq_ghz)) +
+  geom_line() +
+  ylim(0, NA) +
+  theme_cowplot(15) +
+  background_grid() +
+  labs(y = "CPU frequency [GHz]", x = "Time [m]") +
+  theme(legend.position = "bottom") +
+  scale_color_viridis_d(begin = 0.3, direction = -1) + 
+  facet_grid(cols = vars(game), rows = vars(config)) +
+  theme(strip.background=element_rect(fill="white"))
+```
+
+### GPU
+
+```{r}
+p <- data_logcat_vrapi %>%
+  filter(game != "noapp") %>%
+  filter(game != "azsq") %>%
+  filter(ts > 60) %>%
+  ggplot(aes(x = gpu_util, y = config, fill = config)) +
+  geom_boxplot() +
+  xlim(0, NA) +
+  labs(x = "GPU utilization [%]", y = "VR Device") +
+  theme_cowplot(15) +
+  background_grid()
+```
+
+
+```{r, fig.width = 3, fig.height = 2}
+p
+```
+
+```{r exp-device-evo-gpu-util-all-box, fig.width = 12, fig.height = 1.5}
+p +
+  theme(legend.position = "none", strip.background=element_rect(fill="white")) +
+  facet_grid(~factor(game_h, levels=c(g_gorillatag, g_moss, g_explorevr, g_vrchat)), scales = "free_x") +
+  scale_fill_manual(values=device_colors)
+```
+
+```{r exp-device-evo-gpu-util-moss-box, fig.width = 3, fig.height = 2}
+data_logcat_vrapi %>%
+  filter(game == "moss") %>%
+  filter(ts > 60) %>%
+  ggplot(aes(x = gpu_util, y = config)) +
+  geom_boxplot() +
+  xlim(0, 100) +
+  labs(x = "GPU utilization [%]", y = "VR Device") +
+  theme_half_open() +
+  background_grid()
+```
+
+```{r}
+p <- data_logcat_vrapi %>%
+  ggplot(aes(x = ts, y = gpu_level, color = config)) +
+  # geom_vline(xintercept = start_time, color = "black") +
+  # geom_vline(xintercept = end_time, color = "black") +
+  geom_line() +
+  ylim(0, NA) +
+  theme_half_open() +
+  background_grid() +
+  theme(legend.position = "bottom") +
+  scale_color_viridis_d(begin = 0.3, direction = -1)
+```
+
+
+```{r, fig.width = 6, fig.height = 4}
+data_logcat_vrapi %>%
+  filter(game != "noapp") %>%
+  filter(game != "azsq") %>%
+  ggplot(aes(x = ts_m, y = gpu_level)) +
+  geom_line() +
+  ylim(0, NA) +
+  theme_cowplot(15) +
+  background_grid() +
+  theme(legend.position = "bottom") +
+  labs(x = "Time [m]", y = "GPU level") +
+  scale_color_viridis_d(begin = 0.3, direction = -1) +
+  facet_grid(cols = vars(game), rows = vars(config))
+```
+
+
+### Battery Usage
+
+```{r}
+data_battery <- NULL
+for (f in traces_replays) {
+  data_battery <- system(paste('grep -Po "(?<=level: )[0-9]+"', here(f, "battery.log")), intern = TRUE) %>%
+    tibble(battery = .) %>%
+    mutate(game = str_split_i(f, "-", 3)) %>%
+    mutate(battery = as.numeric(battery)) %>%
+    mutate(ts = 0:(n() - 1)) %>%
+    select(ts, everything()) %>%
+    mutate(config = f) %>%
+    bind_rows(data_battery, .)
+}
+data_battery <- data_battery %>%
+  mutate(config = map_chr(config, to_human_name))
+```
+
+```{r}
+colors <- RColorBrewer::brewer.pal(3, "Greens")[2:3]
+
+p <- data_battery %>%
+  group_by(config) %>%
+  mutate(ts = ts - min(ts)) %>%
+  mutate(ts = ts / 60) %>%
+  filter(config != "Wired") %>%
+  # mutate(rel_battery = battery + 100 - max(battery)) %>%
+  ggplot(aes(x = ts, y = battery, color = config)) +
+  geom_line() +
+  theme_half_open() +
+  background_grid() +
+  theme(legend.position = c(0.05, 0.40)) +
+  ylim(0, NA) +
+  labs(x = "Time [m]", y = "Battery charge") 
+  # scale_color_manual(name = "Config", values = colors)
+```
+
+
+```{r exp-device-evo-battery-current-all-time, fig.width=12, fig.height=2}
+data_batterymanager_companion %>%
+  filter(ts > 60) %>%
+  filter(ts <= 960) %>%
+  filter(game != "noapp") %>%
+  filter(game != "azsq") %>%
+  filter(i == 1) %>%
+  ggplot() +
+  geom_line(aes(x=ts_m, y=-current_a, color = config)) +
+  facet_grid(cols = vars(game)) +
+  theme_cowplot(15) +
+  background_grid() +
+  theme(legend.position=c(0.15,.5)) +
+  xlim(0, NA) +
+  ylim(0, NA) +
+  labs(x = "Time [m]", y = "Current [A]")
+```
+
+```{r exp-device-evo-battery-current-all-box, fig.width=12, fig.height=1.5}
+data_batterymanager_companion %>%
+  filter(ts > 60) %>%
+  filter(ts <= 960) %>%
+  filter(game != "noapp") %>%
+  filter(game != "azsq") %>%
+  filter(i == 1) %>%
+  ggplot() +
+  geom_boxplot(aes(x=-current_a, y=config)) +
+  facet_grid(cols = vars(game)) +
+  theme_cowplot(15) +
+  background_grid() +
+  theme(legend.position=c(0.15,.5), strip.background=element_rect(fill="white")) +
+  xlim(0, NA) +
+  labs(y = "VR Device", x = "Current [A]")
+```
+
+```{r exp-device-evo-battery-voltage-all-box, fig.width=12, fig.height=1.5}
+data_batterymanager_companion %>%
+  filter(ts > 60) %>%
+  filter(ts <= 960) %>%
+  filter(game != "noapp") %>%
+  filter(game != "azsq") %>%
+  filter(i == 1) %>%
+  ggplot() +
+  geom_boxplot(aes(x=voltage_v, y=config)) +
+  facet_grid(cols = vars(game)) +
+  theme_cowplot(15) +
+  background_grid() +
+  theme(legend.position=c(0.15,.5), strip.background=element_rect(fill="white")) +
+  xlim(0, NA) +
+  labs(y = "VR Device", x = "Voltage [V]")
+```
+
+```{r exp-device-evo-battery-power-all-box, fig.width=12, fig.height=1.5}
+data_batterymanager_companion %>%
+  filter(ts > 60) %>%
+  filter(ts <= 960) %>%
+  filter(game != "noapp") %>%
+  filter(game != "azsq") %>%
+  filter(i == 1) %>%
+  ggplot() +
+  geom_boxplot(aes(x=-power_w, y=config, fill = config)) +
+  theme(strip.background=element_rect(fill="white")) +
+  facet_grid(~factor(game_h, levels=c(g_gorillatag, g_moss, g_explorevr, g_vrchat)), scales = "free_x") +
+  theme_cowplot(15) +
+  background_grid() +
+  theme(legend.position="none", strip.background=element_rect(fill="white")) +
+  xlim(0, 15) +
+  labs(y = "VR Device", x = "Power [W]") +
+  scale_fill_manual(values=device_colors)
+```
+
+### Network Use
+
+```{r, fig.width = 9, fig.height = 4}
+data_net_dev %>%
+  filter(ts <= 960) %>%
+  filter(game != "noapp") %>%
+  filter(game != "azsq") %>%
+  filter(i == 1) %>%
+  drop_na() %>%
+  group_by(game, config) %>%
+  slice(2:n()) %>%
+  ungroup() %>%
+  ggplot(aes(x = ts_m, y = kbps_rx)) +
+  geom_line() +
+  theme_cowplot(15) +
+  background_grid() +
+  xlim(0, NA) +
+  coord_cartesian(ylim=c(0, 1200)) +
+  labs(y = "Bytes received [Mbps]", x = "Time [m]") +
+  facet_grid(cols = vars(game), rows = vars(config))
+```
+
+```{r, fig.width = 9, fig.height = 2}
+data_net_dev %>%
+  group_by(game, config, i) %>%
+  filter(game != "noapp") %>%
+  filter(game != "azsq") %>%
+  filter(i == 1) %>%
+  drop_na() %>%
+  ungroup() %>%
+  ggplot(aes(x = kbps_rx, y = config)) +
+  geom_boxplot() +
+  theme_cowplot(15) +
+  background_grid() +
+  coord_cartesian(xlim=c(0, 1000)) +
+  labs(x = "Bytes received [kbps]", y = "Setup") +
+  facet_grid(cols = vars(game))
+```
+
+## Performance Variability
+
+### Local Apps
+
+#### Gorilla Tag
+
+##### Frames
+
+The plot below clearly shows the initialization phase of the experiment run.
+Every shade of blue is one run.
+In each run, the number of frames per second drops to zero for a brief moment,
+before maintaining constant good performance
+These first few seconds are typically spent in a loading screen, and do not
+reflect the performance of the system as experienced by the user.
+Therefore, it makes sense to cut out the first few seconds of the experiments
+in most plots.
+
+```{r, fig.width = 3, fig.height = 2}
+data_logcat_vrapi %>%
+  filter(game == "gorillatag") %>%
+  filter(config == "MQ3") %>%
+  filter(ts < 60) %>%
+  ggplot(aes(x = ts, y = fps_render, group = i, color = i)) +
+  geom_line() +
+  ylim(0, NA) +
+  theme_half_open() +
+  background_grid() +
+  theme(legend.position = "none") +
+  labs(x = "Time [s]", y = "Frame time [ms]  ")
+```
+
+```{r val-playback-perfvar-fps, fig.width = 3, fig.height = 2}
+data_logcat_vrapi %>%
+  filter(game == "gorillatag") %>%
+  filter(config == "MQ3") %>%
+  filter(i <= 8) %>%
+  filter(ts > 60) %>%
+  ggplot(aes(x = fps_render, group = i, y = i)) +
+  geom_boxplot() +
+  xlim(0, NA) +
+  labs(x = "Frames per second", y = "Iteration") +
+  theme_cowplot(15) +
+  background_grid() +
+  coord_cartesian(clip="off") +
+  theme(plot.margin=margin(0,0,0,0, "cm"))
+```
+
+```{r val-playback-perfvar-frametime, fig.width = 3, fig.height = 2}
+data_logcat_vrapi %>%
+  filter(game == "gorillatag") %>%
+  filter(config == "MQ3") %>%
+  filter(i <= 8) %>%
+  filter(ts > 60) %>%
+  ggplot(aes(x = app, group = i, y = i)) +
+  geom_boxplot() +
+  geom_vline(xintercept = 11.1, color = "orange", linetype = "dashed") +
+  geom_vline(xintercept = 13.9, color = "red") +
+  xlim(0, NA) +
+  theme_cowplot(15) +
+  background_grid() +
+  labs(x="Frame time [ms]", y="Iteration") +
+  coord_cartesian(clip="off") +
+  theme(plot.margin=margin(0,0,0,0, "cm"))
+```
+
+##### GPU
+
+```{r val-playback-perfvar-gpu, fig.width = 3, fig.height = 2}
+d <- data_logcat_vrapi %>%
+  filter(game == "gorillatag") %>%
+  filter(config == "MQ3") %>%
+  filter(i <= 8) %>%
+  filter(ts > 60)
+
+d %>%
+  give_stats(gpu_util)
+  
+d %>%  
+  ggplot(aes(x = gpu_util, group = i, y = i)) +
+  geom_boxplot() +
+  xlim(0, 100) +
+  labs(x = "GPU utilization [%]", y = "Iteration") +
+  theme_cowplot(15) +
+  background_grid() +
+  coord_cartesian(clip="off") +
+  theme(plot.margin=margin(0,0.2,0,0, "cm"))
+```
+
+##### CPU
+
+```{r val-playback-perfvar-cpu, fig.width = 3, fig.height = 2}
+d <- data_logcat_vrapi %>%
+  filter(game == "gorillatag") %>%
+  filter(config == "MQ3") %>%
+  filter(i <= 8) %>%
+  filter(ts > 60)
+
+d %>%
+  give_stats(cpu_util)
+
+d %>%
+  ggplot(aes(x = cpu_util, group = i, y = i)) +
+  geom_boxplot() +
+  xlim(0, 100) +
+  labs(x = "CPU utilization [%]", y = "Iteration") +
+  theme_cowplot(15) +
+  background_grid() +
+  coord_cartesian(clip="off") +
+  theme(legend.position = "none", plot.margin=margin(0,0.2,0,0, "cm"))
+```
+
+##### Network
+
+Variability of network usage.
+
+```{r val-playback-perfvar-rx_bytes_box, fig.width = 3, fig.height = 2}
+d <- data_net_dev %>%
+  filter(game == "gorillatag") %>%
+  filter(config == "MQ3") %>%
+  filter(i <= 8) %>%
+  filter(ts > 60)
+
+d %>%
+  give_stats(Mbps_rx)
+
+d %>%
+  ggplot(aes(x = Mbps_rx, y = i, group = i)) +
+  geom_boxplot() +
+  labs(x = "Bytes received [Mbps]", y = "Iteration") +
+  theme_cowplot(15) +
+  background_grid() +
+  coord_cartesian(clip="off") +
+  theme(legend.position = "none", plot.margin=margin(0,0.2,0,0, "cm"))
+```
+
+```{r val-playback-perfvar-tx_bytes_box, fig.width = 3, fig.height = 2}
+data_net_dev %>%
+  filter(game == "gorillatag") %>%
+  filter(config == "MQ3") %>%
+  filter(i <= 8) %>%
+  filter(ts > 60) %>%
+  ggplot(aes(x = Mbps_tx, y = i, group = i)) +
+  geom_boxplot() +
+  labs(x = "Bytes sent [Mbps]", y = "Iteration") +
+  theme_cowplot(15) +
+  background_grid() +
+  coord_cartesian(clip="off") +
+  theme(legend.position = "none", plot.margin=margin(0,0.2,0,0, "cm"))
+```
+
+```{r val-playback-perfvar-rx_bytes_cdf, fig.width = 3, fig.height = 2}
+data_net_dev %>%
+  filter(game == "gorillatag") %>%
+  filter(config == "MQ3") %>%
+  filter(i <= 8) %>%
+  filter(ts > 60) %>%
+  ggplot(aes(Mbps_rx, group = i, color=i)) +
+  stat_ecdf(geom = "step", pad = FALSE) +
+  labs(x = "Bytes received [Mbps]", y = "Fraction") +
+  theme_cowplot(15) +
+  background_grid() +
+  coord_cartesian(clip="off") +
+  theme(legend.position = "none", plot.margin=margin(0,0.2,0,0, "cm"))
+```
+
+```{r val-playback-perfvar-rx_bytes_rcdf, fig.width = 3, fig.height = 2}
+data_net_dev %>%
+  filter(game == "gorillatag") %>%
+  filter(config == "MQ3") %>%
+  filter(i <= 8) %>%
+  filter(ts > 60) %>%
+  ggplot() +
+  stat_ecdf(aes(x = Mbps_rx, y = log10(1 - after_stat(y)), group = i, color = i), pad=FALSE) +
+  scale_y_continuous(breaks = seq(-3, 0), 
+                     labels = 10^(seq(-3, 0)),
+                     limits = c(-3, 0)) +
+  labs(x = "Bytes received [Mbps]   ", y = "Fraction") +
+  theme_cowplot(15) +
+  background_grid() +
+  coord_cartesian(clip="off") +
+  theme(legend.position = "none", plot.margin=margin(0,0.2,0,0, "cm"))
+```
+
+```{r}
+test_data <- data_net_dev %>%
+  filter(game == "gorillatag") %>%
+  filter(config == "MQ3")
+
+ # ks2Test(test_data %>% filter(i == 4) %>% pull(Mbps_tx), test_data %>% filter(i == 3) %>% pull(Mbps_tx),321')
+ 
+ ks.test(test_data %>% filter(i == 4) %>% pull(Mbps_tx),  test_data %>% filter(i == 3) %>% pull(Mbps_tx), alternative = "two.sided", exact = FALSE, conf.level = 0.1)
+```
+
+
+```{r val-playback-perfvar-tx_bytes_cdf, fig.width = 3, fig.height = 2}
+data_net_dev %>%
+  filter(game == "gorillatag") %>%
+  filter(config == "MQ3") %>%
+  filter(i <= 8) %>%
+  filter(ts > 60) %>%
+  ggplot(aes(Mbps_tx, group = i, color=i)) +
+  stat_ecdf(geom = "step", pad = FALSE) +
+  labs(x = "Bytes sent [Mbps]", y = "Fraction") +
+  theme_cowplot(15) +
+  background_grid() +
+  coord_cartesian(clip="off") +
+  theme(legend.position = "none", plot.margin=margin(0,0,0,0, "cm"))
+```
+
+```{r val-playback-perfvar-tx_bytes_rcdf, fig.width = 3, fig.height = 2}
+data_net_dev %>%
+  filter(game == "gorillatag") %>%
+  filter(config == "MQ3") %>%
+  filter(i <= 8) %>%
+  filter(ts > 60) %>%
+  ggplot() +
+  stat_ecdf(aes(x = Mbps_tx, y = log10(1 - after_stat(y)), group = i, color = i), pad=FALSE) +
+  scale_y_continuous(breaks = seq(-3, 0), 
+                     labels = 10^(seq(-3, 0)),
+                     limits = c(-3, 0)) +
+  labs(x = "Bytes sent [Mbps]", y = "Fraction") +
+  theme_cowplot(15) +
+  background_grid() +
+  coord_cartesian(clip="off") +
+  theme(legend.position = "none", plot.margin=margin(0,0,0,0, "cm"))
+```
+
+Unexpected result: while replaying a trace using wired ADB (so we're sure
+metrics are not being sent to the host PC over wireless network), there is still
+significant wireless network activity while playing Gorilla Tag. Much larger
+than what I would expect for a game such as this. Why the >1Mbps network spikes?S
+
+```{r val-playback-perfvar-tx_bytes_time, fig.width = 3, fig.height = 2}
+data_net_dev %>%
+  filter(game == "gorillatag") %>%
+  filter(config == "MQ3") %>%
+  filter(i <= 8) %>%
+  ggplot(aes(x = ts_m, y = Mbps_tx, group = i, color = i)) +
+  geom_line() +
+  ylim(0, NA) +
+  labs(x = "Time [m]", y = "Bytes sent [Mbps]      ") +
+  theme_cowplot(15) +
+  background_grid() +
+  coord_cartesian(clip="off") +
+  theme(legend.position = "none", plot.margin=margin(0,0,0,0, "cm"))
+```

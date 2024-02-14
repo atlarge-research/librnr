@@ -1,0 +1,138 @@
+Activity Resolver Table:
+  Non-Data Actions:
+      android.intent.action.MAIN:
+        3bfe86a com.forcefieldxr.explorevr/com.epicgames.ue4.GameActivity filter d82715b
+          Action: "android.intent.action.MAIN"
+          Category: "android.intent.category.INFO"
+
+Receiver Resolver Table:
+  Non-Data Actions:
+      com.android.vending.INSTALL_REFERRER:
+        6762df8 com.forcefieldxr.explorevr/com.epicgames.ue4.MulticastBroadcastReceiver filter 82352d1
+          Action: "com.android.vending.INSTALL_REFERRER"
+
+Domain verification status:
+
+Key Set Manager:
+  [com.forcefieldxr.explorevr]
+      Signing KeySets: 23
+
+Packages:
+  Package [com.forcefieldxr.explorevr] (f7ada2f):
+    userId=10100
+    pkg=Package{523683c com.forcefieldxr.explorevr}
+    codePath=/data/app/~~rou5ReZDy2Lh95iwp9m-1Q==/com.forcefieldxr.explorevr-b9FNR-fpogsj-F9B6Z-c7Q==
+    resourcePath=/data/app/~~rou5ReZDy2Lh95iwp9m-1Q==/com.forcefieldxr.explorevr-b9FNR-fpogsj-F9B6Z-c7Q==
+    legacyNativeLibraryDir=/data/app/~~rou5ReZDy2Lh95iwp9m-1Q==/com.forcefieldxr.explorevr-b9FNR-fpogsj-F9B6Z-c7Q==/lib
+    extractNativeLibs=true
+    primaryCpuAbi=arm64-v8a
+    secondaryCpuAbi=null
+    cpuAbiOverride=null
+    versionCode=674692 minSdk=23 targetSdk=26
+    minExtensionVersions=[]
+    versionName=1.2.1
+    usesNonSdkApi=false
+    splits=[base]
+    apkSigningVersion=2
+    applicationInfo=PackageImpl{523683c com.forcefieldxr.explorevr}
+    flags=[ HAS_CODE ALLOW_CLEAR_USER_DATA ALLOW_BACKUP ]
+    privateFlags=[ PRIVATE_FLAG_ACTIVITIES_RESIZE_MODE_RESIZEABLE_VIA_SDK_VERSION ALLOW_AUDIO_PLAYBACK_CAPTURE PRIVATE_FLAG_REQUEST_LEGACY_EXTERNAL_STORAGE PRIVATE_FLAG_ALLOW_NATIVE_HEAP_POINTER_TAGGING ]
+    privateFlagsExt=[ PROFILEABLE ]
+    forceQueryable=false
+    queriesPackages=[]
+    dataDir=/data/user/0/com.forcefieldxr.explorevr
+    supportsScreens=[small, medium, large, xlarge, resizeable, anyDensity]
+    usesLibraries:
+      android.test.base
+      org.apache.http.legacy
+    usesLibraryFiles:
+      /system/framework/android.test.base.jar
+      /system/framework/org.apache.http.legacy.jar
+    timeStamp=2024-01-29 23:12:21
+    firstInstallTime=2024-01-29 22:52:22
+    lastUpdateTime=2024-01-29 23:12:22
+    installerPackageName=com.oculus.ocms
+    signatures=PackageSignatures{43dd9c5 version:2, signatures:[f53c98b2], past signatures:[]}
+    installPermissionsFixed=true
+    pkgFlags=[ HAS_CODE ALLOW_CLEAR_USER_DATA ALLOW_BACKUP ]
+    requested permissions:
+      android.permission.INTERNET
+      android.permission.ACCESS_NETWORK_STATE
+      android.permission.ACCESS_WIFI_STATE
+    install permissions:
+      android.permission.INTERNET: granted=true
+      android.permission.ACCESS_NETWORK_STATE: granted=true
+      android.permission.ACCESS_WIFI_STATE: granted=true
+    User 0: ceDataInode=3682 installed=true hidden=false suspended=false distractionFlags=0 stopped=false notLaunched=false enabled=0 instant=false virtual=false
+      gids=[3003]
+      runtime permissions:
+
+Queries:
+  system apps queryable: false
+  queries via package name:
+  queries via intent:
+    com.facebook.orca:
+      com.forcefieldxr.explorevr
+  queryable via interaction:
+    User 0:
+  queryable via uses-library:
+
+Package Changes:
+  Sequence number=36
+  User 0:
+    seq=0, package=com.android.bluetooth
+    seq=12, package=com.oculus.horizon
+    seq=23, package=com.example.batterymanager_utility
+    seq=33, package=com.oculus.identitymanagement.service
+    seq=35, package=com.oculus.socialplatform
+
+
+Dexopt state:
+  [com.forcefieldxr.explorevr]
+    path: /data/app/~~rou5ReZDy2Lh95iwp9m-1Q==/com.forcefieldxr.explorevr-b9FNR-fpogsj-F9B6Z-c7Q==/base.apk
+      arm64: [status=extract] [reason=post-boot]
+
+
+Compiler stats:
+  [com.forcefieldxr.explorevr]
+     base.apk - 87
+Snapshot statistics
+   Unrecorded-hits: 1707  Cork-level: 0
+   Summary stats               TotBlds     TotUsed     TotCork     BigBlds    ShortLvd     TotTime     MaxTime
+          0:21         now           0           0           0           0           0           0           0
+          1:21        0:21           0           0           0           0           0           0           0
+          2:21        1:21           4        4169           0           0           0           0           0
+          3:21        2:21           0           0           0           0           0           0           0
+          4:21        3:21           3        8473           0           0           0           0           0
+          5:21        4:21           0           0           0           0           0           0           0
+          6:21        5:21           0           0           0           0           0           0           0
+          7:21        6:21           0           0           0           0           0           0           0
+          8:21        7:21           0           0           0           0           0           0           0
+          9:21        8:21           0           0           0           0           0           0           0
+         29:21         now         234       84271           0           0          27          75           4
+
+   Build times                  <= 1ms      <= 2ms      <= 5ms     <= 10ms     <= 20ms     <= 50ms    <= 100ms     > 100ms
+          0:21         now           0           0           0           0           0           0           0           0
+          1:21        0:21           0           0           0           0           0           0           0           0
+          2:21        1:21           4           0           0           0           0           0           0           0
+          3:21        2:21           0           0           0           0           0           0           0           0
+          4:21        3:21           3           0           0           0           0           0           0           0
+          5:21        4:21           0           0           0           0           0           0           0           0
+          6:21        5:21           0           0           0           0           0           0           0           0
+          7:21        6:21           0           0           0           0           0           0           0           0
+          8:21        7:21           0           0           0           0           0           0           0           0
+          9:21        8:21           0           0           0           0           0           0           0           0
+         29:21         now         229           3           2           0           0           0           0           0
+
+   Use counters                   <= 1        <= 2        <= 5       <= 10       <= 20       <= 50      <= 100       > 100
+          0:21         now           0           0           0           0           0           0           0           0
+          1:21        0:21           0           0           0           0           0           0           0           0
+          2:21        1:21           0           0           0           0           0           0           0           4
+          3:21        2:21           0           0           0           0           0           0           0           0
+          4:21        3:21           0           0           0           0           0           0           0           3
+          5:21        4:21           0           0           0           0           0           0           0           0
+          6:21        5:21           0           0           0           0           0           0           0           0
+          7:21        6:21           0           0           0           0           0           0           0           0
+          8:21        7:21           0           0           0           0           0           0           0           0
+          9:21        8:21           0           0           0           0           0           0           0           0
+         29:21         now          18           2           6          12           9          34          34         118

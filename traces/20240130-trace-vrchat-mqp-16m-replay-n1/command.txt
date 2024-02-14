@@ -1,0 +1,11 @@
+
+Key       Value
+---       -----
+OutDir    ..\traces\20240130-trace-vrchat-mqp-16m-replay-n1\
+Class     com.vrchat.oculus.quest
+Activity  com.unity3d.player.UnityPlayerActivity
+Duration  960
+S2Battery True
+Mode      replay
+TraceFile ..\traces\20240116-trace-vrchat-mqp-16m-n1\trace.txt
+

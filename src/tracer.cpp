@@ -23,6 +23,7 @@ namespace tracer {
     map<string, traceEntry> booleanActionMap;
     map<string, traceEntry> hapticActionMap;
     map<string, traceEntry> vector2fActionMap;
+    map<char32_t, traceEntry> refSpaceMap;
 
     Mode init() {
         auto config_str = std::getenv("LOCALAPPDATA");
@@ -85,6 +86,20 @@ namespace tracer {
         trace << endl;
     }
 
+    void writeCreateReferenceSpace(traceEntry entry) {
+        assert(holds_alternative<traceCreateReferenceSpace>(entry.body));
+
+        writeHead(entry);
+        auto &r = get<traceCreateReferenceSpace>(entry.body);
+        auto &pose = r.pose;
+        auto &o = pose.orientation;
+        auto &p = pose.position;
+        trace << " " << o.x << " " << o.y << " " << o.z << " " << o.w;
+        trace << " " << p.x << " " << p.y << " " << p.z;
+        trace << " " << r.type;
+        trace << endl;
+    }
+
     void writeView(traceEntry entry) {
         assert(holds_alternative<traceView>(entry.body));
 
@@ -131,6 +146,14 @@ namespace tracer {
             sstream >> l.basespace;
             entry->body = l;
             spaceMap[entry->path][l.basespace] = *entry;
+        } else if (entry->type == 'r') {
+            traceCreateReferenceSpace r{};
+            auto &o = r.pose.orientation;
+            auto &p = r.pose.position;
+            sstream >> o.x >> o.y >> o.z >> o.w >> p.x >> p.y >> p.z;
+            sstream >> r.type;
+            entry->body = r;
+            refSpaceMap[entry->type] = *entry;
         } else if (entry->type == 'v') {
             traceView v;
             auto &o = v.pose.orientation;
@@ -210,6 +233,23 @@ namespace tracer {
 
         // Overwrite the output variable
         *entry = spaceMap[entry->path][l.basespace];
+        return true;
+    }
+
+    bool readNextCreateReferenceSpace(traceEntry *entry) {
+        assert(holds_alternative<traceCreateReferenceSpace>(entry->body));
+        auto &r = get<traceCreateReferenceSpace>(entry->body);
+
+        traceEntry outEntry;
+        outEntry.time = entry->time;
+
+        // Go through the trace until we get to the time we're looking for
+        if (!readUntil(&outEntry)) {
+            return false;
+        }
+
+        // Overwrite the output variable
+        *entry = refSpaceMap[entry->type];
         return true;
     }
 

@@ -1,0 +1,11 @@
+
+Key       Value
+---       -----
+OutDir    ..\traces\20240118-trace-explorevr-mq2-16-replay-n1
+Class     com.forcefieldxr.explorevr
+Activity  com.epicgames.ue4.GameActivity
+Duration  960
+S2Battery True
+Mode      replay
+TraceFile ..\traces\20240117-trace-explorevr-mqp-16m-n1\trace.txt
+
