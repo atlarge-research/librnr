@@ -8,18 +8,31 @@ The other files in this repository have different functions, see other directori
 
 ## Requirements
 1. Windows PowerShell, at least version 5 (backwards compatible, newer versions are fine).
-2. Administrator rights.
-3. NetLimiter: https://www.netlimiter.com/. The free version is fine.
-
-## Preparation
-Once NetLimiter is installed, open its GUI. In the activity tab, click on the entry at the top with your computer's name. A new sub-window should open at the right called "Info View". Here, set the In and Out Limit to any value. Next, go to the "Rule List" tab, right next to the "Activity" tab. There should be 4 rules in total: Two that ignore all traffic, and two with the in and out bandwidth limit you just set. Make sure these two rules have "Active" as State.
+2. NetBalancer: https://netbalancer.com/. The free version is fine.
 
 ## Usage
-Open PowerShell as administrator, and navigate to this directory
-
 ```
-# The script requires 1 argument, which is upload/download throughput in mbit/s
-.\net-delay-static.ps1 100
+# In PowerShell, this directory
+# The script requires 2 argument, which is upload/download throughput in mbit/s
+.\net-delay-static.ps1 100 100
+
+# You can verify the settings as follows
+nbcmd settings
+    ...
+    [Default priority]
+    Download priority: Limited
+    Download delay: 0
+    Download drop rate: 0
+    Download limit: 12500000
+    Upload priority: Limited
+    Upload delay: 0
+    Upload drop rate: 0
+    Upload limit: 12500000
+    Limit per connection: False
+    ...
+
+# To reset all limits
+nbcmd settings reset
 ```
 
 ## Benchmarking
@@ -52,8 +65,7 @@ iperf3 -c <IP> -p 7979 -u -b 100M
 # On Ubuntu
 ip a
 
-# You can also switch the sender and receiver side, use the -R option on the client.
-```
 
-## How to Stop the Tool 
-You can either execute `net stop nlsvc` from the PowerShell Administrator terminal, or go to the NetLimiter GUI and make sure the Limit Type rules in the Rule List tab have the Disabled state.
+# You can also switch the sender and receiver side
+# Just swap the two iperf3 commands
+```

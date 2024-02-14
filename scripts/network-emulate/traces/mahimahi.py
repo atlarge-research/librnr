@@ -4,6 +4,8 @@
 """
 
 import sys
+from os import listdir
+from os.path import isfile, join
 
 
 def aggregate(file):
@@ -82,16 +84,40 @@ def write(file, tp):
 
 def main():
     """Main function of script"""
-    up = "Verizon-LTE-driving.up"
-    down = "Verizon-LTE-driving.down"
+    files = [f for f in listdir("mahimahi/traces/") if isfile(join("mahimahi/traces/", f))]
+    files.remove("README")
+    files.remove("Makefile.am")
 
-    tp_up = aggregate(up)
-    tp_down = aggregate(down)
+    file_up = None
+    file_down = None
+    tp_up = None
+    tp_down = None
 
-    tp_up, tp_down = equalize(tp_up, tp_down)
+    for file in files:
+        tp = aggregate(file)
+        if ".up" in file:
+            if tp_up is not None:
+                sys.exit("ERROR: tp_up should be None")
 
-    write(up, tp_up)
-    write(down, tp_down)
+            file_up = file
+            tp_up = tp
+        elif ".down" in file:
+            if tp_down is not None:
+                sys.exit("ERROR: tp_down should be None")
+
+            file_down = file
+            tp_down = tp
+
+        if tp_up is not None and tp_down is not None:
+            tp_up, tp_down = equalize(tp_up, tp_down)
+
+            write(file_up, tp_up)
+            write(file_down, tp_down)
+
+            file_up = None
+            file_down = None
+            tp_up = None
+            tp_down = None
 
 
 if __name__ == "__main__":

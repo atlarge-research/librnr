@@ -4,7 +4,8 @@ scripts/network-emulate/ubuntu2204.iso
 scripts/network-emulate/metabench/
 scripts/network-emulate/metabench.vdi
 scripts/network-emulate/metabench.ova
-scripts/network-emulate/mahimahi
+scripts/network-emulate/traces/mahimahi
+scripts/network-emulate/traces/Cellular-Traces-2018
 
 # ------------------------------
 # SPDX-FileCopyrightText: 2021 Arthur Brainville (Ybalrid) <ybalrid@ybalrid.info>
