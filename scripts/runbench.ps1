@@ -25,9 +25,6 @@ if (($Mode -eq "replay") -and (-not([System.IO.Path]::IsPathRooted($TraceFile)))
     $TraceFile = [IO.Path]::GetFullPath($Tracefile, $PSScriptRoot)
 }
 
-# Resolves '~' if passed on command line
-$OutDir = (Resolve-Path $OutDir).Path
-
 $Autodriver = $PSBoundParameters.ContainsKey('Class') -and $PSBoundParameters.ContainsKey('Activity') -and $PSBoundParameters.ContainsKey('Duration')
 
 # Delay starting script, if desired
@@ -57,7 +54,7 @@ $functions = {
             # start the battery measurement app
             adb shell am start-foreground-service -n "com.example.batterymanager_utility/com.example.batterymanager_utility.DataCollectionService" --ei sampleRate 1000 --es "dataFields" "BATTERY_PROPERTY_CURRENT_NOW,EXTRA_VOLTAGE" --ez toCSV False
             # stream battery measurement logs to file
-            $BatteryJob = Start-ThreadJob -StreamingHost $Host -ScriptBlock {
+            $BatteryJob = Start-Job -ScriptBlock {
                 $Out = "$using:TempDir/batterymanager-companion.log"
                 Write-Host "Writing S2 battery data measurements to $Out"
                 adb shell "logcat | grep 'BatteryMgr:DataCollectionService' >> $Out"
@@ -69,7 +66,7 @@ $functions = {
         adb shell "cat /proc/cpuinfo >> $TempDir/cpuinfo.log"
 
         # stream vrapi logs to file
-        $VrJob = Start-ThreadJob -StreamingHost $Host -ScriptBlock { adb shell "logcat -s VrApi >> $using:TempDir/logcat_VrApi.log" }
+        $VrJob = Start-Job -ScriptBlock { adb shell "logcat -s VrApi >> $using:TempDir/logcat_VrApi.log" }
         # start logging metrics from the gaming PC
         if (-not($NoHostTrace)) {
             $HostJob = Start-Job -ScriptBlock {
@@ -90,11 +87,11 @@ $functions = {
 
                 if ($VrJob.State -ne "Running") {
                     Write-Host "Oh no! Restarting adb VrApi log capture"
-                    $VrJob = Start-ThreadJob -StreamingHost $Host -ScriptBlock { adb shell "logcat -s VrApi >> $using:TempDir/logcat_VrApi.log" }
+                    $VrJob = Start-Job -ScriptBlock { adb shell "logcat -s VrApi >> $using:TempDir/logcat_VrApi.log" }
                 }
                 if (($S2Battery) -and ($BatteryJob.State -ne "Running")) {
                     Write-Host "Oh no! Restarting adb battery log capture"
-                    $BatteryJob = Start-ThreadJob -StreamingHost $Host -ScriptBlock { adb shell "logcat | grep 'BatteryMgr:DataCollectionService' >> $using:TempDir/batterymanager-companion.log" }
+                    $BatteryJob = Start-Job -ScriptBlock { adb shell "logcat | grep 'BatteryMgr:DataCollectionService' >> $using:TempDir/batterymanager-companion.log" }
                 }
                 # check if process that logs metrics from gaming PC is still running
                 # if not, restart
@@ -170,6 +167,9 @@ try {
     # Create the output directory, if needed
     New-Item $OutDir -ItemType Directory -Force | Out-Null
 
+    # Resolves '~' if passed on command line
+    $OutDir = (Resolve-Path $OutDir).Path
+
     # Store the command used this script in the output folder
     $PSBoundParameters >> "$OutDir/command.txt"
 
@@ -177,7 +177,7 @@ try {
     Set-Content -Path $modeFilePath -Value "$Mode $TraceFile"
 
     # Set Bandwidth limit if configured
-    $PSScriptRoot/network-emulate/net-delay-static.ps1 $BWLimit
+    & "$PSScriptRoot\network-emulate\net-delay-static.ps1" $BWLimit
 
     # Start tracing
     $TraceJob = Start-ThreadJob -StreamingHost $Host -InitializationScript $functions -ScriptBlock {
@@ -249,12 +249,15 @@ finally {
     }
 
     # Stop tracing
+    Write-Output "Stopping trace job"
     Stop-Job $TraceJob
 
     # Stop Bandwidth limiting, if set
+    Write-Output "Removing bandwidth limit"
     net stop nlsvc
 
     # Plot results
+    Write-Output "Copying R Notebook"
     Copy-Item -Path .\README.Rmd $OutDir
 
     Write-Output "Done $( $Mode )ing trace. Open $OutDir\README.Rmd to view results."
