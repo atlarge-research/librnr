@@ -306,14 +306,14 @@ bool replayLocateViews(XrSession session, const XrViewLocateInfo *viewlocateInfo
     tracer::traceEntry lentry;
     lentry.time = viewlocateInfo->displayTime;
     lentry.path = spaceToFullName[viewlocateInfo->space];
-    tracer::traceView lw;
+    tracer::traceView lw{};
     lw.index = 0;
     lentry.body = lw;
 
     tracer::traceEntry rentry;
     rentry.time = viewlocateInfo->displayTime;
     rentry.path = spaceToFullName[viewlocateInfo->space];
-    tracer::traceView rw;
+    tracer::traceView rw{};
     rw.index = 1;
     rentry.body = rw;
 
@@ -329,11 +329,9 @@ bool replayLocateViews(XrSession session, const XrViewLocateInfo *viewlocateInfo
                                 XR_VIEW_STATE_POSITION_TRACKED_BIT | XR_VIEW_STATE_POSITION_VALID_BIT;
 
     auto &wl = get<tracer::traceView>(lentry.body);
-    views[0].fov = wl.fov;
     views[0].pose = wl.pose;
 
     auto &wr = get<tracer::traceView>(rentry.body);
-    views[1].fov = wr.fov;
     views[1].pose = wr.pose;
 
     assert(viewlocateInfo->viewConfigurationType == XR_VIEW_CONFIGURATION_TYPE_PRIMARY_STEREO);
