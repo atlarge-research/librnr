@@ -36,7 +36,7 @@ saveplot <- function(filename, ...) {
 traces_replays <- list.files(".", pattern="[0-9]+-trace-[a-z]+-mq[23p]-16m-replay-n[0-9]")
 
 # 20240222-trace-beatsaber-mqp-bw_10
-bandwidth_replays <- list.files(".", pattern="[0-9]+-trace-[a-z]+-mq[23p]-bw_[0-9]")
+bandwidth_replays <- list.files(".", pattern="[0-9]+-trace-[a-z]+-mq[23p]-n[0-9]-bw_[0-9]")
 
 to_human_name <- function(name) {
   if (str_split_i(name, "-", 4) == "mq3") {
@@ -69,7 +69,7 @@ game_to_human_name <- function(name) {
   }
 }
 
-give_stats <- function(tb, colname) {
+give_stats <- function(tb, colname, by = c("game", "config", "i")) {
   tb %>%
     mutate(v = {{colname}}) %>%
     summarise(mean = mean(v),
@@ -83,7 +83,7 @@ give_stats <- function(tb, colname) {
               q99 = quantile(v, 0.99),
               max = max(v),
               iqr = q75 - q25,
-              .by = c(game, config, i)) %>%
+              .by = by) %>%
     mutate(mean_maxd = max(mean) - min(mean)) %>%
     mutate(stdev_maxd = max(stdev) - min(stdev)) %>%
     mutate(min_maxd = max(min) - min(min)) %>%
@@ -95,20 +95,23 @@ give_stats <- function(tb, colname) {
 
 data_host_sys_metrics <- NULL
 for (f in traces_replays) {
-  data_host_sys_metrics <- read_csv(here(f, "host_sys_metrics.log"), col_types = cols(.default = "c")) %>%
+  y <- read_csv(here(f, "host_sys_metrics.log"), col_types = cols(.default = "c"))
+  stop_for_problems(y)
+  x <- y %>%
     mutate(game = str_split_i(f, "-", 3)) %>%
     mutate(i = str_split_i(f, "-", -1) %>% str_split_i("n", 2)) %>%
     mutate(bwlimit = NA) %>%
     mutate(ts = as.numeric(timestamp)) %>%
     mutate(ts = ts - min(ts)) %>%
     mutate(ts_m = ts / 60) %>%
-    mutate(config = f) %>%
+    mutate(config = f)
+  data_host_sys_metrics <- x %>%
     bind_rows(data_host_sys_metrics, .)
 }
 for (f in bandwidth_replays) {
   data_host_sys_metrics <- read_csv(here(f, "host_sys_metrics.log"), col_types = cols(.default = "c")) %>%
     mutate(game = str_split_i(f, "-", 3)) %>%
-    mutate(i = "1") %>%
+    mutate(i = str_split_i(f, "-", -2) %>% str_split_i("n", 2)) %>%
     mutate(bwlimit = str_split_i(f, "_", 2)) %>%
     mutate(ts = as.numeric(timestamp)) %>%
     mutate(ts = ts - min(ts)) %>%
@@ -134,7 +137,7 @@ for (f in traces_replays) {
 for (f in bandwidth_replays) {
   data_host_gpu_metrics <- read_csv(here(f, "host_gpu_metrics.log"), col_types = cols(.default = "c")) %>%
     mutate(game = str_split_i(f, "-", 3)) %>%
-    mutate(i = "1") %>%
+    mutate(i = str_split_i(f, "-", -2) %>% str_split_i("n", 2)) %>%
     mutate(bwlimit = str_split_i(f, "_", 2)) %>%
     mutate(ts = as.numeric(timestamp)) %>%
     mutate(ts = ts - min(ts)) %>%
@@ -142,7 +145,7 @@ for (f in bandwidth_replays) {
     mutate(config = f) %>%
     bind_rows(data_host_gpu_metrics, .)
 }
-data_host_sys_metrics <- data_host_sys_metrics %>%
+data_host_gpu_metrics <- data_host_gpu_metrics %>%
   type.convert(as.is = TRUE)
 
 pattern <- c(month="-?\\d+", "-", day="-?\\d+", "\\s+", hour="-?\\d+", ":", minute="-?\\d+", ":", second="-?\\d+", "\\.", millisecond="-?\\d+", "\\s+", pid="-?\\d+", "\\s+", tid="-?\\d+", "\\s+", level="\\w", "\\s+VrApi\\s+:\\s+FPS=",fps_render="-?\\d+", "/", fps_refresh="-?\\d+", ",Prd=", prd="-?\\d+", "ms,Tear=", tear="-?\\d+", ",Early=", early="-?\\d+", ",Stale=", stale="-?\\d+", ",Stale2/5/10/max=", stale2="-?\\d+", "/", stale5="-?\\d+", "/", stale10="-?\\d+", "/", stalemax="-?\\d+", ",VSnc=", vsnc="-?\\d+", ",Lat=", lat="-?-?\\d+", ",Fov=", fov="-?\\d+\\w*", ",CPU", cpun="\\d", "/GPU=", cpu_level="-?\\d+", "/", gpu_level="-?\\d+", ",", cpu_freq="-?\\d+", "/", gpu_freq="-?\\d+", "MHz,OC=", oc=".+", ",TA=", ta_atw="-?\\d+\\w*", "/", ta_main="-?\\d+\\w*", "/", ta_render="-?\\d+\\w*", ",SP=", sp_atw="\\w", "/", sp_main="\\w", "/", sp_render="\\w", ",Mem=", mem="-?\\d+", "MHz,Free=", free="-?\\d+", "MB,PLS=", pls="-?\\d+", ",Temp=", temp_bat="-?\\d+\\.\\d+", "C/", temp_sens="-?\\d+\\.\\d+", "C,TW=", tw="-?\\d+\\.\\d+", "ms,App=", app="-?\\d+\\.\\d+", "ms,GD=", gd="-?\\d+\\.\\d+", "ms,CPU&GPU=", cpu_gpu="-?\\d+\\.\\d+", "ms,LCnt=", lcnt="-?\\d+", "\\(DR", dr="-?\\d+", ",LM", lm="-?\\d+", "\\),GPU%=", gpu_percent="-?\\d+\\.\\d+", ",CPU%=", cpu_percent="-?\\d+\\.\\d+", "\\(W", cpu_percent_worst="-?\\d+\\.\\d+", "\\),DSF=", dsf="-?\\d+\\.\\d+", ",CFL=", cfl_min="-?\\d+\\.\\d+", "/", cfl_max="-?\\d+\\.\\d+", ",ICFLp95=", icflp95="-?\\d+\\.\\d+", ",LD=", ld="-?\\d+", ",SF=", sf="-?\\d+\\.\\d+", ",LP=", lp="-?\\d+", ",DVFS=", dvfs="-?\\d+")
@@ -179,7 +182,7 @@ for (f in bandwidth_replays) {
   data_logcat_vrapi <- readLines(here(f, "logcat_VrApi.log")) %>%
     tibble(line = .) %>%
     mutate(game = str_split_i(f, "-", 3)) %>%
-    mutate(i = "1") %>%
+    mutate(i = str_split_i(f, "-", -2) %>% str_split_i("n", 2)) %>%
     mutate(bwlimit = str_split_i(f, "_", 2)) %>%
     filter(grepl("^.+\\s+VrApi\\s+:\\s+FPS=", line)) %>%
     separate_wider_regex(line, pattern) %>%
@@ -231,7 +234,7 @@ for (f in bandwidth_replays) {
   data_net_dev <- readLines(here(f, "net_dev.log")) %>%
     tibble(line = .) %>%
     mutate(game = str_split_i(f, "-", 3)) %>%
-    mutate(i = "1") %>%
+    mutate(i = str_split_i(f, "-", -2) %>% str_split_i("n", 2)) %>%
     mutate(bwlimit = str_split_i(f, "_", 2)) %>%
     filter(grepl("^\\s+wlan0:\\s+", line)) %>%
     separate_wider_regex(line, pattern) %>%
@@ -272,17 +275,21 @@ for (f in traces_replays) {
     mutate(config = f) %>%
     bind_rows(data_batterymanager_companion, .)
 }
-# for (f in bandwidth_replays) {
-#   data_batterymanager_companion <- readLines(here(f, "batterymanager-companion.log")) %>%
-#     tibble(line = .) %>%
-#     mutate(game = str_split_i(f, "-", 3)) %>%
-#     mutate(i = "1") %>%
-#     mutate(bwlimit = str_split_i(f, "_", 2)) %>%
-#     filter(grepl("\\WBatteryMgr:DataCollectionService:\\s+stats\\s+=>", line)) %>%
-#     separate_wider_regex(line, pattern) %>%
-#     mutate(config = f) %>%
-#     bind_rows(data_batterymanager_companion, .)
-# }
+for (f in bandwidth_replays) {
+  fname <- here(f, "batterymanager-companion.log")
+  if (!file.exists(fname)) {
+    next
+  }
+  data_batterymanager_companion <- readLines(fname) %>%
+    tibble(line = .) %>%
+    mutate(game = str_split_i(f, "-", 3)) %>%
+    mutate(i = str_split_i(f, "-", -2) %>% str_split_i("n", 2)) %>%
+    mutate(bwlimit = str_split_i(f, "_", 2)) %>%
+    filter(grepl("\\WBatteryMgr:DataCollectionService:\\s+stats\\s+=>", line)) %>%
+    separate_wider_regex(line, pattern) %>%
+    mutate(config = f) %>%
+    bind_rows(data_batterymanager_companion, .)
+}
 data_batterymanager_companion <- data_batterymanager_companion %>%
   type.convert(as.is = TRUE) %>%
   mutate(config = map_chr(config, to_human_name)) %>%
@@ -1097,22 +1104,25 @@ data_logcat_vrapi %>%
   # facet_grid(cols = vars(game))
 ```
 
-```{r, fig.width = 3, fig.height = 2}
+```{r, fig.width = 3, fig.height = 3}
 data_logcat_vrapi %>%
   drop_na(bwlimit) %>%
+  filter(bwlimit <= 100) %>%
   ggplot(aes(x = fps_render, y = factor(bwlimit))) +
   geom_boxplot() +
   stat_summary(fun=mean, geom="point", shape=21, size=2, color="black", fill="white") +
+  annotate("rect", fill="white", xmin = 0, xmax = 80, ymin = 0.5, ymax = 1.5) +
+  annotate("text", color="red", label="CRASH", x = 38, y = 1) +
   xlim(0, NA) +
   theme_cowplot(15) +
   background_grid() +
-  labs(x="Frame rate [fps]", y="BW Limit [Mbps]    ") +
+  labs(x="Frame rate [fps]", y="Bandwidth Limit [Mbps]") +
   coord_cartesian(clip="off") +
   theme(plot.margin=margin(0,0,0,0, "cm"))
   # facet_grid(cols = vars(config))
 ```
 
-```{r, fig.width = 3, fig.height = 2}
+```{r, fig.width = 3, fig.height = 3}
 data_logcat_vrapi %>%
   drop_na(bwlimit) %>%
   ggplot(aes(x = cpu_util, y = factor(bwlimit))) +
@@ -1146,6 +1156,17 @@ data_logcat_vrapi %>%
   facet_grid(cols = vars(bwlimit))
 ```
 
+```{r, fig.width = 3, fig.height = 3}
+data_logcat_vrapi %>%
+  drop_na(bwlimit) %>%
+  ggplot(aes(x = cpu_level, y = factor(bwlimit))) +
+  geom_boxplot() +
+  labs(x = "Time [m]", y = "CPU level") +
+  xlim(0, NA) +
+  theme_half_open() +
+  background_grid()
+```
+
 ```{r, fig.width = 12, fig.height = 2}
 data_logcat_vrapi %>%
   drop_na(bwlimit) %>%
@@ -1161,16 +1182,44 @@ data_logcat_vrapi %>%
 ```{r, fig.width=3, fig.height=2}
 data_host_sys_metrics %>%
   drop_na(bwlimit) %>%
-  select(bwlimit, cpu.percent)
-
-data_host_sys_metrics %>%
-  drop_na(bwlimit) %>%
   ggplot(aes(x = cpu.percent, y = factor(bwlimit))) +
   geom_boxplot() +
   xlim(0, 100) +
   labs(x = "CPU utilization [%]", y = "BW Limit [Mbps]    ") +
   theme_cowplot(15) +
   background_grid()
+```
+
+```{r, fig.width=3, fig.height=2}
+data_host_gpu_metrics %>%
+  drop_na(bwlimit) %>%
+  ggplot(aes(x = load * 100, y = factor(bwlimit))) +
+  geom_boxplot() +
+  xlim(0, 100) +
+  labs(x = "GPU utilization [%]", y = "BW Limit [Mbps]    ") +
+  theme_cowplot(15) +
+  background_grid()
+```
+
+```{r exp-bwlimit-battery-power-all-box, fig.width=3, fig.height=3}
+d <- data_batterymanager_companion %>%
+  drop_na(bwlimit) %>%
+  filter(i == 2)
+
+d %>%
+  ggplot(aes(x=-power_w, y=factor(bwlimit))) +
+  geom_boxplot() +
+  stat_summary(fun=mean, geom="point", shape=21, size=2, color="black", fill="white") +
+  theme(strip.background=element_rect(fill="white")) +
+  theme_cowplot(15) +
+  background_grid() +
+  theme(legend.position="none", strip.background=element_rect(fill="white")) +
+  xlim(0, NA) +
+  labs(y = "Bandwidth limit [Mbps]", x = "Power [W]") +
+  scale_fill_manual(values=device_colors)
+
+d %>%
+  give_stats(-power_w, by = c("bwlimit"))
 ```
 
 ## Performance Variability

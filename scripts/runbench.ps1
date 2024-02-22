@@ -136,6 +136,7 @@ $functions = {
                 # stop app collecting battery measurements
                 adb shell am stopservice com.example.batterymanager_utility/com.example.batterymanager_utility.DataCollectionService
                 Stop-Job $BatteryJob
+                Receive-Job $BatteryJob
             }
 
             # Copy temp folder to output folder
@@ -143,7 +144,7 @@ $functions = {
             adb pull $TempDir $OutDir
             $LocalTempDir = Join-Path $OutDir (Split-Path -Leaf $TempDir)
             Move-Item -Path "$LocalTempDir\*" -Destination $OutDir
-            Remove-Item $LocalTempDir
+            Remove-Item -Recurse $LocalTempDir
             adb shell rm -rf $TempDir
         }
     }
