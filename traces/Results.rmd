@@ -35,6 +35,9 @@ saveplot <- function(filename, ...) {
 
 traces_replays <- list.files(".", pattern="[0-9]+-trace-[a-z]+-mq[23p]-16m-replay-n[0-9]")
 
+# 20240222-trace-beatsaber-mqp-bw_10
+bandwidth_replays <- list.files(".", pattern="[0-9]+-trace-[a-z]+-mq[23p]-bw_[0-9]")
+
 to_human_name <- function(name) {
   if (str_split_i(name, "-", 4) == "mq3") {
     "MQ3"
@@ -90,6 +93,58 @@ give_stats <- function(tb, colname) {
     mutate(max_maxd = max(max) - min(max))
 }
 
+data_host_sys_metrics <- NULL
+for (f in traces_replays) {
+  data_host_sys_metrics <- read_csv(here(f, "host_sys_metrics.log"), col_types = cols(.default = "c")) %>%
+    mutate(game = str_split_i(f, "-", 3)) %>%
+    mutate(i = str_split_i(f, "-", -1) %>% str_split_i("n", 2)) %>%
+    mutate(bwlimit = NA) %>%
+    mutate(ts = as.numeric(timestamp)) %>%
+    mutate(ts = ts - min(ts)) %>%
+    mutate(ts_m = ts / 60) %>%
+    mutate(config = f) %>%
+    bind_rows(data_host_sys_metrics, .)
+}
+for (f in bandwidth_replays) {
+  data_host_sys_metrics <- read_csv(here(f, "host_sys_metrics.log"), col_types = cols(.default = "c")) %>%
+    mutate(game = str_split_i(f, "-", 3)) %>%
+    mutate(i = "1") %>%
+    mutate(bwlimit = str_split_i(f, "_", 2)) %>%
+    mutate(ts = as.numeric(timestamp)) %>%
+    mutate(ts = ts - min(ts)) %>%
+    mutate(ts_m = ts / 60) %>%
+    mutate(config = f) %>%
+    bind_rows(data_host_sys_metrics, .)
+}
+data_host_sys_metrics <- data_host_sys_metrics %>%
+  type.convert(as.is = TRUE)
+
+data_host_gpu_metrics <- NULL
+for (f in traces_replays) {
+  data_host_gpu_metrics <- read_csv(here(f, "host_gpu_metrics.log"), col_types = cols(.default = "c")) %>%
+    mutate(game = str_split_i(f, "-", 3)) %>%
+    mutate(i = str_split_i(f, "-", -1) %>% str_split_i("n", 2)) %>%
+    mutate(bwlimit = NA) %>%
+    mutate(ts = as.numeric(timestamp)) %>%
+    mutate(ts = ts - min(ts)) %>%
+    mutate(ts_m = ts / 60) %>%
+    mutate(config = f) %>%
+    bind_rows(data_host_gpu_metrics, .)
+}
+for (f in bandwidth_replays) {
+  data_host_gpu_metrics <- read_csv(here(f, "host_gpu_metrics.log"), col_types = cols(.default = "c")) %>%
+    mutate(game = str_split_i(f, "-", 3)) %>%
+    mutate(i = "1") %>%
+    mutate(bwlimit = str_split_i(f, "_", 2)) %>%
+    mutate(ts = as.numeric(timestamp)) %>%
+    mutate(ts = ts - min(ts)) %>%
+    mutate(ts_m = ts / 60) %>%
+    mutate(config = f) %>%
+    bind_rows(data_host_gpu_metrics, .)
+}
+data_host_sys_metrics <- data_host_sys_metrics %>%
+  type.convert(as.is = TRUE)
+
 pattern <- c(month="-?\\d+", "-", day="-?\\d+", "\\s+", hour="-?\\d+", ":", minute="-?\\d+", ":", second="-?\\d+", "\\.", millisecond="-?\\d+", "\\s+", pid="-?\\d+", "\\s+", tid="-?\\d+", "\\s+", level="\\w", "\\s+VrApi\\s+:\\s+FPS=",fps_render="-?\\d+", "/", fps_refresh="-?\\d+", ",Prd=", prd="-?\\d+", "ms,Tear=", tear="-?\\d+", ",Early=", early="-?\\d+", ",Stale=", stale="-?\\d+", ",Stale2/5/10/max=", stale2="-?\\d+", "/", stale5="-?\\d+", "/", stale10="-?\\d+", "/", stalemax="-?\\d+", ",VSnc=", vsnc="-?\\d+", ",Lat=", lat="-?-?\\d+", ",Fov=", fov="-?\\d+\\w*", ",CPU", cpun="\\d", "/GPU=", cpu_level="-?\\d+", "/", gpu_level="-?\\d+", ",", cpu_freq="-?\\d+", "/", gpu_freq="-?\\d+", "MHz,OC=", oc=".+", ",TA=", ta_atw="-?\\d+\\w*", "/", ta_main="-?\\d+\\w*", "/", ta_render="-?\\d+\\w*", ",SP=", sp_atw="\\w", "/", sp_main="\\w", "/", sp_render="\\w", ",Mem=", mem="-?\\d+", "MHz,Free=", free="-?\\d+", "MB,PLS=", pls="-?\\d+", ",Temp=", temp_bat="-?\\d+\\.\\d+", "C/", temp_sens="-?\\d+\\.\\d+", "C,TW=", tw="-?\\d+\\.\\d+", "ms,App=", app="-?\\d+\\.\\d+", "ms,GD=", gd="-?\\d+\\.\\d+", "ms,CPU&GPU=", cpu_gpu="-?\\d+\\.\\d+", "ms,LCnt=", lcnt="-?\\d+", "\\(DR", dr="-?\\d+", ",LM", lm="-?\\d+", "\\),GPU%=", gpu_percent="-?\\d+\\.\\d+", ",CPU%=", cpu_percent="-?\\d+\\.\\d+", "\\(W", cpu_percent_worst="-?\\d+\\.\\d+", "\\),DSF=", dsf="-?\\d+\\.\\d+", ",CFL=", cfl_min="-?\\d+\\.\\d+", "/", cfl_max="-?\\d+\\.\\d+", ",ICFLp95=", icflp95="-?\\d+\\.\\d+", ",LD=", ld="-?\\d+", ",SF=", sf="-?\\d+\\.\\d+", ",LP=", lp="-?\\d+", ",DVFS=", dvfs="-?\\d+")
 
 data_logcat_vrapi <- NULL
@@ -98,6 +153,34 @@ for (f in traces_replays) {
     tibble(line = .) %>%
     mutate(game = str_split_i(f, "-", 3)) %>%
     mutate(i = str_split_i(f, "-", -1) %>% str_split_i("n", 2)) %>%
+    mutate(bwlimit = NA) %>%
+    filter(grepl("^.+\\s+VrApi\\s+:\\s+FPS=", line)) %>%
+    separate_wider_regex(line, pattern) %>%
+    mutate(ts = as.numeric(second) + (60*as.numeric(minute)) + (60*60*as.numeric(hour))) %>%
+    mutate(ts = ts - min(ts)) %>%
+    mutate(ts_m = ts / 60) %>%
+    mutate(cpu_util = 100 * as.numeric(cpu_percent)) %>%
+    mutate(cpu_freq_ghz = as.numeric(cpu_freq) / 1000) %>%
+    mutate(cpu_freq_rel = (as.numeric(cpu_freq) - min(as.numeric(cpu_freq))) / max(as.numeric(cpu_freq))) %>%
+    rowwise() %>%
+    mutate(cpu_freq_rel = max(0.01, cpu_freq_rel)) %>%
+    ungroup() %>%
+    mutate(cpu_usage_ltp = as.numeric(cpu_level) * as.numeric(cpu_percent)) %>%
+    mutate(cpu_usage_ftp = as.numeric(cpu_freq) * as.numeric(cpu_percent)) %>%
+    mutate(cpu_usage_ftp_rel = as.numeric(cpu_freq_rel) * as.numeric(cpu_percent)) %>%
+    mutate(cpu_util_worst = 100 * as.numeric(cpu_percent_worst)) %>%
+    mutate(gpu_util = 100 * as.numeric(gpu_percent)) %>%
+    mutate(gpu_usage_ltp = as.numeric(gpu_level) * as.numeric(gpu_percent)) %>%
+    mutate(gpu_usage_ftp = as.numeric(gpu_freq) * as.numeric(gpu_percent)) %>%
+    mutate(config = f) %>%
+    bind_rows(data_logcat_vrapi, .)
+}
+for (f in bandwidth_replays) {
+  data_logcat_vrapi <- readLines(here(f, "logcat_VrApi.log")) %>%
+    tibble(line = .) %>%
+    mutate(game = str_split_i(f, "-", 3)) %>%
+    mutate(i = "1") %>%
+    mutate(bwlimit = str_split_i(f, "_", 2)) %>%
     filter(grepl("^.+\\s+VrApi\\s+:\\s+FPS=", line)) %>%
     separate_wider_regex(line, pattern) %>%
     mutate(ts = as.numeric(second) + (60*as.numeric(minute)) + (60*60*as.numeric(hour))) %>%
@@ -135,6 +218,21 @@ for (f in traces_replays) {
     tibble(line = .) %>%
     mutate(game = str_split_i(f, "-", 3)) %>%
     mutate(i = str_split_i(f, "-", -1) %>% str_split_i("n", 2)) %>%
+    mutate(bwlimit = NA) %>%
+    filter(grepl("^\\s+wlan0:\\s+", line)) %>%
+    separate_wider_regex(line, pattern) %>%
+    mutate(ts = 0:(n() - 1)) %>%
+    select(ts, everything()) %>%
+    mutate(ts_m = ts / 60) %>%
+    mutate(config = f) %>%
+    bind_rows(data_net_dev, .)
+}
+for (f in bandwidth_replays) {
+  data_net_dev <- readLines(here(f, "net_dev.log")) %>%
+    tibble(line = .) %>%
+    mutate(game = str_split_i(f, "-", 3)) %>%
+    mutate(i = "1") %>%
+    mutate(bwlimit = str_split_i(f, "_", 2)) %>%
     filter(grepl("^\\s+wlan0:\\s+", line)) %>%
     separate_wider_regex(line, pattern) %>%
     mutate(ts = 0:(n() - 1)) %>%
@@ -168,11 +266,23 @@ for (f in traces_replays) {
     tibble(line = .) %>%
     mutate(game = str_split_i(f, "-", 3)) %>%
     mutate(i = str_split_i(f, "-", -1) %>% str_split_i("n", 2)) %>%
+    mutate(bwlimit = NA) %>%
     filter(grepl("\\WBatteryMgr:DataCollectionService:\\s+stats\\s+=>", line)) %>%
     separate_wider_regex(line, pattern) %>%
     mutate(config = f) %>%
     bind_rows(data_batterymanager_companion, .)
 }
+# for (f in bandwidth_replays) {
+#   data_batterymanager_companion <- readLines(here(f, "batterymanager-companion.log")) %>%
+#     tibble(line = .) %>%
+#     mutate(game = str_split_i(f, "-", 3)) %>%
+#     mutate(i = "1") %>%
+#     mutate(bwlimit = str_split_i(f, "_", 2)) %>%
+#     filter(grepl("\\WBatteryMgr:DataCollectionService:\\s+stats\\s+=>", line)) %>%
+#     separate_wider_regex(line, pattern) %>%
+#     mutate(config = f) %>%
+#     bind_rows(data_batterymanager_companion, .)
+# }
 data_batterymanager_companion <- data_batterymanager_companion %>%
   type.convert(as.is = TRUE) %>%
   mutate(config = map_chr(config, to_human_name)) %>%
@@ -195,6 +305,159 @@ game_colors <- c(g_moss = "#ccbb44",
 device_colors <- c("MQ2" = "#bbbbbb",
                  "MQ3"="#4477aa",
                  "MQP"="#228833")
+```
+
+## Network Tests
+
+```{r iperf-mqp, fig.width=3, fig.height=2}
+iperfMQP <- '[  5]   0.00-1.00   sec  92.2 MBytes   773 Mbits/sec    0    935 KBytes
+[  5]   1.00-2.00   sec  96.2 MBytes   807 Mbits/sec    0    935 KBytes
+[  5]   2.00-3.00   sec  96.2 MBytes   807 Mbits/sec    0    935 KBytes
+[  5]   3.00-4.00   sec  93.8 MBytes   786 Mbits/sec    0    935 KBytes
+[  5]   4.00-5.00   sec  95.0 MBytes   797 Mbits/sec    0    935 KBytes
+[  5]   5.00-6.00   sec  96.2 MBytes   807 Mbits/sec    0    935 KBytes
+[  5]   6.00-7.00   sec  96.2 MBytes   807 Mbits/sec    0    935 KBytes
+[  5]   7.00-8.00   sec  95.0 MBytes   797 Mbits/sec    0    935 KBytes
+[  5]   8.00-9.00   sec  96.2 MBytes   807 Mbits/sec    0    935 KBytes
+[  5]   9.00-10.00  sec  97.5 MBytes   818 Mbits/sec    0    935 KBytes
+[  5]  10.00-11.00  sec  93.8 MBytes   786 Mbits/sec    0    935 KBytes
+[  5]  11.00-12.00  sec  95.0 MBytes   797 Mbits/sec    0    935 KBytes
+[  5]  12.00-13.00  sec  88.8 MBytes   744 Mbits/sec    0    935 KBytes
+[  5]  13.00-14.00  sec  88.8 MBytes   744 Mbits/sec    0    935 KBytes
+[  5]  14.00-15.00  sec  92.5 MBytes   776 Mbits/sec    0    935 KBytes
+[  5]  15.00-16.00  sec  92.5 MBytes   776 Mbits/sec    0    935 KBytes
+[  5]  16.00-17.00  sec  91.2 MBytes   765 Mbits/sec    0    935 KBytes
+[  5]  17.00-18.00  sec  96.2 MBytes   807 Mbits/sec    0    935 KBytes
+[  5]  18.00-19.00  sec  93.8 MBytes   786 Mbits/sec    0    935 KBytes
+[  5]  19.00-20.00  sec  93.8 MBytes   786 Mbits/sec    0    935 KBytes
+[  5]  20.00-21.00  sec  95.0 MBytes   797 Mbits/sec    0    935 KBytes
+[  5]  21.00-22.00  sec  95.0 MBytes   797 Mbits/sec    0    935 KBytes
+[  5]  22.00-23.00  sec  95.0 MBytes   797 Mbits/sec    0    935 KBytes
+[  5]  23.00-24.00  sec  96.2 MBytes   807 Mbits/sec    0    935 KBytes
+[  5]  24.00-25.00  sec  92.5 MBytes   776 Mbits/sec    0    935 KBytes
+[  5]  25.00-26.00  sec  93.8 MBytes   786 Mbits/sec    0    935 KBytes
+[  5]  26.00-27.00  sec  92.5 MBytes   776 Mbits/sec    0    935 KBytes
+[  5]  27.00-28.00  sec  91.2 MBytes   765 Mbits/sec    0    935 KBytes
+[  5]  28.00-29.00  sec  91.2 MBytes   765 Mbits/sec    0    935 KBytes
+[  5]  29.00-30.00  sec  92.5 MBytes   776 Mbits/sec    0    935 KBytes
+[  5]  30.00-31.00  sec  91.2 MBytes   765 Mbits/sec    0    935 KBytes
+[  5]  31.00-32.00  sec  96.2 MBytes   807 Mbits/sec    0    935 KBytes
+[  5]  32.00-33.00  sec  96.2 MBytes   807 Mbits/sec    0    935 KBytes
+[  5]  33.00-34.00  sec  93.8 MBytes   786 Mbits/sec    0    935 KBytes
+[  5]  34.00-35.00  sec  97.5 MBytes   818 Mbits/sec    0    935 KBytes
+[  5]  35.00-36.00  sec  97.5 MBytes   818 Mbits/sec    0    935 KBytes
+[  5]  36.00-37.00  sec  93.8 MBytes   786 Mbits/sec    0    935 KBytes
+[  5]  37.00-38.00  sec  97.5 MBytes   818 Mbits/sec    0    935 KBytes
+[  5]  38.00-39.00  sec  92.5 MBytes   776 Mbits/sec    0    935 KBytes
+[  5]  39.00-40.00  sec  97.5 MBytes   818 Mbits/sec    0    935 KBytes
+[  5]  40.00-41.00  sec  93.8 MBytes   786 Mbits/sec    0    935 KBytes
+[  5]  41.00-42.00  sec  93.8 MBytes   786 Mbits/sec    0    935 KBytes
+[  5]  42.00-43.00  sec  95.0 MBytes   797 Mbits/sec    0    935 KBytes
+[  5]  43.00-44.00  sec  92.5 MBytes   776 Mbits/sec    0    935 KBytes
+[  5]  44.00-45.00  sec  96.2 MBytes   807 Mbits/sec    1    935 KBytes
+[  5]  45.00-46.00  sec  95.0 MBytes   797 Mbits/sec    0    935 KBytes
+[  5]  46.00-47.00  sec  95.0 MBytes   797 Mbits/sec    0    935 KBytes
+[  5]  47.00-48.00  sec  97.5 MBytes   818 Mbits/sec    0    935 KBytes
+[  5]  48.00-49.00  sec  95.0 MBytes   797 Mbits/sec    0    935 KBytes
+[  5]  49.00-50.00  sec  96.2 MBytes   807 Mbits/sec    0    935 KBytes
+[  5]  50.00-51.00  sec  96.2 MBytes   807 Mbits/sec    0    935 KBytes
+[  5]  51.00-52.00  sec  97.5 MBytes   818 Mbits/sec    0    935 KBytes
+[  5]  52.00-53.00  sec  93.8 MBytes   786 Mbits/sec    0    935 KBytes
+[  5]  53.00-54.00  sec  95.0 MBytes   797 Mbits/sec    0    935 KBytes
+[  5]  54.00-55.00  sec  95.0 MBytes   797 Mbits/sec    0    935 KBytes
+[  5]  55.00-56.00  sec  96.2 MBytes   807 Mbits/sec    0    935 KBytes
+[  5]  56.00-57.00  sec  95.0 MBytes   797 Mbits/sec    0    935 KBytes
+[  5]  57.00-58.00  sec  93.8 MBytes   786 Mbits/sec    0    935 KBytes
+[  5]  58.00-59.00  sec  85.0 MBytes   713 Mbits/sec    0    935 KBytes
+[  5]  59.00-60.00  sec  90.0 MBytes   755 Mbits/sec    0    935 KBytes'
+
+iperfMQP1K <- '[  5]   0.00-1.00   sec  73.9 MBytes   620 Mbits/sec    0    894 KBytes
+[  5]   1.00-2.00   sec  76.8 MBytes   644 Mbits/sec    0    894 KBytes
+[  5]   2.00-3.00   sec  84.1 MBytes   705 Mbits/sec    0    894 KBytes
+[  5]   3.00-4.00   sec  81.2 MBytes   681 Mbits/sec    0    894 KBytes
+[  5]   4.00-5.00   sec  84.2 MBytes   707 Mbits/sec    0    894 KBytes
+[  5]   5.00-6.00   sec  82.8 MBytes   695 Mbits/sec    0    894 KBytes
+[  5]   6.00-7.00   sec  82.9 MBytes   696 Mbits/sec    0    894 KBytes
+[  5]   7.00-8.00   sec  84.4 MBytes   708 Mbits/sec    0    894 KBytes
+[  5]   8.00-9.00   sec  86.0 MBytes   722 Mbits/sec    0    894 KBytes
+[  5]   9.00-10.00  sec  80.3 MBytes   673 Mbits/sec    0    894 KBytes
+[  5]  10.00-11.00  sec  79.5 MBytes   667 Mbits/sec    0    894 KBytes
+[  5]  11.00-12.00  sec  81.4 MBytes   683 Mbits/sec    0    894 KBytes
+[  5]  12.00-13.00  sec  80.9 MBytes   678 Mbits/sec    0    894 KBytes
+[  5]  13.00-14.00  sec  82.1 MBytes   689 Mbits/sec    0    894 KBytes
+[  5]  14.00-15.00  sec  78.5 MBytes   659 Mbits/sec    0    894 KBytes
+[  5]  15.00-16.00  sec  81.5 MBytes   683 Mbits/sec    0    894 KBytes
+[  5]  16.00-17.00  sec  78.2 MBytes   656 Mbits/sec    0    894 KBytes
+[  5]  17.00-18.00  sec  84.1 MBytes   706 Mbits/sec    0    894 KBytes
+[  5]  18.00-19.00  sec  83.6 MBytes   702 Mbits/sec    0    894 KBytes
+[  5]  19.00-20.00  sec  85.2 MBytes   715 Mbits/sec    0    894 KBytes
+[  5]  20.00-21.00  sec  88.5 MBytes   742 Mbits/sec    0    894 KBytes
+[  5]  21.00-22.00  sec  86.0 MBytes   722 Mbits/sec    0    894 KBytes
+[  5]  22.00-23.00  sec  84.1 MBytes   706 Mbits/sec    0    894 KBytes
+[  5]  23.00-24.00  sec  86.0 MBytes   722 Mbits/sec    0    894 KBytes
+[  5]  24.00-25.00  sec  83.4 MBytes   700 Mbits/sec    0    894 KBytes
+[  5]  25.00-26.00  sec  86.2 MBytes   724 Mbits/sec    0    894 KBytes
+[  5]  26.00-27.00  sec  85.1 MBytes   714 Mbits/sec    0    894 KBytes
+[  5]  27.00-28.00  sec  86.4 MBytes   725 Mbits/sec    0    894 KBytes
+[  5]  28.00-29.00  sec  82.7 MBytes   694 Mbits/sec    0    894 KBytes
+[  5]  29.00-30.00  sec  86.3 MBytes   724 Mbits/sec    0    894 KBytes
+[  5]  30.00-31.00  sec  83.8 MBytes   703 Mbits/sec    0    894 KBytes
+[  5]  31.00-32.00  sec  83.7 MBytes   702 Mbits/sec    0    894 KBytes
+[  5]  32.00-33.00  sec  84.1 MBytes   705 Mbits/sec    0    894 KBytes
+[  5]  33.00-34.00  sec  85.0 MBytes   713 Mbits/sec    0    894 KBytes
+[  5]  34.00-35.00  sec  84.2 MBytes   706 Mbits/sec    0    894 KBytes
+[  5]  35.00-36.00  sec  86.6 MBytes   727 Mbits/sec    0    894 KBytes
+[  5]  36.00-37.00  sec  84.4 MBytes   708 Mbits/sec    0    894 KBytes
+[  5]  37.00-38.00  sec  87.0 MBytes   730 Mbits/sec    0    894 KBytes
+[  5]  38.00-39.00  sec  84.1 MBytes   706 Mbits/sec    0    894 KBytes
+[  5]  39.00-40.00  sec  84.6 MBytes   709 Mbits/sec    0    894 KBytes
+[  5]  40.00-41.00  sec  83.7 MBytes   702 Mbits/sec    0    894 KBytes
+[  5]  41.00-42.00  sec  87.2 MBytes   732 Mbits/sec    0    894 KBytes
+[  5]  42.00-43.00  sec  78.9 MBytes   662 Mbits/sec    0    894 KBytes
+[  5]  43.00-44.00  sec  80.5 MBytes   675 Mbits/sec    0    894 KBytes
+[  5]  44.00-45.00  sec  75.8 MBytes   636 Mbits/sec    0    894 KBytes
+[  5]  45.00-46.00  sec  77.2 MBytes   648 Mbits/sec    0    894 KBytes
+[  5]  46.00-47.00  sec  81.9 MBytes   687 Mbits/sec    0    894 KBytes
+[  5]  47.00-48.00  sec  85.3 MBytes   715 Mbits/sec    0    894 KBytes
+[  5]  48.00-49.00  sec  85.2 MBytes   714 Mbits/sec    0    894 KBytes
+[  5]  49.00-50.00  sec  80.2 MBytes   673 Mbits/sec    0    894 KBytes
+[  5]  50.00-51.00  sec  82.4 MBytes   691 Mbits/sec    0    894 KBytes
+[  5]  51.00-52.00  sec  83.8 MBytes   703 Mbits/sec    0    894 KBytes
+[  5]  52.00-53.00  sec  84.3 MBytes   707 Mbits/sec    0    894 KBytes
+[  5]  53.00-54.00  sec  86.1 MBytes   722 Mbits/sec    0    894 KBytes
+[  5]  54.00-55.00  sec  84.2 MBytes   707 Mbits/sec    0    894 KBytes
+[  5]  55.00-56.00  sec  86.6 MBytes   726 Mbits/sec    0    894 KBytes
+[  5]  56.00-57.00  sec  89.2 MBytes   749 Mbits/sec    0    894 KBytes
+[  5]  57.00-58.00  sec  85.9 MBytes   720 Mbits/sec    0    894 KBytes
+[  5]  58.00-59.00  sec  85.6 MBytes   718 Mbits/sec    0    894 KBytes
+[  5]  59.00-60.00  sec  79.2 MBytes   664 Mbits/sec    0    894 KBytes'
+
+pattern <- c("\\[\\s*", id="\\d+", "\\]\\s+", start = "\\d+\\.\\d+", "-", stop = "\\d+\\.\\d+", "\\s+", unit = "\\w+", "\\s+", transfer = "\\d+\\.\\d+", "\\s+", transfer_unit="\\w+", "\\s+", bitrate="\\d+", "\\s+", bitrate_unit="\\w+/?\\w*", "\\s+", retry="\\d+", "\\s+", cwnd="\\d+", "\\s+", cwnd_unit="\\w+")
+
+iperf_data <- NULL
+
+iperf_data <- tibble(line = iperfMQP) %>%
+  mutate(setup = "MQP") %>%
+  bind_rows(iperf_data, .)
+iperf_data <- tibble(line = iperfMQP1K) %>%
+  mutate(setup = "MQP1K") %>%
+  bind_rows(iperf_data, .)
+
+iperf_data <- iperf_data %>%
+  separate_longer_delim(line, delim = "\n") %>%
+  separate_wider_regex(line, pattern) %>%
+  type.convert(as.is = TRUE) %>%
+  mutate(device = "MQP")
+
+iperf_data
+
+iperf_data %>%
+  ggplot(aes(x = bitrate, y = setup)) +
+  geom_boxplot() +
+  xlim(0,NA) +
+  theme_cowplot(15) +
+  background_grid() +
+  labs(x = "Bitrate [Mbps]", y = "Setup")
 ```
 
 ## Evolution of Hardware
@@ -723,9 +986,9 @@ d <- data_batterymanager_companion %>%
   filter(i == 1)
 
 d %>%
-  ggplot() +
-  geom_boxplot(aes(x=-power_w, y=config, fill = config)) +
-  stat_summary(eas(x=-power_w), geom="point", shape=20, size=14, color="black", fill="white") +
+  ggplot(aes(x=-power_w, y=config, fill = config)) +
+  geom_boxplot() +
+  stat_summary(fun=mean, geom="point", shape=21, size=2, color="black", fill="white") +
   theme(strip.background=element_rect(fill="white")) +
   facet_grid(~factor(game_h, levels=c(g_gorillatag, g_moss, g_explorevr, g_vrchat)), scales = "free_x") +
   theme_cowplot(15) +
@@ -736,7 +999,7 @@ d %>%
   scale_fill_manual(values=device_colors)
 
 d %>%
-  filter(config == "MQ2") %>%
+  filter(config == "MQP") %>%
   give_stats(-power_w)
 ```
 
@@ -777,6 +1040,137 @@ data_net_dev %>%
   coord_cartesian(xlim=c(0, 1000)) +
   labs(x = "Bytes received [kbps]", y = "Setup") +
   facet_grid(cols = vars(game))
+```
+
+## Bandwidth Limits
+
+```{r, fig.width = 9, fig.height = 4}
+data_net_dev %>%
+  filter(ts > 5) %>%
+  drop_na() %>%
+  group_by(game, config) %>%
+  slice(2:n()) %>%
+  ungroup() %>%
+  ggplot(aes(x = ts_m, y = Mbps_rx, color = factor(bwlimit))) +
+  geom_line() +
+  theme_cowplot(15) +
+  background_grid() +
+  xlim(0, NA) +
+  ylim(0, NA) +
+  labs(y = "Bytes received [Mbps]", x = "Time [m]")
+  # facet_grid(cols = vars(game), rows = vars(config))
+```
+
+```{r, fig.width = 4.5, fig.height = 2}
+data_net_dev %>%
+  filter(ts > 5) %>%
+  drop_na() %>%
+  group_by(game, config) %>%
+  slice(2:n()) %>%
+  ungroup() %>%
+  ggplot(aes(x = Mbps_rx, y = factor(bwlimit))) +
+  geom_boxplot() +
+  stat_summary(fun=mean, geom="point", shape=21, size=2, color="black", fill="white") +
+  scale_x_continuous(breaks = seq(0, 100, by = 10), limits=c(0,NA)) +
+  theme_cowplot(15) +
+  background_grid(major = "x") +
+  # xlim(0, NA) +
+  labs(x = "Bytes received [Mbps]", y = "Bandwidth limit [Mbps]")
+  # facet_grid(cols = vars(game), rows = vars(config))
+```
+
+```{r exp-bwlimit-frametime-all-box, fig.width = 3, fig.height = 2}
+data_logcat_vrapi %>%
+  drop_na() %>%
+  filter(ts > 5) %>%
+  filter(app > 0) %>%
+  ggplot(aes(x = app, y = factor(bwlimit))) +
+  # geom_vline(xintercept = 11.1, color = "orange", linetype = "dashed") +
+  # geom_vline(xintercept = 13.9, color = "red") +
+  geom_boxplot() +
+  stat_summary(fun=mean, geom="point", shape=21, size=2, color="black", fill="white") +
+  xlim(0, NA) +
+  labs(x = "Frame time [ms]", y = "BW limit [Mbps]  ") +
+  theme_half_open() +
+  background_grid() +
+  theme(legend.position = c(.25,.45), legend.background = element_rect(fill=alpha("white", 0.75)))
+  # facet_grid(cols = vars(game))
+```
+
+```{r, fig.width = 3, fig.height = 2}
+data_logcat_vrapi %>%
+  drop_na(bwlimit) %>%
+  ggplot(aes(x = fps_render, y = factor(bwlimit))) +
+  geom_boxplot() +
+  stat_summary(fun=mean, geom="point", shape=21, size=2, color="black", fill="white") +
+  xlim(0, NA) +
+  theme_cowplot(15) +
+  background_grid() +
+  labs(x="Frame rate [fps]", y="BW Limit [Mbps]    ") +
+  coord_cartesian(clip="off") +
+  theme(plot.margin=margin(0,0,0,0, "cm"))
+  # facet_grid(cols = vars(config))
+```
+
+```{r, fig.width = 3, fig.height = 2}
+data_logcat_vrapi %>%
+  drop_na(bwlimit) %>%
+  ggplot(aes(x = cpu_util, y = factor(bwlimit))) +
+  geom_boxplot() +
+  xlim(0, 100) +
+  labs(x = "CPU utilization [%]", y = "BW Limit [Mbps]  ") +
+  theme_half_open() +
+  background_grid()
+```
+
+```{r, fig.width = 3, fig.height = 2}
+data_logcat_vrapi %>%
+  drop_na(bwlimit) %>%
+  ggplot(aes(x = gpu_util, y = factor(bwlimit))) +
+  geom_boxplot() +
+  xlim(0, 100) +
+  labs(x = "GPU utilization [%]", y = "BW Limit [Mbps]  ") +
+  theme_half_open() +
+  background_grid()
+```
+
+```{r, fig.width = 12, fig.height = 2}
+data_logcat_vrapi %>%
+  drop_na(bwlimit) %>%
+  ggplot(aes(x = ts_m, y = cpu_level)) +
+  geom_line() +
+  labs(x = "Time [m]", y = "CPU level") +
+  ylim(0, NA) +
+  theme_half_open() +
+  background_grid() +
+  facet_grid(cols = vars(bwlimit))
+```
+
+```{r, fig.width = 12, fig.height = 2}
+data_logcat_vrapi %>%
+  drop_na(bwlimit) %>%
+  ggplot(aes(x = ts_m, y = gpu_level)) +
+  geom_line() +
+  labs(x = "Time [m]", y = "GPU level") +
+  ylim(0, NA) +
+  theme_half_open() +
+  background_grid() +
+  facet_grid(cols = vars(bwlimit))
+```
+
+```{r, fig.width=3, fig.height=2}
+data_host_sys_metrics %>%
+  drop_na(bwlimit) %>%
+  select(bwlimit, cpu.percent)
+
+data_host_sys_metrics %>%
+  drop_na(bwlimit) %>%
+  ggplot(aes(x = cpu.percent, y = factor(bwlimit))) +
+  geom_boxplot() +
+  xlim(0, 100) +
+  labs(x = "CPU utilization [%]", y = "BW Limit [Mbps]    ") +
+  theme_cowplot(15) +
+  background_grid()
 ```
 
 ## Performance Variability

@@ -1,4 +1,4 @@
-timestamp,id,uuid,load,memoryUtil,memoryTotal,memoryUsed,memoryFree,driver,name,serial,display_mode,display_active
+timestamp,id,uuid,load,memoryUtil,memoryTotal,memoryFree,driver,name,serial,display_mode,display_active
 1702739217.962392,0,GPU-b342434c-f6b6-7627-333e-da750a9991e6,0.15,0.3146484375,10240.0,6844.0,546.17,NVIDIA GeForce RTX 3080,[N/A],Enabled,Enabled
 1702739218.95816,0,GPU-b342434c-f6b6-7627-333e-da750a9991e6,0.14,0.3146484375,10240.0,6844.0,546.17,NVIDIA GeForce RTX 3080,[N/A],Enabled,Enabled
 1702739219.957651,0,GPU-b342434c-f6b6-7627-333e-da750a9991e6,0.15,0.31474609375,10240.0,6843.0,546.17,NVIDIA GeForce RTX 3080,[N/A],Enabled,Enabled

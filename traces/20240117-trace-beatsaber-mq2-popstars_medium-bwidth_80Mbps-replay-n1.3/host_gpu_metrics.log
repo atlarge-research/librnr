@@ -1,4 +1,4 @@
-timestamp,id,uuid,load,memoryUtil,memoryTotal,memoryUsed,memoryFree,driver,name,serial,display_mode,display_active
+timestamp,id,uuid,load,memoryUtil,memoryTotal,memoryFree,driver,name,serial,display_mode,display_active
 1702742213.973104,0,GPU-93ae0c7f-c327-aee3-adae-bc0d1dae71ea,0.16,0.2257775606578733,12282.0,9252.0,546.33,NVIDIA GeForce RTX 4070,[N/A],Enabled,Enabled
 1702742214.97012,0,GPU-93ae0c7f-c327-aee3-adae-bc0d1dae71ea,0.15,0.2257775606578733,12282.0,9252.0,546.33,NVIDIA GeForce RTX 4070,[N/A],Enabled,Enabled
 1702742215.971124,0,GPU-93ae0c7f-c327-aee3-adae-bc0d1dae71ea,0.15,0.2257775606578733,12282.0,9252.0,546.33,NVIDIA GeForce RTX 4070,[N/A],Enabled,Enabled
