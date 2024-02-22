@@ -317,11 +317,11 @@ bool replayLocateViews(XrSession session, const XrViewLocateInfo *viewlocateInfo
     rw.index = 1;
     rentry.body = rw;
 
-    if (!tracer::readNextView(&rentry)) {
+    if (!tracer::readNextView(&lentry)) {
         return false;
     }
 
-    if (!tracer::readNextView(&lentry)) {
+    if (!tracer::readNextView(&rentry)) {
         return false;
     }
 
