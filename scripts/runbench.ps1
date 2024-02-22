@@ -8,17 +8,25 @@ param (
     [ValidateNotNullOrEmpty()][ValidateSet('record', 'replay')][System.String]$Mode = "replay",
     [switch]$NoHostTrace,
     [switch]$S2Battery,
-    [ValidateRange("Positive")][int]$Delay = 0
+    [ValidateRange("Positive")][int]$Delay = 0,
+    [Int32]$BWLimit
 )
 
 # Give warnings/errors when using undefined variables and such
 Set-StrictMode -Version latest
 
-# if the trace file path is relative and outdir has been specified, write trace file in outdir
+# when recording, if the trace file path is relative and outdir has been specified, write trace file in outdir
 if (($Mode -eq "record") -and $PSBoundParameters.ContainsKey('OutDir') -and (-not([System.IO.Path]::IsPathRooted($TraceFile)))) {
     $TraceFile = Join-Path $OutDir $TraceFile
     $TraceFile = [IO.Path]::GetFullPath($Tracefile, $PSScriptRoot)
 }
+# when replaying, if the trace file path is relative, translate to absolute path
+if (($Mode -eq "replay") -and (-not([System.IO.Path]::IsPathRooted($TraceFile)))) {
+    $TraceFile = [IO.Path]::GetFullPath($Tracefile, $PSScriptRoot)
+}
+
+# Resolves '~' if passed on command line
+$OutDir = (Resolve-Path $OutDir).Path
 
 $Autodriver = $PSBoundParameters.ContainsKey('Class') -and $PSBoundParameters.ContainsKey('Activity') -and $PSBoundParameters.ContainsKey('Duration')
 
@@ -168,6 +176,9 @@ try {
     # Set librnr to configured mode
     Set-Content -Path $modeFilePath -Value "$Mode $TraceFile"
 
+    # Set Bandwidth limit if configured
+    $PSScriptRoot/network-emulate/net-delay-static.ps1 $BWLimit
+
     # Start tracing
     $TraceJob = Start-ThreadJob -StreamingHost $Host -InitializationScript $functions -ScriptBlock {
         Trace-Metrics $using:OutDir $using:S2Battery $using:NoHostTrace $using:PSScriptRoot
@@ -239,6 +250,9 @@ finally {
 
     # Stop tracing
     Stop-Job $TraceJob
+
+    # Stop Bandwidth limiting, if set
+    net stop nlsvc
 
     # Plot results
     Copy-Item -Path .\README.Rmd $OutDir
