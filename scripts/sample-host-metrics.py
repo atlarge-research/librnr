@@ -19,10 +19,10 @@ def main():
 
     start = datetime.now().timestamp()
     with open(outdir / "host_gpu_metrics.log", "a") as f_gpu, open(
-            outdir / "host_sys_metrics.log", "a"
+        outdir / "host_sys_metrics.log", "a"
     ) as f_sys:
         f_gpu.write(
-            "timestamp,id,uuid,load,memoryUtil,memoryTotal,memoryUsed,memoryFree,driver,name,serial,display_mode,display_active\n"
+            "timestamp,id,uuid,load,memoryUtil,memoryTotal,memoryFree,driver,name,serial,display_mode,display_active\n"
         )
         write_sys_metrics(f_sys, first=True)
         i = 0
