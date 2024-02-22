@@ -119,40 +119,37 @@ namespace tracer {
         trace << endl;
     }
 
-    bool read(traceEntry *entry) {
-        // The first time we are asked to read an entry, set the requested timestamp as zero.
-        static XrTime start = entry->time;
-
-        // Read a line from the trace
-        string line;
-        if (!getline(trace, line)) {
-            return false;
-        }
-
+    bool read(string &line, XrTime time) {
         stringstream sstream(line);
-        if (!(sstream >> entry->time >> entry->type >> entry->path)) {
+        traceEntry entry;
+        if (!(sstream >> entry.time >> entry.type >> entry.path)) {
             Log::Write(Log::Level::Warning, "RNR read end of file!");
             return false;
         }
 
+        // Overwrite time to match playback time
+        entry.time = time;
+        // Keep track of the highest (most recent) timestamp read, used in readUntil
+        mostRecentEntry = entry.time;
+
         // Depending on the trace record type, we need to read different fields
-        if (entry->type == 's') {
+        if (entry.type == 's') {
             traceLocation l;
             auto &o = l.pose.orientation;
             auto &p = l.pose.position;
             sstream >> o.x >> o.y >> o.z >> o.w >> p.x >> p.y >> p.z;
             sstream >> l.basespace;
-            entry->body = l;
-            spaceMap[entry->path][l.basespace] = *entry;
-        } else if (entry->type == 'r') {
+            entry.body = l;
+            spaceMap[entry.path][l.basespace] = entry;
+        } else if (entry.type == 'r') {
             traceCreateReferenceSpace r{};
             auto &o = r.pose.orientation;
             auto &p = r.pose.position;
             sstream >> o.x >> o.y >> o.z >> o.w >> p.x >> p.y >> p.z;
             sstream >> r.type;
-            entry->body = r;
-            refSpaceMap[entry->type] = *entry;
-        } else if (entry->type == 'v') {
+            entry.body = r;
+            refSpaceMap[entry.type] = entry;
+        } else if (entry.type == 'v') {
             traceView v;
             auto &o = v.pose.orientation;
             auto &p = v.pose.position;
@@ -164,58 +161,82 @@ namespace tracer {
             auto &index = v.index;
             sstream >> o.x >> o.y >> o.z >> o.w >> p.x >> p.y >> p.z;
             sstream >> u >> r >> d >> l >> type >> index;
-            entry->body = v;
-            viewMap[entry->path][index] = *entry;
-        } else if (entry->type == 'b') {
+            entry.body = v;
+            viewMap[entry.path][index] = entry;
+        } else if (entry.type == 'b') {
             traceActionBoolean b{};
             auto &changed = b.changed;
             auto &isActive = b.isActive;
             auto &lastChanged = b.lastChanged;
             auto &value = b.value;
             sstream >> changed >> isActive >> lastChanged >> value;
-            entry->body = b;
-            booleanActionMap[entry->path] = *entry;
-        } else if (entry->type == 'f') {
+            entry.body = b;
+            booleanActionMap[entry.path] = entry;
+        } else if (entry.type == 'f') {
             traceActionFloat f{};
             auto &changed = f.changed;
             auto &isActive = f.isActive;
             auto &lastChanged = f.lastChanged;
             auto &value = f.value;
             sstream >> changed >> isActive >> lastChanged >> value;
-            entry->body = f;
-            floatActionMap[entry->path] = *entry;
+            entry.body = f;
+            floatActionMap[entry.path] = entry;
         } else {
             stringstream buffer;
-            buffer << "RNR ERROR invalid trace entry type: " << entry->type;
+            buffer << "RNR ERROR invalid trace entry type: " << entry.type;
             Log::Write(Log::Level::Error, buffer.str());
         }
-
-        // The trace timestamps start at zero. Add the offset back to read value.
-        entry->time += start;
-        // Keep track of the highest (most recent) timestamp read, used in readUntil
-        mostRecentEntry = entry->time;
 
         return true;
     }
 
-    bool readUntil(traceEntry *entry) {
-        auto until = entry->time;
-        bool res;
-        for (res = true; res && mostRecentEntry <= until; res = read(entry)) {
-            // Nothing to do here
+    bool readUntil(XrTime until) {
+        // First time this function is called,
+        // assume that 'until' is the time of the first frame in the playback
+        static XrTime startPlayback = until;
+        // Static variables to record the first timestamp in the trace
+        static XrTime startRecord = 0;
+        static bool firstLine = true;
+
+        while (true) {
+            // Get current position in trace input stream
+            auto pos = trace.tellg();
+            // Read a line from the trace
+            string line;
+            // Return false if there are no more lines
+            if (!getline(trace, line)) {
+                return false;
+            }
+            // Create string stream from line read
+            stringstream sstream(line);
+            // Read timestamp from line read
+            XrTime timestamp;
+            sstream >> timestamp;
+            if (firstLine) {
+                startRecord = timestamp;
+                firstLine = false;
+            }
+            auto timestampReplay = timestamp - startRecord + startPlayback;
+            // If timestamp smaller than read limit, perform read
+            if (timestampReplay <= until) {
+                // Parse line into entry
+                read(line, timestampReplay);
+            } else {
+                // Next record is after 'until',
+                // set stream position to position before reading line
+                trace.seekg(pos);
+                // Read until 'until', returning true
+                return true;
+            }
         }
-        return res;
     }
 
-    bool readNextSpace(traceEntry *entry) {
+    bool readNextSpace(XrTime until, traceEntry *entry) {
         assert(holds_alternative<traceLocation>(entry->body));
         auto &l = get<traceLocation>(entry->body);
 
-        traceEntry outEntry;
-        outEntry.time = entry->time;
-
         // Go through the trace until we get to the time we're looking for
-        if (!readUntil(&outEntry)) {
+        if (!readUntil(until)) {
             return false;
         }
 
@@ -224,15 +245,12 @@ namespace tracer {
         return true;
     }
 
-    bool readNextCreateReferenceSpace(traceEntry *entry) {
+    bool readNextCreateReferenceSpace(XrTime until, traceEntry *entry) {
         assert(holds_alternative<traceCreateReferenceSpace>(entry->body));
         auto &r = get<traceCreateReferenceSpace>(entry->body);
 
-        traceEntry outEntry;
-        outEntry.time = entry->time;
-
         // Go through the trace until we get to the time we're looking for
-        if (!readUntil(&outEntry)) {
+        if (!readUntil(until)) {
             return false;
         }
 
@@ -241,15 +259,12 @@ namespace tracer {
         return true;
     }
 
-    bool readNextView(traceEntry *entry) {
+    bool readNextView(XrTime until, traceEntry *entry) {
         assert(holds_alternative<traceView>(entry->body));
         auto &v = get<traceView>(entry->body);
 
-        traceEntry outEntry;
-        outEntry.time = entry->time;
-
         // Go through the trace until we get to the time we're looking for
-        if (!readUntil(&outEntry)) {
+        if (!readUntil(until)) {
             return false;
         }
 
@@ -268,13 +283,11 @@ namespace tracer {
         trace << endl;
     }
 
-    bool readNextActionFloat(traceEntry *e) {
+    bool readNextActionFloat(XrTime until, traceEntry *e) {
         assert(holds_alternative<traceActionFloat>(e->body));
         auto &f = get<traceActionFloat>(e->body);
 
-        traceEntry outEntry;
-        outEntry.time = e->time;
-        if (!readUntil(&outEntry) || floatActionMap.find(e->path) == floatActionMap.end()) {
+        if (!readUntil(until) || floatActionMap.find(e->path) == floatActionMap.end()) {
             return false;
         }
 
@@ -291,13 +304,11 @@ namespace tracer {
         trace << endl;
     }
 
-    bool readNextActionBoolean(traceEntry *e) {
+    bool readNextActionBoolean(XrTime until, traceEntry *e) {
         assert(holds_alternative<traceActionBoolean>(e->body));
         auto &f = get<traceActionBoolean>(e->body);
 
-        traceEntry outEntry;
-        outEntry.time = e->time;
-        if (!readUntil(&outEntry) || booleanActionMap.find(e->path) == booleanActionMap.end()) {
+        if (!readUntil(until) || booleanActionMap.find(e->path) == booleanActionMap.end()) {
             return false;
         }
 

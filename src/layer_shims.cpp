@@ -267,13 +267,12 @@ XRAPI_CALL recordLocateSpace(XrSpace space, XrSpace baseSpace, XrTime time, XrSp
 
 bool replayLocateSpace(XrSpace space, XrSpace baseSpace, XrTime time, XrSpaceLocation *location) {
     tracer::traceEntry entry;
-    entry.time = time;
     entry.path = spaceToFullName[space];
     tracer::traceLocation l;
     l.basespace = spaceToFullName[baseSpace];
     entry.body = l;
 
-    if (tracer::readNextSpace(&entry)) {
+    if (tracer::readNextSpace(time, &entry)) {
         auto &l = get<tracer::traceLocation>(entry.body);
         location->pose = l.pose;
         location->locationFlags = XR_SPACE_LOCATION_ORIENTATION_VALID_BIT | XR_SPACE_LOCATION_POSITION_VALID_BIT |
@@ -304,24 +303,22 @@ bool replayLocateViews(XrSession session, const XrViewLocateInfo *viewlocateInfo
     // TODO support mono view https://registry.khronos.org/OpenXR/specs/1.0/man/html/XrViewConfigurationType.html
 
     tracer::traceEntry lentry;
-    lentry.time = viewlocateInfo->displayTime;
     lentry.path = spaceToFullName[viewlocateInfo->space];
     tracer::traceView lw{};
     lw.index = 0;
     lentry.body = lw;
 
     tracer::traceEntry rentry;
-    rentry.time = viewlocateInfo->displayTime;
     rentry.path = spaceToFullName[viewlocateInfo->space];
     tracer::traceView rw{};
     rw.index = 1;
     rentry.body = rw;
 
-    if (!tracer::readNextView(&lentry)) {
+    if (!tracer::readNextView(viewlocateInfo->displayTime, &lentry)) {
         return false;
     }
 
-    if (!tracer::readNextView(&rentry)) {
+    if (!tracer::readNextView(viewlocateInfo->displayTime, &rentry)) {
         return false;
     }
 
@@ -329,9 +326,11 @@ bool replayLocateViews(XrSession session, const XrViewLocateInfo *viewlocateInfo
                                 XR_VIEW_STATE_POSITION_TRACKED_BIT | XR_VIEW_STATE_POSITION_VALID_BIT;
 
     auto &wl = get<tracer::traceView>(lentry.body);
+    views[0].fov = wl.fov;
     views[0].pose = wl.pose;
 
     auto &wr = get<tracer::traceView>(rentry.body);
+    views[1].fov = wr.fov;
     views[1].pose = wr.pose;
 
     assert(viewlocateInfo->viewConfigurationType == XR_VIEW_CONFIGURATION_TYPE_PRIMARY_STEREO);
@@ -404,7 +403,7 @@ XRAPI_CALL thisLayer_xrLocateViews(XrSession session, const XrViewLocateInfo *vi
     if (mode == tracer::Mode::REPLAY) {
         auto res = nextLayer_xrLocateViews(session, viewlocateInfo, viewState, viewCapacityInput, viewCountOutput,
                                            views);
-        replayLocateViews(session, viewlocateInfo, viewState, viewCapacityInput, viewCountOutput, views);
+//        replayLocateViews(session, viewlocateInfo, viewState, viewCapacityInput, viewCountOutput, views);
         return res;
     } else {
         return recordLocateViews(session, viewlocateInfo, viewState, viewCapacityInput, viewCountOutput, views);
@@ -413,7 +412,6 @@ XRAPI_CALL thisLayer_xrLocateViews(XrSession session, const XrViewLocateInfo *vi
 
 bool replayGetActionStateFloat(const XrActionStateGetInfo *getInfo, XrActionStateFloat *state) {
     tracer::traceEntry e;
-    e.time = frameTime;
     // look up the paths mapped to this action
     if (auto search = actionBindingMap.find(getInfo->action); search != actionBindingMap.end()) {
         // iterate over all paths for this action
@@ -428,7 +426,7 @@ bool replayGetActionStateFloat(const XrActionStateGetInfo *getInfo, XrActionStat
         }
     }
     e.body = tracer::traceActionFloat{};
-    if (!tracer::readNextActionFloat(&e)) {
+    if (!tracer::readNextActionFloat(frameTime, &e)) {
         return false;
     }
     assert(holds_alternative<tracer::traceActionFloat>(e.body));
@@ -484,7 +482,6 @@ XRAPI_ATTR XrResult XRAPI_CALL thisLayer_xrGetActionStateFloat(XrSession session
 
 bool replayGetActionStateBoolean(const XrActionStateGetInfo *getInfo, XrActionStateBoolean *state) {
     tracer::traceEntry e;
-    e.time = frameTime;
     // look up the paths mapped to this action
     if (auto search = actionBindingMap.find(getInfo->action); search != actionBindingMap.end()) {
         // iterate over all paths for this action
@@ -499,7 +496,7 @@ bool replayGetActionStateBoolean(const XrActionStateGetInfo *getInfo, XrActionSt
         }
     }
     e.body = tracer::traceActionBoolean{};
-    if (!tracer::readNextActionBoolean(&e)) {
+    if (!tracer::readNextActionBoolean(frameTime, &e)) {
         return false;
     }
     assert(holds_alternative<tracer::traceActionBoolean>(e.body));
