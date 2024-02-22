@@ -75,7 +75,11 @@ give_stats <- function(tb, colname) {
               q25 = quantile(v, 0.25),
               median = median(v),
               q75 = quantile(v, 0.75),
+              q90 = quantile(v, 0.90),
+              q95 = quantile(v, 0.95),
+              q99 = quantile(v, 0.99),
               max = max(v),
+              iqr = q75 - q25,
               .by = c(game, config, i)) %>%
     mutate(mean_maxd = max(mean) - min(mean)) %>%
     mutate(stdev_maxd = max(stdev) - min(stdev)) %>%
@@ -279,11 +283,14 @@ data_logcat_vrapi %>%
 ```
 
 ```{r exp-device-evo-frametime-all-rcdf, fig.width = 12, fig.height = 2}
-data_logcat_vrapi %>%
+d <- data_logcat_vrapi %>%
   filter(game != "noapp") %>%
   filter(game != "azsq") %>%
   filter(ts > 60) %>%
   filter(app > 0) %>%
+  filter(i == 1)
+  
+d %>%
   ggplot() +
   geom_vline(xintercept = 11.1, color = "orange", linetype = "dashed") +
   geom_vline(xintercept = 13.9, color = "red") +
@@ -299,6 +306,9 @@ data_logcat_vrapi %>%
   facet_grid(~factor(game_h, levels=c(g_gorillatag, g_moss, g_explorevr, g_vrchat)), scales = "free_x") +
   expand_limits(x = c(0,15)) +
   scale_color_manual(values=device_colors)
+
+d %>%
+  give_stats(app)
 ```
 
 ```{r exp-device-evo-frametime-explorevr-box, fig.width = 3, fig.height = 2}
@@ -542,16 +552,22 @@ p <- data_logcat_vrapi %>%
 ### GPU
 
 ```{r}
-p <- data_logcat_vrapi %>%
+d <- data_logcat_vrapi %>%
   filter(game != "noapp") %>%
   filter(game != "azsq") %>%
   filter(ts > 60) %>%
+  filter(i == 1)
+
+p <- d %>%
   ggplot(aes(x = gpu_util, y = config, fill = config)) +
   geom_boxplot() +
-  xlim(0, NA) +
+  xlim(0, 100) +
   labs(x = "GPU utilization [%]", y = "VR Device") +
   theme_cowplot(15) +
   background_grid()
+
+d %>%
+  give_stats(gpu_util)
 ```
 
 
@@ -699,14 +715,17 @@ data_batterymanager_companion %>%
 ```
 
 ```{r exp-device-evo-battery-power-all-box, fig.width=12, fig.height=1.5}
-data_batterymanager_companion %>%
+d <- data_batterymanager_companion %>%
   filter(ts > 60) %>%
   filter(ts <= 960) %>%
   filter(game != "noapp") %>%
   filter(game != "azsq") %>%
-  filter(i == 1) %>%
+  filter(i == 1)
+
+d %>%
   ggplot() +
   geom_boxplot(aes(x=-power_w, y=config, fill = config)) +
+  stat_summary(eas(x=-power_w), geom="point", shape=20, size=14, color="black", fill="white") +
   theme(strip.background=element_rect(fill="white")) +
   facet_grid(~factor(game_h, levels=c(g_gorillatag, g_moss, g_explorevr, g_vrchat)), scales = "free_x") +
   theme_cowplot(15) +
@@ -715,6 +734,10 @@ data_batterymanager_companion %>%
   xlim(0, 15) +
   labs(y = "VR Device", x = "Power [W]") +
   scale_fill_manual(values=device_colors)
+
+d %>%
+  filter(config == "MQ2") %>%
+  give_stats(-power_w)
 ```
 
 ### Network Use
