@@ -1,0 +1,18 @@
+
+Key      Value
+---      -----
+OutDir   ..\traces\20240223-trace-beatsaber-mqp-4m-record-n1\
+Class    com.beatgames.beatsaber
+Activity com.unity3d.player.UnityPlayerActivity
+
+
+Key       Value
+---       -----
+OutDir    ..\traces\20240223-trace-beatsaber-mqp-4m-record-n1\
+Class     com.beatgames.beatsaber
+Activity  com.unity3d.player.UnityPlayerActivity
+Duration  300
+S2Battery True
+Mode      record
+TraceFile trace.txt
+
