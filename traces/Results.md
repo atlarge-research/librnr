@@ -10,8 +10,8 @@ Experiment
     - [CPU](#cpu)
     - [GPU](#gpu)
     - [Battery Usage](#battery-usage)
-    - [Network Use](#network-use)
   - [Bandwidth Limits](#bandwidth-limits)
+  - [Local vs Streamed](#local-vs-streamed)
   - [Performance Variability](#performance-variability)
     - [Local Apps](#local-apps)
 
@@ -39,17 +39,21 @@ saveplot <- function(filename, ...) {
   knitr::plot_crop(filename)
 }
 
-traces_replays <- list.files(".", pattern="[0-9]+-trace-[a-z]+-mq[23p]-16m-replay-n[0-9]")
+files <- list.files(".", pattern="[0-9]+(.+-.+)+")
 
-# 20240222-trace-beatsaber-mqp-bw_10
-bandwidth_replays <- list.files(".", pattern="[0-9]+-trace-[a-z]+-mq[23p]-n[0-9]-bw_[0-9]")
+# traces_replays <- list.files(".", pattern="[0-9]+-trace-[a-z]+-mq[23p]-16m-replay-n[0-9]")
+# 
+# # 20240222-trace-beatsaber-mqp-bw_10
+# bandwidth_replays <- list.files(".", pattern="[0-9]+-trace-[a-z]+-mq[23p]-n[0-9]-bw_[0-9]")
 
-to_human_name <- function(name) {
-  if (str_split_i(name, "-", 4) == "mq3") {
+device_to_human_name <- function(d) {
+  if (is.na(d)) {
+    "NA"
+  } else if (d == "mq3") {
     "MQ3"
-  } else if (str_split_i(name, "-", 4) == "mqp") {
+  } else if (d == "mqp") {
     "MQP"
-  } else if (str_split_i(name, "-", 4) == "mq2") {
+  } else if (d == "mq2") {
     "MQ2"
   } else {
     name
@@ -62,7 +66,9 @@ g_gorillatag <- "Gorilla Tag"
 g_vrchat <- "VRChat"
 
 game_to_human_name <- function(name) {
-  if (name == "moss") {
+  if (is.na(name)) {
+    "NA"
+  } else if (name == "moss") {
     g_moss
   } else if (name == "explorevr") {
     g_explorevr
@@ -75,7 +81,7 @@ game_to_human_name <- function(name) {
   }
 }
 
-give_stats <- function(tb, colname, by = c("game", "config", "i")) {
+give_stats <- function(tb, colname, by = c("game_h", "d_h", "i")) {
   tb %>%
     mutate(v = {{colname}}) %>%
     summarise(mean = mean(v),
@@ -99,138 +105,116 @@ give_stats <- function(tb, colname, by = c("game", "config", "i")) {
     mutate(max_maxd = max(max) - min(max))
 }
 
+add_columns_from_dir_name <- function(df, f) {
+  p <- str_split(f, "-")[[1]]
+  df <- df %>%
+    mutate(date = p[1])
+  i <- 2
+  while (i <= length(p)) {
+    v <- p[i+1]
+    df <- df %>%
+      mutate("{p[i]}" := v)
+    i <- i + 2
+  }
+  df
+}
+
+# Load host system metrics data
 data_host_sys_metrics <- NULL
-for (f in traces_replays) {
-  y <- read_csv(here(f, "host_sys_metrics.log"), col_types = cols(.default = "c"))
-  stop_for_problems(y)
-  x <- y %>%
-    mutate(game = str_split_i(f, "-", 3)) %>%
-    mutate(i = str_split_i(f, "-", -1) %>% str_split_i("n", 2)) %>%
-    mutate(bwlimit = NA) %>%
-    mutate(ts = as.numeric(timestamp)) %>%
-    mutate(ts = ts - min(ts)) %>%
-    mutate(ts_m = ts / 60) %>%
-    mutate(config = f)
-  data_host_sys_metrics <- x %>%
+for (f in files) {
+  fp <- here(f, "host_sys_metrics.log")
+  if (!file.exists(fp)) {
+    next
+  }
+  data_host_sys_metrics <- read_csv(fp, col_types = cols(.default = "c")) %>%
+    add_columns_from_dir_name(f) %>%
+    mutate(fname = f) %>%
     bind_rows(data_host_sys_metrics, .)
 }
-for (f in bandwidth_replays) {
-  data_host_sys_metrics <- read_csv(here(f, "host_sys_metrics.log"), col_types = cols(.default = "c")) %>%
-    mutate(game = str_split_i(f, "-", 3)) %>%
-    mutate(i = str_split_i(f, "-", -2) %>% str_split_i("n", 2)) %>%
-    mutate(bwlimit = str_split_i(f, "_", 2)) %>%
-    mutate(ts = as.numeric(timestamp)) %>%
-    mutate(ts = ts - min(ts)) %>%
-    mutate(ts_m = ts / 60) %>%
-    mutate(config = f) %>%
-    bind_rows(data_host_sys_metrics, .)
-}
-```
-
-    ## Warning: There was 1 warning in `mutate()`.
-    ## ℹ In argument: `ts = as.numeric(timestamp)`.
-    ## Caused by warning:
-    ## ! NAs introduced by coercion
-
-``` r
 data_host_sys_metrics <- data_host_sys_metrics %>%
-  type.convert(as.is = TRUE)
+  filter(timestamp != "timestamp") %>%
+  type.convert(as.is = TRUE) %>%
+  group_by(fname) %>%
+  mutate(ts = timestamp) %>%
+  mutate(ts = ts - min(ts)) %>%
+  mutate(ts_m = ts / 60) %>%
+  ungroup()
 
+# Load host gpu metrics data
 data_host_gpu_metrics <- NULL
-for (f in traces_replays) {
-  data_host_gpu_metrics <- read_csv(here(f, "host_gpu_metrics.log"), col_types = cols(.default = "c")) %>%
-    mutate(game = str_split_i(f, "-", 3)) %>%
-    mutate(i = str_split_i(f, "-", -1) %>% str_split_i("n", 2)) %>%
-    mutate(bwlimit = NA) %>%
-    mutate(ts = as.numeric(timestamp)) %>%
-    mutate(ts = ts - min(ts)) %>%
-    mutate(ts_m = ts / 60) %>%
-    mutate(config = f) %>%
+for (f in files) {
+  fp <- here(f, "host_gpu_metrics.log")
+  if (!file.exists(fp)) {
+    next
+  }
+  data_host_gpu_metrics <- read_csv(fp, col_types = cols(.default = "c")) %>%
+    add_columns_from_dir_name(f) %>%
+    mutate(fname = f) %>%
     bind_rows(data_host_gpu_metrics, .)
 }
-for (f in bandwidth_replays) {
-  data_host_gpu_metrics <- read_csv(here(f, "host_gpu_metrics.log"), col_types = cols(.default = "c")) %>%
-    mutate(game = str_split_i(f, "-", 3)) %>%
-    mutate(i = str_split_i(f, "-", -2) %>% str_split_i("n", 2)) %>%
-    mutate(bwlimit = str_split_i(f, "_", 2)) %>%
-    mutate(ts = as.numeric(timestamp)) %>%
-    mutate(ts = ts - min(ts)) %>%
-    mutate(ts_m = ts / 60) %>%
-    mutate(config = f) %>%
-    bind_rows(data_host_gpu_metrics, .)
-}
-```
-
-    ## Warning: There was 1 warning in `mutate()`.
-    ## ℹ In argument: `ts = as.numeric(timestamp)`.
-    ## Caused by warning:
-    ## ! NAs introduced by coercion
-
-``` r
 data_host_gpu_metrics <- data_host_gpu_metrics %>%
-  type.convert(as.is = TRUE)
+  filter(timestamp != "timestamp") %>%
+  type.convert(as.is = TRUE) %>%
+  group_by(fname) %>%
+  mutate(ts = as.numeric(timestamp)) %>%
+  mutate(ts = ts - min(ts)) %>%
+  mutate(ts_m = ts / 60) %>%
+  ungroup()
 
+# Load VR logcat system metrics data
 pattern <- c(month="-?\\d+", "-", day="-?\\d+", "\\s+", hour="-?\\d+", ":", minute="-?\\d+", ":", second="-?\\d+", "\\.", millisecond="-?\\d+", "\\s+", pid="-?\\d+", "\\s+", tid="-?\\d+", "\\s+", level="\\w", "\\s+VrApi\\s+:\\s+FPS=",fps_render="-?\\d+", "/", fps_refresh="-?\\d+", ",Prd=", prd="-?\\d+", "ms,Tear=", tear="-?\\d+", ",Early=", early="-?\\d+", ",Stale=", stale="-?\\d+", ",Stale2/5/10/max=", stale2="-?\\d+", "/", stale5="-?\\d+", "/", stale10="-?\\d+", "/", stalemax="-?\\d+", ",VSnc=", vsnc="-?\\d+", ",Lat=", lat="-?-?\\d+", ",Fov=", fov="-?\\d+\\w*", ",CPU", cpun="\\d", "/GPU=", cpu_level="-?\\d+", "/", gpu_level="-?\\d+", ",", cpu_freq="-?\\d+", "/", gpu_freq="-?\\d+", "MHz,OC=", oc=".+", ",TA=", ta_atw="-?\\d+\\w*", "/", ta_main="-?\\d+\\w*", "/", ta_render="-?\\d+\\w*", ",SP=", sp_atw="\\w", "/", sp_main="\\w", "/", sp_render="\\w", ",Mem=", mem="-?\\d+", "MHz,Free=", free="-?\\d+", "MB,PLS=", pls="-?\\d+", ",Temp=", temp_bat="-?\\d+\\.\\d+", "C/", temp_sens="-?\\d+\\.\\d+", "C,TW=", tw="-?\\d+\\.\\d+", "ms,App=", app="-?\\d+\\.\\d+", "ms,GD=", gd="-?\\d+\\.\\d+", "ms,CPU&GPU=", cpu_gpu="-?\\d+\\.\\d+", "ms,LCnt=", lcnt="-?\\d+", "\\(DR", dr="-?\\d+", ",LM", lm="-?\\d+", "\\),GPU%=", gpu_percent="-?\\d+\\.\\d+", ",CPU%=", cpu_percent="-?\\d+\\.\\d+", "\\(W", cpu_percent_worst="-?\\d+\\.\\d+", "\\),DSF=", dsf="-?\\d+\\.\\d+", ",CFL=", cfl_min="-?\\d+\\.\\d+", "/", cfl_max="-?\\d+\\.\\d+", ",ICFLp95=", icflp95="-?\\d+\\.\\d+", ",LD=", ld="-?\\d+", ",SF=", sf="-?\\d+\\.\\d+", ",LP=", lp="-?\\d+", ",DVFS=", dvfs="-?\\d+")
-
 data_logcat_vrapi <- NULL
-for (f in traces_replays) {
-  data_logcat_vrapi <- readLines(here(f, "logcat_VrApi.log")) %>%
+for (f in files) {
+  fp <- here(f, "logcat_VrApi.log")
+  if (!file.exists(fp)) {
+    next
+  }
+  data_logcat_vrapi <- readLines(fp) %>%
     tibble(line = .) %>%
-    mutate(game = str_split_i(f, "-", 3)) %>%
-    mutate(i = str_split_i(f, "-", -1) %>% str_split_i("n", 2)) %>%
-    mutate(bwlimit = NA) %>%
     filter(grepl("^.+\\s+VrApi\\s+:\\s+FPS=", line)) %>%
     separate_wider_regex(line, pattern) %>%
-    mutate(ts = as.numeric(second) + (60*as.numeric(minute)) + (60*60*as.numeric(hour))) %>%
-    mutate(ts = ts - min(ts)) %>%
-    mutate(ts_m = ts / 60) %>%
-    mutate(cpu_util = 100 * as.numeric(cpu_percent)) %>%
-    mutate(cpu_freq_ghz = as.numeric(cpu_freq) / 1000) %>%
-    mutate(cpu_freq_rel = (as.numeric(cpu_freq) - min(as.numeric(cpu_freq))) / max(as.numeric(cpu_freq))) %>%
-    rowwise() %>%
-    mutate(cpu_freq_rel = max(0.01, cpu_freq_rel)) %>%
-    ungroup() %>%
-    mutate(cpu_usage_ltp = as.numeric(cpu_level) * as.numeric(cpu_percent)) %>%
-    mutate(cpu_usage_ftp = as.numeric(cpu_freq) * as.numeric(cpu_percent)) %>%
-    mutate(cpu_usage_ftp_rel = as.numeric(cpu_freq_rel) * as.numeric(cpu_percent)) %>%
-    mutate(cpu_util_worst = 100 * as.numeric(cpu_percent_worst)) %>%
-    mutate(gpu_util = 100 * as.numeric(gpu_percent)) %>%
-    mutate(gpu_usage_ltp = as.numeric(gpu_level) * as.numeric(gpu_percent)) %>%
-    mutate(gpu_usage_ftp = as.numeric(gpu_freq) * as.numeric(gpu_percent)) %>%
-    mutate(config = f) %>%
-    bind_rows(data_logcat_vrapi, .)
-}
-for (f in bandwidth_replays) {
-  data_logcat_vrapi <- readLines(here(f, "logcat_VrApi.log")) %>%
-    tibble(line = .) %>%
-    mutate(game = str_split_i(f, "-", 3)) %>%
-    mutate(i = str_split_i(f, "-", -2) %>% str_split_i("n", 2)) %>%
-    mutate(bwlimit = str_split_i(f, "_", 2)) %>%
-    filter(grepl("^.+\\s+VrApi\\s+:\\s+FPS=", line)) %>%
-    separate_wider_regex(line, pattern) %>%
-    mutate(ts = as.numeric(second) + (60*as.numeric(minute)) + (60*60*as.numeric(hour))) %>%
-    mutate(ts = ts - min(ts)) %>%
-    mutate(ts_m = ts / 60) %>%
-    mutate(cpu_util = 100 * as.numeric(cpu_percent)) %>%
-    mutate(cpu_freq_ghz = as.numeric(cpu_freq) / 1000) %>%
-    mutate(cpu_freq_rel = (as.numeric(cpu_freq) - min(as.numeric(cpu_freq))) / max(as.numeric(cpu_freq))) %>%
-    rowwise() %>%
-    mutate(cpu_freq_rel = max(0.01, cpu_freq_rel)) %>%
-    ungroup() %>%
-    mutate(cpu_usage_ltp = as.numeric(cpu_level) * as.numeric(cpu_percent)) %>%
-    mutate(cpu_usage_ftp = as.numeric(cpu_freq) * as.numeric(cpu_percent)) %>%
-    mutate(cpu_usage_ftp_rel = as.numeric(cpu_freq_rel) * as.numeric(cpu_percent)) %>%
-    mutate(cpu_util_worst = 100 * as.numeric(cpu_percent_worst)) %>%
-    mutate(gpu_util = 100 * as.numeric(gpu_percent)) %>%
-    mutate(gpu_usage_ltp = as.numeric(gpu_level) * as.numeric(gpu_percent)) %>%
-    mutate(gpu_usage_ftp = as.numeric(gpu_freq) * as.numeric(gpu_percent)) %>%
-    mutate(config = f) %>%
+    add_columns_from_dir_name(f) %>%
+    mutate(fname = f) %>%
     bind_rows(data_logcat_vrapi, .)
 }
 data_logcat_vrapi <- data_logcat_vrapi %>%
   type.convert(as.is = TRUE) %>%
-  mutate(config = map_chr(config, to_human_name)) %>%
-  mutate(game_h = map_chr(game, game_to_human_name))
+  group_by(fname) %>%
+  mutate(ts = second + (60*minute) + (60*60*hour)) %>%
+  mutate(ts = ts - min(ts)) %>%
+  ungroup() %>%
+  mutate(ts_m = ts / 60) %>%
+  mutate(cpu_util = 100 * cpu_percent) %>%
+  mutate(cpu_freq_ghz = cpu_freq / 1000) %>%
+  mutate(gpu_util = 100 * gpu_percent) %>%
+  mutate(d_h = map_chr(d, device_to_human_name)) %>%
+  mutate(game_h = map_chr(a, game_to_human_name))
+data_logcat_vrapi
+```
+
+    ## # A tibble: 78,600 × 80
+    ##    month   day  hour minute second millisecond   pid   tid level fps_render
+    ##    <int> <int> <int>  <int>  <int>       <int> <int> <int> <chr>      <int>
+    ##  1    12    11     2     59     45         524  1975  3146 I             90
+    ##  2    12    11     2     59     46         524  1975  3146 I             90
+    ##  3    12    11     2     59     47         524  1975  3146 I             90
+    ##  4    12    11     2     59     48         524  1975  3146 I             90
+    ##  5    12    11     2     59     49         524  1975  3146 I             90
+    ##  6    12    11     2     59     50         524  1975  3146 I             90
+    ##  7    12    11     2     59     51         524  1975  3146 I             90
+    ##  8    12    11     2     59     52         524  1975  3146 I             90
+    ##  9    12    11     2     59     53         524  1975  3146 I             90
+    ## 10    12    11     2     59     54         524  1975  3146 I             90
+    ## # ℹ 78,590 more rows
+    ## # ℹ 70 more variables: fps_refresh <int>, prd <int>, tear <int>, early <int>,
+    ## #   stale <int>, stale2 <int>, stale5 <int>, stale10 <int>, stalemax <int>,
+    ## #   vsnc <int>, lat <int>, fov <chr>, cpun <int>, cpu_level <int>,
+    ## #   gpu_level <int>, cpu_freq <int>, gpu_freq <int>, oc <chr>, ta_atw <int>,
+    ## #   ta_main <chr>, ta_render <chr>, sp_atw <chr>, sp_main <chr>,
+    ## #   sp_render <chr>, mem <int>, free <int>, pls <int>, temp_bat <dbl>, …
+
+``` r
+# Load VR network metrics data
 
 #Inter-|   Receive                                                |  Transmit
 # face |bytes    packets errs drop fifo frame compressed multicast|bytes    packets errs drop fifo colls carrier compressed
@@ -238,39 +222,27 @@ data_logcat_vrapi <- data_logcat_vrapi %>%
 pattern <- c("\\s+wlan0:\\s+", rx_bytes="\\d+", "\\s+", rx_packets="\\d+", "\\s+", rx_errs="\\d+", "\\s+", rx_drop="\\d+", "\\s+", rx_fifo="\\d+", "\\s+", rx_frame="\\d+", "\\s+", rx_compressed="\\d+", "\\s+", rx_multicast="\\d+", "\\s+", tx_bytes="\\d+", "\\s+", tx_packets="\\d+", "\\s+", tx_errs="\\d+", "\\s+", tx_drop="\\d+", "\\s+", tx_fifo="\\d+", "\\s+", tx_colls="\\d+", "\\s+", tx_carrier="\\d+", "\\s+", tx_compressed="\\d+")
 
 data_net_dev <- NULL
-for (f in traces_replays) {
-  data_net_dev <- readLines(here(f, "net_dev.log")) %>%
+for (f in files) {
+  fp <- here(f, "net_dev.log")
+  if (!file.exists(fp)) {
+    next
+  }
+  data_net_dev <- readLines(fp) %>%
     tibble(line = .) %>%
-    mutate(game = str_split_i(f, "-", 3)) %>%
-    mutate(i = str_split_i(f, "-", -1) %>% str_split_i("n", 2)) %>%
-    mutate(bwlimit = NA) %>%
     filter(grepl("^\\s+wlan0:\\s+", line)) %>%
     separate_wider_regex(line, pattern) %>%
+    add_columns_from_dir_name(f) %>%
+    mutate(fname = f) %>%
     mutate(ts = 0:(n() - 1)) %>%
     select(ts, everything()) %>%
     mutate(ts_m = ts / 60) %>%
-    mutate(config = f) %>%
-    bind_rows(data_net_dev, .)
-}
-for (f in bandwidth_replays) {
-  data_net_dev <- readLines(here(f, "net_dev.log")) %>%
-    tibble(line = .) %>%
-    mutate(game = str_split_i(f, "-", 3)) %>%
-    mutate(i = str_split_i(f, "-", -2) %>% str_split_i("n", 2)) %>%
-    mutate(bwlimit = str_split_i(f, "_", 2)) %>%
-    filter(grepl("^\\s+wlan0:\\s+", line)) %>%
-    separate_wider_regex(line, pattern) %>%
-    mutate(ts = 0:(n() - 1)) %>%
-    select(ts, everything()) %>%
-    mutate(ts_m = ts / 60) %>%
-    mutate(config = f) %>%
     bind_rows(data_net_dev, .)
 }
 data_net_dev <- data_net_dev %>%
   type.convert(as.is = TRUE) %>%
-  mutate(config = map_chr(config, to_human_name)) %>%
-  mutate(game_h = map_chr(game, game_to_human_name)) %>%
-  group_by(config, game, i) %>%
+  mutate(d_h = map_chr(d, device_to_human_name)) %>%
+  mutate(game_h = map_chr(a, game_to_human_name)) %>%
+  group_by(fname) %>%
   mutate(bps_tx = 8 * (tx_bytes - lag(tx_bytes))) %>%
   mutate(kbps_tx = bps_tx / 1000) %>%
   mutate(Mbps_tx = bps_tx / 1000000) %>%
@@ -279,44 +251,55 @@ data_net_dev <- data_net_dev %>%
   mutate(kbps_rx = bps_rx / 1000) %>%
   mutate(Mbps_rx = bps_rx / 1000000) %>%
   mutate(Gbps_rx = bps_rx / 1000000000) %>%
-  drop_na() %>%
   ungroup()
+data_net_dev
+```
 
+    ## # A tibble: 72,744 × 44
+    ##       ts rx_bytes rx_packets rx_errs rx_drop rx_fifo rx_frame rx_compressed
+    ##    <int>    <dbl>      <int>   <int>   <int>   <int>    <int>         <int>
+    ##  1     0 22648810      36024       0       0       0        0             0
+    ##  2     1 22656042      36077       0       0       0        0             0
+    ##  3     2 22659921      36127       0       0       0        0             0
+    ##  4     3 22667965      36178       0       0       0        0             0
+    ##  5     4 22671728      36223       0       0       0        0             0
+    ##  6     5 22673282      36233       0       0       0        0             0
+    ##  7     6 22679675      36280       0       0       0        0             0
+    ##  8     7 22682726      36323       0       0       0        0             0
+    ##  9     8 22691887      36383       0       0       0        0             0
+    ## 10     9 22694465      36425       0       0       0        0             0
+    ## # ℹ 72,734 more rows
+    ## # ℹ 36 more variables: rx_multicast <int>, tx_bytes <dbl>, tx_packets <int>,
+    ## #   tx_errs <int>, tx_drop <int>, tx_fifo <int>, tx_colls <int>,
+    ## #   tx_carrier <int>, tx_compressed <int>, date <int>, a <chr>, n <chr>,
+    ## #   e <chr>, src <chr>, dst <chr>, airline <chr>, fname <chr>, ts_m <dbl>,
+    ## #   m <chr>, d <chr>, l <int>, i <dbl>, song <chr>, diff <chr>, b <int>,
+    ## #   p <dbl>, d_h <chr>, game_h <chr>, bps_tx <dbl>, kbps_tx <dbl>, …
+
+``` r
+# Load VR battery metrics data
 # 01-18 18:54:21.709  6038  6148 I BatteryMgr:DataCollectionService: stats => 1705600461709,-1312532,3835
 pattern <- c(month="\\d+", "-", day="\\d+", "\\s+", hour="\\d+", ":", minute="\\d+", ":", second="\\d+", "\\.", millisecond="\\d+", "\\s+", pid="\\d+", "\\s+", tid="\\d+", "\\s+I\\s+BatteryMgr:DataCollectionService:\\s+stats\\s+=>\\s+", ts_milli="\\d+", ",", current="-?\\d+", ",", voltage="\\d+")
 
 data_batterymanager_companion <- NULL
-for (f in traces_replays) {
-  data_batterymanager_companion <- readLines(here(f, "batterymanager-companion.log")) %>%
-    tibble(line = .) %>%
-    mutate(game = str_split_i(f, "-", 3)) %>%
-    mutate(i = str_split_i(f, "-", -1) %>% str_split_i("n", 2)) %>%
-    mutate(bwlimit = NA) %>%
-    filter(grepl("\\WBatteryMgr:DataCollectionService:\\s+stats\\s+=>", line)) %>%
-    separate_wider_regex(line, pattern) %>%
-    mutate(config = f) %>%
-    bind_rows(data_batterymanager_companion, .)
-}
-for (f in bandwidth_replays) {
-  fname <- here(f, "batterymanager-companion.log")
-  if (!file.exists(fname)) {
+for (f in files) {
+  fp <- here(f, "batterymanager-companion.log")
+  if (!file.exists(fp)) {
     next
   }
-  data_batterymanager_companion <- readLines(fname) %>%
+  data_batterymanager_companion <- readLines(fp) %>%
     tibble(line = .) %>%
-    mutate(game = str_split_i(f, "-", 3)) %>%
-    mutate(i = str_split_i(f, "-", -2) %>% str_split_i("n", 2)) %>%
-    mutate(bwlimit = str_split_i(f, "_", 2)) %>%
     filter(grepl("\\WBatteryMgr:DataCollectionService:\\s+stats\\s+=>", line)) %>%
     separate_wider_regex(line, pattern) %>%
-    mutate(config = f) %>%
+    add_columns_from_dir_name(f) %>%
+    mutate(fname = f) %>%
     bind_rows(data_batterymanager_companion, .)
 }
 data_batterymanager_companion <- data_batterymanager_companion %>%
   type.convert(as.is = TRUE) %>%
-  mutate(config = map_chr(config, to_human_name)) %>%
-  mutate(game_h = map_chr(game, game_to_human_name)) %>%
-  group_by(config, game, i) %>%
+  mutate(d_h = map_chr(d, device_to_human_name)) %>%
+  mutate(game_h = map_chr(a, game_to_human_name)) %>%
+  group_by(fname) %>%
   mutate(ts_milli = ts_milli - min(ts_milli)) %>%
   ungroup() %>%
   mutate(ts = ts_milli / 1000) %>%
@@ -325,7 +308,30 @@ data_batterymanager_companion <- data_batterymanager_companion %>%
   mutate(current_a = current / 1000000) %>%
   mutate(voltage_v = voltage / 1000) %>%
   mutate(power_w = current_a * voltage_v)
+data_batterymanager_companion
+```
 
+    ## # A tibble: 40,695 × 27
+    ##    month   day  hour minute second millisecond   pid   tid ts_milli  current
+    ##    <int> <int> <int>  <int>  <int>       <int> <int> <int>    <dbl>    <int>
+    ##  1     1    16    13     56      7         733  6505  6529        0 -1833983
+    ##  2     1    16    13     56      8         740  6505  6529     1007 -2007323
+    ##  3     1    16    13     56      9         745  6505  6529     2012 -1681151
+    ##  4     1    16    13     56     10         748  6505  6529     3014 -1889647
+    ##  5     1    16    13     56     11         750  6505  6529     4017 -1489745
+    ##  6     1    16    13     56     12         753  6505  6529     5020 -1476073
+    ##  7     1    16    13     56     13         756  6505  6529     6023 -1520507
+    ##  8     1    16    13     56     14         758  6505  6529     7025 -1550292
+    ##  9     1    16    13     56     15         761  6505  6529     8028 -1501952
+    ## 10     1    16    13     56     16         763  6505  6529     9030 -1864256
+    ## # ℹ 40,685 more rows
+    ## # ℹ 17 more variables: voltage <int>, date <int>, m <chr>, d <chr>, a <chr>,
+    ## #   l <int>, i <int>, fname <chr>, b <int>, d_h <chr>, game_h <chr>, ts <dbl>,
+    ## #   ts_m <dbl>, current_ma <dbl>, current_a <dbl>, voltage_v <dbl>,
+    ## #   power_w <dbl>
+
+``` r
+# Define some nice colors
 game_colors <- c(g_moss = "#ccbb44",
                  g_gorillatag="#66ccee",
                  g_explorevr="#ee6677",
@@ -521,7 +527,11 @@ iperf_data %>%
 
 ``` r
 data_logcat_vrapi %>%
-  ggplot(aes(x = ts_m, y = fps_render, group = game, color = game)) +
+  filter(is.na(b)) %>%
+  filter(a == "moss" | a == "vrchat" | a == "gorillatag" | a == "explorevr") %>%
+  filter(i == 1) %>%
+  filter(m == "replay") %>%
+  ggplot(aes(x = ts_m, y = fps_render, group = a, color = a)) +
   geom_line() +
   ylim(0, NA) +
   theme_cowplot(15) +
@@ -529,100 +539,67 @@ data_logcat_vrapi %>%
   labs(x="Time [m]", y="Frame rate [fps]  ") +
   coord_cartesian(clip="off") +
   theme(plot.margin=margin(0,0,0,0, "cm")) +
-  facet_grid(cols = vars(config))
+  facet_grid(cols = vars(fname))
 ```
 
 ![](Results_files/figure-gfm/unnamed-chunk-1-1.svg)<!-- -->
-
-``` r
-data_logcat_vrapi %>%
-  filter(game == "explorevr") %>%
-  ggplot(aes(x = ts_m, y = fps_render, color = config)) +
-  geom_line() +
-  ylim(0, NA) +
-  theme_cowplot(15) +
-  background_grid() +
-  labs(x="Time [m]", y="Frames per second        ") +
-  coord_cartesian(clip="off") +
-  theme(plot.margin=margin(0,0,0,0, "cm"))
-```
-
-![](Results_files/figure-gfm/unnamed-chunk-2-1.svg)<!-- -->
-
-``` r
-data_logcat_vrapi %>%
-  # filter(ts >= start_time & ts <= end_time) %>%
-  ggplot(aes(x = fps_render, y = config)) +
-  geom_boxplot() +
-  xlim(0, NA) +
-  labs(x = "Frames per second", y = "VR Device") +
-  theme_half_open() +
-  background_grid() +
-  theme(legend.position = "bottom") +
-  scale_color_viridis_d(begin = 0.3, direction = -1)
-```
-
-![](Results_files/figure-gfm/unnamed-chunk-3-1.svg)<!-- -->
 
 ### Frame Time
 
 ``` r
 data_logcat_vrapi %>%
-  filter(game != "noapp") %>%
-  filter(game != "vrchat") %>%
-  filter(game != "explorevr") %>%
-  filter(game != "azsq") %>%
+  filter(a == "moss" | a == "gorillatag") %>%
+  filter(i == 1) %>%
   filter(ts > 60) %>%
   filter(app > 0) %>%
   ggplot() +
   geom_vline(xintercept = 11.1, color = "orange", linetype = "dashed") +
   geom_vline(xintercept = 13.9, color = "red") +
-  geom_boxplot(aes(x = app, y = config)) +
+  geom_boxplot(aes(x = app, y = d)) +
   xlim(0, NA) +
   labs(x = "Frame time [ms]", y = "Device") +
   theme_half_open() +
   background_grid() +
   theme(legend.position = c(.25,.45), legend.background = element_rect(fill=alpha("white", 0.75))) +
-  facet_grid(cols = vars(game))
+  facet_grid(cols = vars(a))
 ```
 
 ![](Results_files/figure-gfm/exp-device-evo-frametime-all-box-1.svg)<!-- -->
 
 ``` r
 data_logcat_vrapi %>%
-  filter(game != "noapp") %>%
-  filter(game != "vrchat") %>%
-  filter(game != "explorevr") %>%
-  filter(game != "azsq") %>%
+  filter(a == "moss" | a == "gorillatag") %>%
+  filter(i == 1) %>%
   filter(ts > 60) %>%
   filter(app > 0) %>%
   ggplot() +
   geom_vline(xintercept = 11.1, color = "orange", linetype = "dashed") +
   geom_vline(xintercept = 13.9, color = "red") +
-  stat_ecdf(aes(x = app, group = config, color = config), pad=FALSE) +
+  stat_ecdf(aes(x = app, group = d, color = d), pad=FALSE) +
   xlim(0, NA) +
   labs(x = "Frame time [ms]", y = "Fraction", color = "Device") +
   theme_half_open() +
   background_grid() +
   theme(legend.position = c(.25,.45), legend.background = element_rect(fill=alpha("white", 0.75))) +
-  facet_grid(cols = vars(game))
+  facet_grid(cols = vars(a))
 ```
 
 ![](Results_files/figure-gfm/exp-device-evo-frametime-all-cdf-1.svg)<!-- -->
 
 ``` r
 d <- data_logcat_vrapi %>%
-  filter(game != "noapp") %>%
-  filter(game != "azsq") %>%
+  filter(a == "moss" | a == "gorillatag" | a == "explorevr" | a == "vrchat") %>%
   filter(ts > 60) %>%
   filter(app > 0) %>%
-  filter(i == 1)
+  filter(i == 1) %>%
+  filter(m == "replay") %>%
+  filter(l == 16)
   
 d %>%
   ggplot() +
   geom_vline(xintercept = 11.1, color = "orange", linetype = "dashed") +
   geom_vline(xintercept = 13.9, color = "red") +
-  stat_ecdf(aes(x = app, y = log10(1 - after_stat(y)), group = config, color = config), pad=FALSE) +
+  stat_ecdf(aes(x = app, y = log10(1 - after_stat(y)), group = d_h, color = d_h), pad=FALSE) +
   scale_y_continuous(breaks = seq(-3, 0), 
                      labels = 10^(seq(-3, 0)),
                      limits = c(-3, 0)) +
@@ -637,6 +614,28 @@ d %>%
 ```
 
 ![](Results_files/figure-gfm/exp-device-evo-frametime-all-rcdf-1.svg)<!-- -->
+
+``` r
+d %>%
+  select(fname) %>%
+  unique()
+```
+
+    ## # A tibble: 12 × 1
+    ##    fname                                        
+    ##    <chr>                                        
+    ##  1 20240116-m-replay-d-mqp-a-gorillatag-l-16-i-1
+    ##  2 20240116-m-replay-d-mqp-a-moss-l-16-i-1      
+    ##  3 20240117-m-replay-d-mqp-a-explorevr-l-16-i-1 
+    ##  4 20240118-m-replay-d-mq2-a-explorevr-l-16-i-1 
+    ##  5 20240118-m-replay-d-mq2-a-gorillatag-l-16-i-1
+    ##  6 20240118-m-replay-d-mq2-a-moss-l-16-i-1      
+    ##  7 20240118-m-replay-d-mq2-a-vrchat-l-16-i-1    
+    ##  8 20240118-m-replay-d-mq3-a-explorevr-l-16-i-1 
+    ##  9 20240118-m-replay-d-mq3-a-gorillatag-l-16-i-1
+    ## 10 20240118-m-replay-d-mq3-a-moss-l-16-i-1      
+    ## 11 20240130-m-replay-d-mq3-a-vrchat-l-16-i-1    
+    ## 12 20240130-m-replay-d-mqp-a-vrchat-l-16-i-1
 
 ``` r
 d %>%
@@ -656,35 +655,34 @@ d %>%
     ## Call `lifecycle::last_lifecycle_warnings()` to see where this warning was
     ## generated.
 
-    ## # A tibble: 13 × 21
-    ##    game    config     i   mean  stdev   min   q25 median   q75   q90   q95   q99
-    ##    <chr>   <chr>  <int>  <dbl>  <dbl> <dbl> <dbl>  <dbl> <dbl> <dbl> <dbl> <dbl>
-    ##  1 gorill… MQP        1  4.42   0.763  2.31  4.03   4.37  4.92  5.42  5.69  6.06
-    ##  2 moss    MQP        1  6.74   1.42   0.4   5.89   6.74  7.62  8.16  9.56 10.3 
-    ##  3 explor… MQP        1  6.17   2.27   2.91  5.72   6.01  6.39  6.77  7.00  8.23
-    ##  4 explor… MQ2        1  5.12   1.15   1.19  4.49   5.02  5.58  6.06  6.29  7.14
-    ##  5 explor… MQ3        1  3.06   0.523  1.64  2.76   2.99  3.29  3.64  3.85  4.16
-    ##  6 gorill… MQ2        1  3.32   0.763  2.4   2.73   2.98  3.85  4.41  4.85  5.53
-    ##  7 gorill… MQ3        1  2.26   0.613  1.38  1.78   2.01  2.7   3.25  3.46  3.82
-    ##  8 moss    MQ2        1  6.57   1.20   0.69  6.19   6.72  7     7.42  8.8   9.39
-    ##  9 moss    MQ3        1  3.99   0.836  0.37  3.68   3.9   4.1   4.66  5.8   7.39
-    ## 10 vrchat  MQ2        1 10.3    9.89   0.18  5.96   8.38 13.7  17.0  17.8  27.9 
-    ## 11 vrchat  MQ3        1  5.60   5.44   0.02  2.4    4.04  8.46  9.75 12.0  20.6 
-    ## 12 vrchat  MQP        1  8.71  18.3    0.25  5.08   6.56  9.06 11.4  13.5  25.0 
-    ## 13 beatsa… MQP        1  0.842  0.333  0.01  0.72   0.83  0.9   1.13  1.51  2.10
+    ## # A tibble: 12 × 21
+    ##    game_h    d_h       i  mean  stdev   min   q25 median   q75   q90   q95   q99
+    ##    <chr>     <chr> <dbl> <dbl>  <dbl> <dbl> <dbl>  <dbl> <dbl> <dbl> <dbl> <dbl>
+    ##  1 Gorilla … MQP       1  4.42  0.763  2.31  4.03   4.37  4.92  5.42  5.69  6.06
+    ##  2 Moss      MQP       1  6.74  1.42   0.4   5.89   6.74  7.62  8.16  9.56 10.3 
+    ##  3 Nat. Geo… MQP       1  6.17  2.27   2.91  5.72   6.01  6.39  6.77  7.00  8.23
+    ##  4 Nat. Geo… MQ2       1  5.12  1.15   1.19  4.49   5.02  5.58  6.06  6.29  7.14
+    ##  5 Gorilla … MQ2       1  3.32  0.763  2.4   2.73   2.98  3.85  4.41  4.85  5.53
+    ##  6 Moss      MQ2       1  6.57  1.20   0.69  6.19   6.72  7     7.42  8.8   9.39
+    ##  7 VRChat    MQ2       1 10.3   9.89   0.18  5.96   8.38 13.7  17.0  17.8  27.9 
+    ##  8 Nat. Geo… MQ3       1  3.06  0.523  1.64  2.76   2.99  3.29  3.64  3.85  4.16
+    ##  9 Gorilla … MQ3       1  2.26  0.613  1.38  1.78   2.01  2.7   3.25  3.46  3.82
+    ## 10 Moss      MQ3       1  3.99  0.836  0.37  3.68   3.9   4.1   4.66  5.8   7.39
+    ## 11 VRChat    MQ3       1  5.60  5.44   0.02  2.4    4.04  8.46  9.75 12.0  20.6 
+    ## 12 VRChat    MQP       1  8.71 18.3    0.25  5.08   6.56  9.06 11.4  13.5  25.0 
     ## # ℹ 9 more variables: max <dbl>, iqr <dbl>, mean_maxd <dbl>, stdev_maxd <dbl>,
     ## #   min_maxd <dbl>, q25_maxd <dbl>, median_maxd <dbl>, q75_maxd <dbl>,
     ## #   max_maxd <dbl>
 
 ``` r
 data_logcat_vrapi %>%
-  filter(game == "explorevr") %>%
+  filter(a == "explorevr") %>%
   filter(ts > 60) %>%
   filter(app > 0) %>%
   ggplot() +
   geom_vline(xintercept = 11.1, color = "orange", linetype = "dashed") +
   geom_vline(xintercept = 13.9, color = "red") +
-  geom_boxplot(aes(x = app, y = config)) +
+  geom_boxplot(aes(x = app, y = d)) +
   xlim(0, NA) +
   labs(x = "Frame time [ms]", y = "Device") +
   theme_half_open() +
@@ -694,182 +692,47 @@ data_logcat_vrapi %>%
 
 ![](Results_files/figure-gfm/exp-device-evo-frametime-explorevr-box-1.svg)<!-- -->
 
-``` r
-data_logcat_vrapi %>%
-  filter(game == "explorevr") %>%
-  filter(ts > 60) %>%
-  filter(app > 0) %>%
-  ggplot() +
-  geom_vline(xintercept = 11.1, color = "orange", linetype = "dashed") +
-  geom_vline(xintercept = 13.9, color = "red") +
-  stat_ecdf(aes(x = app, group = config, color = config), pad=FALSE) +
-  xlim(0, NA) +
-  labs(x = "Frame time [ms]", y = "Fraction", color = "Device") +
-  theme_half_open() +
-  background_grid() +
-  theme(legend.position = c(.5,.5))
-```
-
-![](Results_files/figure-gfm/exp-device-evo-frametime-explorevr-cdf-1.svg)<!-- -->
-
-``` r
-data_logcat_vrapi %>%
-  filter(game == "explorevr") %>%
-  filter(ts > 60) %>%
-  filter(app > 0) %>%
-  ggplot() +
-  geom_vline(xintercept = 11.1, color = "orange", linetype = "dashed") +
-  geom_vline(xintercept = 13.9, color = "red") +
-  stat_ecdf(aes(x = app, y = log10(1 - after_stat(y)), group = config, color = config), pad=FALSE) +
-  scale_y_continuous(breaks = seq(-3, 0), 
-                     labels = 10^(seq(-3, 0)),
-                     limits = c(-3, 0)) +
-  xlim(0, NA) +
-  labs(x = "Frame time [ms]", y = "Fraction", color = "Device") +
-  theme_half_open() +
-  background_grid() +
-  theme(legend.position = c(.5,.5))
-```
-
-![](Results_files/figure-gfm/exp-device-evo-frametime-explorevr-rcdf-1.svg)<!-- -->
-
-``` r
-data_logcat_vrapi %>%
-  filter(game == "vrchat") %>%
-  filter(ts > 60) %>%
-  filter(app > 0) %>%
-  ggplot() +
-  geom_vline(xintercept = 11.1, color = "orange", linetype = "dashed") +
-  geom_vline(xintercept = 13.9, color = "red") +
-  geom_boxplot(aes(x = app, y = config)) +
-  xlim(0, NA) +
-  labs(x = "Frame time [ms]", y = "Device") +
-  theme_half_open() +
-  background_grid() +
-  theme(legend.position = c(.5,.6))
-```
-
-![](Results_files/figure-gfm/exp-device-evo-frametime-vrchat-box-1.svg)<!-- -->
-
-``` r
-data_logcat_vrapi %>%
-  filter(game == "vrchat") %>%
-  filter(ts > 60) %>%
-  filter(app > 0) %>%
-  ggplot() +
-  geom_vline(xintercept = 11.1, color = "orange", linetype = "dashed") +
-  geom_vline(xintercept = 13.9, color = "red") +
-  stat_ecdf(aes(x = app, group = config, color = config), pad=FALSE) +
-  xlim(0, NA) +
-  labs(x = "Frame time [ms]", y = "Fraction", color = "Device") +
-  theme_half_open() +
-  background_grid() +
-  theme(legend.position = c(.5,.6))
-```
-
-![](Results_files/figure-gfm/exp-device-evo-frametime-vrchat-cdf-1.svg)<!-- -->
-
-``` r
-data_logcat_vrapi %>%
-  filter(game == "vrchat") %>%
-  filter(ts > 60) %>%
-  filter(app > 0) %>%
-  ggplot() +
-  geom_vline(xintercept = 11.1, color = "orange", linetype = "dashed") +
-  geom_vline(xintercept = 13.9, color = "red") +
-  stat_ecdf(aes(x = app, y = log10(1 - after_stat(y)), group = config, color = config), pad=FALSE) +
-  scale_y_continuous(breaks = seq(-3, 0), 
-                     labels = 10^(seq(-3, 0)),
-                     limits = c(-3, 0)) +
-  xlim(0, NA) +
-  labs(x = "Frame time [ms]", y = "Fraction", color = "Device") +
-  theme_half_open() +
-  background_grid() +
-  theme(legend.position = c(.5,.6))
-```
-
-![](Results_files/figure-gfm/exp-device-evo-frametime-vrchat-rcdf-1.svg)<!-- -->
-
-``` r
-data_logcat_vrapi %>%
-  filter(game == "moss") %>%
-  filter(ts > 60) %>%
-  filter(app > 0) %>%
-  ggplot() +
-  geom_vline(xintercept = 11.1, color = "orange", linetype = "dashed") +
-  geom_vline(xintercept = 13.9, color = "red") +
-  geom_boxplot(aes(x = app, y = config)) +
-  xlim(0, NA) +
-  labs(x = "Frame time [ms]", y = "Device") +
-  theme_half_open() +
-  background_grid() +
-  theme(legend.position = c(.6,.35))
-```
-
-![](Results_files/figure-gfm/exp-device-evo-frametime-moss-box-1.svg)<!-- -->
-
-``` r
-data_logcat_vrapi %>%
-  filter(game == "moss") %>%
-  filter(ts > 60) %>%
-  filter(app > 0) %>%
-  ggplot() +
-  geom_vline(xintercept = 11.1, color = "orange", linetype = "dashed") +
-  geom_vline(xintercept = 13.9, color = "red") +
-  stat_ecdf(aes(x = app, group = config, color = config), pad=FALSE) +
-  xlim(0, NA) +
-  labs(x = "Frame time [ms]", y = "Fraction", color = "Device") +
-  theme_half_open() +
-  background_grid() +
-  theme(legend.position = c(.6,.35))
-```
-
-![](Results_files/figure-gfm/exp-device-evo-frametime-moss-cdf-1.svg)<!-- -->
-
-``` r
-data_logcat_vrapi %>%
-  filter(game == "moss") %>%
-  filter(ts > 60) %>%
-  filter(app > 0) %>%
-  ggplot() +
-  geom_vline(xintercept = 11.1, color = "orange", linetype = "dashed") +
-  geom_vline(xintercept = 13.9, color = "red") +
-  stat_ecdf(aes(x = app, y = log10(1 - after_stat(y)), group = config, color = config), pad=FALSE) +
-  scale_y_continuous(breaks = seq(-3, 0), 
-                     labels = 10^(seq(-3, 0)),
-                     limits = c(-3, 0)) +
-  xlim(0, NA) +
-  labs(x = "Frame time [ms]", y = "Fraction", color = "Device") +
-  theme_half_open() +
-  background_grid() +
-  theme(legend.position = c(.04,.35))
-```
-
-![](Results_files/figure-gfm/exp-device-evo-frametime-moss-rcdf-1.svg)<!-- -->
-
 ### CPU
 
 ``` r
-p <- data_logcat_vrapi %>%
-  filter(game != "noapp") %>%
-  filter(game != "azsq") %>%
+d <- data_logcat_vrapi %>%
+  filter(a == "moss" | a == "gorillatag" | a == "explorevr" | a == "vrchat") %>%
   filter(ts > 60) %>%
-  ggplot(aes(x = cpu_util, y = config, fill = config)) +
+  filter(app > 0) %>%
+  filter(i == 1) %>%
+  filter(m == "replay") %>%
+  filter(l == 16)
+
+d %>%
+  select(fname) %>%
+  unique()
+```
+
+    ## # A tibble: 12 × 1
+    ##    fname                                        
+    ##    <chr>                                        
+    ##  1 20240116-m-replay-d-mqp-a-gorillatag-l-16-i-1
+    ##  2 20240116-m-replay-d-mqp-a-moss-l-16-i-1      
+    ##  3 20240117-m-replay-d-mqp-a-explorevr-l-16-i-1 
+    ##  4 20240118-m-replay-d-mq2-a-explorevr-l-16-i-1 
+    ##  5 20240118-m-replay-d-mq2-a-gorillatag-l-16-i-1
+    ##  6 20240118-m-replay-d-mq2-a-moss-l-16-i-1      
+    ##  7 20240118-m-replay-d-mq2-a-vrchat-l-16-i-1    
+    ##  8 20240118-m-replay-d-mq3-a-explorevr-l-16-i-1 
+    ##  9 20240118-m-replay-d-mq3-a-gorillatag-l-16-i-1
+    ## 10 20240118-m-replay-d-mq3-a-moss-l-16-i-1      
+    ## 11 20240130-m-replay-d-mq3-a-vrchat-l-16-i-1    
+    ## 12 20240130-m-replay-d-mqp-a-vrchat-l-16-i-1
+
+``` r
+d %>%
+  ggplot(aes(x = cpu_util, y = d_h, fill = d_h)) +
   geom_boxplot() +
+  stat_summary(fun=mean, geom="point", shape=21, size=2, color="black", fill="white") +
   xlim(0, 100) +
   labs(x = "CPU utilization [%]", y = "VR Device") +
   theme_half_open() +
-  background_grid()
-```
-
-``` r
-p
-```
-
-![](Results_files/figure-gfm/unnamed-chunk-5-1.svg)<!-- -->
-
-``` r
-p +
+  background_grid() +
   theme(legend.position="none", strip.background=element_rect(fill="white")) +
   facet_grid(~factor(game_h, levels=c(g_gorillatag, g_moss, g_explorevr, g_vrchat)), scales = "free_x") +
   scale_fill_manual(values=device_colors)
@@ -877,117 +740,49 @@ p +
 
 ![](Results_files/figure-gfm/exp-device-evo-cpu-util-all-box-1.svg)<!-- -->
 
-``` r
-p <- data_logcat_vrapi %>%
-  ggplot(aes(x = ts, y = cpu_level, color = config)) +
-  # geom_vline(xintercept = start_time, color = "black") +
-  # geom_vline(xintercept = end_time, color = "black") +
-  geom_line() +
-  ylim(0, NA) +
-  theme_half_open() +
-  background_grid() +
-  theme(legend.position = "bottom") +
-  scale_color_viridis_d(begin = 0.3, direction = -1)
-```
-
-``` r
- data_logcat_vrapi %>%
-  filter(game != "azsq") %>%
-  filter(game != "noapp") %>%
-  ggplot(aes(x = ts_m, y = cpu_level)) +
-  geom_line() +
-  ylim(0, NA) +
-  theme_cowplot(15) +
-  background_grid() +
-  labs(y = "CPU level", x = "Time [m]") +
-  theme(legend.position = "bottom") +
-  scale_color_viridis_d(begin = 0.3, direction = -1) + 
-  facet_grid(cols = vars(game), rows = vars(config)) +
-  theme(strip.background=element_rect(fill="white"))
-```
-
-![](Results_files/figure-gfm/exp-device-evo-cpu-util-all-time-1.svg)<!-- -->
-
-``` r
-p <- data_logcat_vrapi %>%
-  ggplot(aes(x = ts, y = cpu_freq, color = config)) +
-  # geom_vline(xintercept = start_time, color = "black") +
-  # geom_vline(xintercept = end_time, color = "black") +
-  geom_line() +
-  ylim(0, NA) +
-  theme_half_open() +
-  background_grid() +
-  theme(legend.position = "bottom") +
-  scale_color_viridis_d(begin = 0.3, direction = -1)
-```
-
-``` r
- data_logcat_vrapi %>%
-  filter(game != "azsq") %>%
-  filter(game != "noapp") %>%
-  ggplot(aes(x = ts_m, y = cpu_freq_ghz)) +
-  geom_line() +
-  ylim(0, NA) +
-  theme_cowplot(15) +
-  background_grid() +
-  labs(y = "CPU frequency [GHz]", x = "Time [m]") +
-  theme(legend.position = "bottom") +
-  scale_color_viridis_d(begin = 0.3, direction = -1) + 
-  facet_grid(cols = vars(game), rows = vars(config)) +
-  theme(strip.background=element_rect(fill="white"))
-```
-
-![](Results_files/figure-gfm/exp-device-evo-cpu-freq-all-time-1.svg)<!-- -->
-
 ### GPU
 
 ``` r
 d <- data_logcat_vrapi %>%
-  filter(game != "noapp") %>%
-  filter(game != "azsq") %>%
+  filter(a == "moss" | a == "gorillatag" | a == "explorevr" | a == "vrchat") %>%
   filter(ts > 60) %>%
-  filter(i == 1)
-
-p <- d %>%
-  ggplot(aes(x = gpu_util, y = config, fill = config)) +
-  geom_boxplot() +
-  xlim(0, 100) +
-  labs(x = "GPU utilization [%]", y = "VR Device") +
-  theme_cowplot(15) +
-  background_grid()
+  filter(app > 0) %>%
+  filter(i == 1) %>%
+  filter(m == "replay") %>%
+  filter(l == 16)
 
 d %>%
   give_stats(gpu_util)
 ```
 
-    ## # A tibble: 13 × 21
-    ##    game      config     i  mean stdev   min   q25 median   q75   q90   q95   q99
-    ##    <chr>     <chr>  <int> <dbl> <dbl> <int> <dbl>  <dbl> <dbl> <dbl> <dbl> <dbl>
-    ##  1 gorillat… MQP        1  71.1  9.04    31    69     72  75.2    80  82    83  
-    ##  2 moss      MQP        1  61.9 14.5      8    50     57  77      79  81    83  
-    ##  3 explorevr MQP        1  76.1  4.80    37    74     76  79      81  82    85.0
-    ##  4 explorevr MQ2        1  58.8  5.75    19    55     58  62      66  68    73  
-    ##  5 explorevr MQ3        1  35.6  3.53    11    34     35  37      40  41    44  
-    ##  6 gorillat… MQ2        1  40.3  6.80    30    35     37  45      50  54    60  
-    ##  7 gorillat… MQ3        1  36.8  4.96    29    33     35  40      45  46.0  50.0
-    ##  8 moss      MQ2        1  62.7  8.48    19    60     64  66      69  79    82  
-    ##  9 moss      MQ3        1  41.2  6.69    13    39     41  43      46  55    65  
-    ## 10 vrchat    MQ2        1  59.8 19.8      7    47     58  69      92 100   100  
-    ## 11 vrchat    MQ3        1  39.2 15.6      9    28     34  51      58  72.2  81  
-    ## 12 vrchat    MQP        1  66.7 13.8     23    57     67  78      83  87    99  
-    ## 13 beatsaber MQP        1  41.0  1.20    36    40     41  42      42  43    43  
-    ## # ℹ 9 more variables: max <int>, iqr <dbl>, mean_maxd <dbl>, stdev_maxd <dbl>,
-    ## #   min_maxd <int>, q25_maxd <dbl>, median_maxd <dbl>, q75_maxd <dbl>,
-    ## #   max_maxd <int>
+    ## # A tibble: 12 × 21
+    ##    game_h     d_h       i  mean stdev   min   q25 median   q75   q90   q95   q99
+    ##    <chr>      <chr> <dbl> <dbl> <dbl> <dbl> <dbl>  <dbl> <dbl> <dbl> <dbl> <dbl>
+    ##  1 Gorilla T… MQP       1  71.1  9.04    31    69   72    75.2  80    82    83  
+    ##  2 Moss       MQP       1  61.9 14.5      8    50   57    77    79    81    83  
+    ##  3 Nat. Geo.… MQP       1  76.2  4.70    37    74   76    79    81    82    85.0
+    ##  4 Nat. Geo.… MQ2       1  58.8  5.74    19    55   58.5  62    66    68    73  
+    ##  5 Gorilla T… MQ2       1  40.3  6.80    30    35   37    45    50    54    60  
+    ##  6 Moss       MQ2       1  62.7  8.48    19    60   64    66    69    79    82  
+    ##  7 VRChat     MQ2       1  59.9 19.7      7    47   58    69    92   100   100  
+    ##  8 Nat. Geo.… MQ3       1  35.6  3.53    11    34   35    37    40    41    44  
+    ##  9 Gorilla T… MQ3       1  36.8  4.96    29    33   35    40    45    46.0  50.0
+    ## 10 Moss       MQ3       1  41.2  6.69    13    39   41    43    46    55    65  
+    ## 11 VRChat     MQ3       1  39.4 15.7      9    28   34    52    58.4  73    81.0
+    ## 12 VRChat     MQP       1  66.7 13.7     23    57   67    77.2  82    86    99  
+    ## # ℹ 9 more variables: max <dbl>, iqr <dbl>, mean_maxd <dbl>, stdev_maxd <dbl>,
+    ## #   min_maxd <dbl>, q25_maxd <dbl>, median_maxd <dbl>, q75_maxd <dbl>,
+    ## #   max_maxd <dbl>
 
 ``` r
-p
-```
-
-![](Results_files/figure-gfm/unnamed-chunk-9-1.svg)<!-- -->
-
-``` r
-p +
+d %>%
+  ggplot(aes(x = gpu_util, y = d_h, fill = d_h)) +
+  geom_boxplot() +
+  stat_summary(fun=mean, geom="point", shape=21, size=2, color="black", fill="white") +
+  xlim(0, 100) +
+  labs(x = "GPU utilization [%]", y = "VR Device") +
+  theme_cowplot(15) +
+  background_grid() +
   theme(legend.position = "none", strip.background=element_rect(fill="white")) +
   facet_grid(~factor(game_h, levels=c(g_gorillatag, g_moss, g_explorevr, g_vrchat)), scales = "free_x") +
   scale_fill_manual(values=device_colors)
@@ -995,155 +790,35 @@ p +
 
 ![](Results_files/figure-gfm/exp-device-evo-gpu-util-all-box-1.svg)<!-- -->
 
-``` r
-data_logcat_vrapi %>%
-  filter(game == "moss") %>%
-  filter(ts > 60) %>%
-  ggplot(aes(x = gpu_util, y = config)) +
-  geom_boxplot() +
-  xlim(0, 100) +
-  labs(x = "GPU utilization [%]", y = "VR Device") +
-  theme_half_open() +
-  background_grid()
-```
-
-![](Results_files/figure-gfm/exp-device-evo-gpu-util-moss-box-1.svg)<!-- -->
-
-``` r
-p <- data_logcat_vrapi %>%
-  ggplot(aes(x = ts, y = gpu_level, color = config)) +
-  # geom_vline(xintercept = start_time, color = "black") +
-  # geom_vline(xintercept = end_time, color = "black") +
-  geom_line() +
-  ylim(0, NA) +
-  theme_half_open() +
-  background_grid() +
-  theme(legend.position = "bottom") +
-  scale_color_viridis_d(begin = 0.3, direction = -1)
-```
-
-``` r
-data_logcat_vrapi %>%
-  filter(game != "noapp") %>%
-  filter(game != "azsq") %>%
-  ggplot(aes(x = ts_m, y = gpu_level)) +
-  geom_line() +
-  ylim(0, NA) +
-  theme_cowplot(15) +
-  background_grid() +
-  theme(legend.position = "bottom") +
-  labs(x = "Time [m]", y = "GPU level") +
-  scale_color_viridis_d(begin = 0.3, direction = -1) +
-  facet_grid(cols = vars(game), rows = vars(config))
-```
-
-![](Results_files/figure-gfm/unnamed-chunk-11-1.svg)<!-- -->
-
 ### Battery Usage
 
 ``` r
-data_battery <- NULL
-for (f in traces_replays) {
-  data_battery <- system(paste('grep -Po "(?<=level: )[0-9]+"', here(f, "battery.log")), intern = TRUE) %>%
-    tibble(battery = .) %>%
-    mutate(game = str_split_i(f, "-", 3)) %>%
-    mutate(battery = as.numeric(battery)) %>%
-    mutate(ts = 0:(n() - 1)) %>%
-    select(ts, everything()) %>%
-    mutate(config = f) %>%
-    bind_rows(data_battery, .)
-}
-data_battery <- data_battery %>%
-  mutate(config = map_chr(config, to_human_name))
-```
-
-``` r
-colors <- RColorBrewer::brewer.pal(3, "Greens")[2:3]
-
-p <- data_battery %>%
-  group_by(config) %>%
-  mutate(ts = ts - min(ts)) %>%
-  mutate(ts = ts / 60) %>%
-  filter(config != "Wired") %>%
-  # mutate(rel_battery = battery + 100 - max(battery)) %>%
-  ggplot(aes(x = ts, y = battery, color = config)) +
-  geom_line() +
-  theme_half_open() +
-  background_grid() +
-  theme(legend.position = c(0.05, 0.40)) +
-  ylim(0, NA) +
-  labs(x = "Time [m]", y = "Battery charge") 
-  # scale_color_manual(name = "Config", values = colors)
-```
-
-``` r
-data_batterymanager_companion %>%
-  filter(ts > 60) %>%
-  filter(ts <= 960) %>%
-  filter(game != "noapp") %>%
-  filter(game != "azsq") %>%
-  filter(i == 1) %>%
-  ggplot() +
-  geom_line(aes(x=ts_m, y=-current_a, color = config)) +
-  facet_grid(cols = vars(game)) +
-  theme_cowplot(15) +
-  background_grid() +
-  theme(legend.position=c(0.15,.5)) +
-  xlim(0, NA) +
-  ylim(0, NA) +
-  labs(x = "Time [m]", y = "Current [A]")
-```
-
-![](Results_files/figure-gfm/exp-device-evo-battery-current-all-time-1.svg)<!-- -->
-
-``` r
-data_batterymanager_companion %>%
-  filter(ts > 60) %>%
-  filter(ts <= 960) %>%
-  filter(game != "noapp") %>%
-  filter(game != "azsq") %>%
-  filter(i == 1) %>%
-  ggplot() +
-  geom_boxplot(aes(x=-current_a, y=config)) +
-  facet_grid(cols = vars(game)) +
-  theme_cowplot(15) +
-  background_grid() +
-  theme(legend.position=c(0.15,.5), strip.background=element_rect(fill="white")) +
-  xlim(0, NA) +
-  labs(y = "VR Device", x = "Current [A]")
-```
-
-![](Results_files/figure-gfm/exp-device-evo-battery-current-all-box-1.svg)<!-- -->
-
-``` r
-data_batterymanager_companion %>%
-  filter(ts > 60) %>%
-  filter(ts <= 960) %>%
-  filter(game != "noapp") %>%
-  filter(game != "azsq") %>%
-  filter(i == 1) %>%
-  ggplot() +
-  geom_boxplot(aes(x=voltage_v, y=config)) +
-  facet_grid(cols = vars(game)) +
-  theme_cowplot(15) +
-  background_grid() +
-  theme(legend.position=c(0.15,.5), strip.background=element_rect(fill="white")) +
-  xlim(0, NA) +
-  labs(y = "VR Device", x = "Voltage [V]")
-```
-
-![](Results_files/figure-gfm/exp-device-evo-battery-voltage-all-box-1.svg)<!-- -->
-
-``` r
 d <- data_batterymanager_companion %>%
+  filter(a == "moss" | a == "gorillatag" | a == "explorevr" | a == "vrchat") %>%
   filter(ts > 60) %>%
-  filter(ts <= 960) %>%
-  filter(game != "noapp") %>%
-  filter(game != "azsq") %>%
-  filter(i == 1)
+  filter(i == 1) %>%
+  filter(m == "replay") %>%
+  filter(l == 16)
 
 d %>%
-  ggplot(aes(x=-power_w, y=config, fill = config)) +
+  filter(d_h == "MQP") %>%
+  give_stats(-power_w)
+```
+
+    ## # A tibble: 4 × 21
+    ##   game_h      d_h       i  mean stdev   min   q25 median   q75   q90   q95   q99
+    ##   <chr>       <chr> <int> <dbl> <dbl> <dbl> <dbl>  <dbl> <dbl> <dbl> <dbl> <dbl>
+    ## 1 Gorilla Tag MQP       1  9.62 0.621  7.12  9.30   9.62 10.0  10.3  10.5  10.9 
+    ## 2 Moss        MQP       1  7.78 0.877  6.06  7.04   7.42  8.74  8.99  9.09  9.57
+    ## 3 Nat. Geo. … MQP       1  9.35 0.281  8.34  9.18   9.35  9.52  9.70  9.83 10.1 
+    ## 4 VRChat      MQP       1  8.84 0.974  6.31  8.24   8.97  9.64  9.89 10.1  10.5 
+    ## # ℹ 9 more variables: max <dbl>, iqr <dbl>, mean_maxd <dbl>, stdev_maxd <dbl>,
+    ## #   min_maxd <dbl>, q25_maxd <dbl>, median_maxd <dbl>, q75_maxd <dbl>,
+    ## #   max_maxd <dbl>
+
+``` r
+d %>%
+  ggplot(aes(x=-power_w, y=d_h, fill = d_h)) +
   geom_boxplot() +
   stat_summary(fun=mean, geom="point", shape=21, size=2, color="black", fill="white") +
   theme(strip.background=element_rect(fill="white")) +
@@ -1158,80 +833,33 @@ d %>%
 
 ![](Results_files/figure-gfm/exp-device-evo-battery-power-all-box-1.svg)<!-- -->
 
-``` r
-d %>%
-  filter(config == "MQP") %>%
-  give_stats(-power_w)
-```
-
-    ## # A tibble: 4 × 21
-    ##   game       config     i  mean stdev   min   q25 median   q75   q90   q95   q99
-    ##   <chr>      <chr>  <int> <dbl> <dbl> <dbl> <dbl>  <dbl> <dbl> <dbl> <dbl> <dbl>
-    ## 1 gorillatag MQP        1  9.62 0.621  7.12  9.30   9.62 10.0  10.3  10.5  10.9 
-    ## 2 moss       MQP        1  7.78 0.877  6.06  7.04   7.42  8.73  8.99  9.08  9.57
-    ## 3 explorevr  MQP        1  9.35 0.281  8.34  9.18   9.35  9.52  9.70  9.83 10.1 
-    ## 4 vrchat     MQP        1  8.80 1.00   6.31  8.15   8.82  9.66  9.89 10.1  10.5 
-    ## # ℹ 9 more variables: max <dbl>, iqr <dbl>, mean_maxd <dbl>, stdev_maxd <dbl>,
-    ## #   min_maxd <dbl>, q25_maxd <dbl>, median_maxd <dbl>, q75_maxd <dbl>,
-    ## #   max_maxd <dbl>
-
-### Network Use
-
-``` r
-data_net_dev %>%
-  filter(ts <= 960) %>%
-  filter(game != "noapp") %>%
-  filter(game != "azsq") %>%
-  filter(i == 1) %>%
-  drop_na() %>%
-  group_by(game, config) %>%
-  slice(2:n()) %>%
-  ungroup() %>%
-  ggplot(aes(x = ts_m, y = kbps_rx)) +
-  geom_line() +
-  theme_cowplot(15) +
-  background_grid() +
-  xlim(0, NA) +
-  coord_cartesian(ylim=c(0, 1200)) +
-  labs(y = "Bytes received [Mbps]", x = "Time [m]") +
-  facet_grid(cols = vars(game), rows = vars(config))
-```
-
-![](Results_files/figure-gfm/unnamed-chunk-14-1.svg)<!-- -->
-
-``` r
-data_net_dev %>%
-  group_by(game, config, i) %>%
-  filter(game != "noapp") %>%
-  filter(game != "azsq") %>%
-  filter(i == 1) %>%
-  drop_na() %>%
-  ungroup() %>%
-  ggplot(aes(x = kbps_rx, y = config)) +
-  geom_boxplot() +
-  theme_cowplot(15) +
-  background_grid() +
-  coord_cartesian(xlim=c(0, 1000)) +
-  labs(x = "Bytes received [kbps]", y = "Setup") +
-  facet_grid(cols = vars(game))
-```
-
-![](Results_files/figure-gfm/unnamed-chunk-15-1.svg)<!-- -->
-
 ## Bandwidth Limits
 
 ``` r
-data_net_dev %>%
+d <- data_net_dev %>%
   # filter(ts > 5) %>%
-  # filter(i == 2) %>%
-  filter(bwlimit == 70) %>%
+  filter((a == "beatsaber" & i == 2) | (a == "noapp" & i == 1)) %>%
+  filter(b == 70) %>%
   filter(ts > 60) %>%
   filter(ts <= 120) %>%
-  drop_na() %>%
-  group_by(game, config) %>%
+  group_by(a, d) %>%
   slice(2:n()) %>%
-  ungroup() %>%
-  ggplot(aes(x = ts, y = Mbps_rx, color = game)) +
+  ungroup()
+
+d %>%
+  select(fname) %>%
+  unique()
+```
+
+    ## # A tibble: 2 × 1
+    ##   fname                                       
+    ##   <chr>                                       
+    ## 1 20240222-m-replay-d-mqp-a-beatsaber-b-70-i-2
+    ## 2 20240222-m-replay-d-mqp-a-noapp-b-70-i-1
+
+``` r
+d %>%
+  ggplot(aes(x = ts, y = Mbps_rx, color = a)) +
   geom_line() +
   theme_cowplot(15) +
   background_grid() +
@@ -1246,16 +874,60 @@ data_net_dev %>%
 ![](Results_files/figure-gfm/exp-bwlimit-bandwidth-validation-1.svg)<!-- -->
 
 ``` r
-data_net_dev %>%
+d <- data_net_dev %>%
   filter(ts > 5) %>%
-  drop_na(bwlimit) %>%
-  filter(game == "beatsaber") %>%
+  drop_na(b) %>%
+  filter(a == "beatsaber") %>%
   filter(i == 2) %>%
-  filter(bwlimit <= 100) %>%
-  group_by(game, config) %>%
+  filter(b <= 100) %>%
+  group_by(a, d_h) %>%
   slice(2:n()) %>%
-  ungroup() %>%
-  ggplot(aes(x = Mbps_rx, y = factor(bwlimit))) +
+  ungroup()
+
+d %>%
+  select(fname) %>%
+  unique()
+```
+
+    ## # A tibble: 10 × 1
+    ##    fname                                        
+    ##    <chr>                                        
+    ##  1 20240222-m-replay-d-mqp-a-beatsaber-b-10-i-2 
+    ##  2 20240222-m-replay-d-mqp-a-beatsaber-b-100-i-2
+    ##  3 20240222-m-replay-d-mqp-a-beatsaber-b-20-i-2 
+    ##  4 20240222-m-replay-d-mqp-a-beatsaber-b-30-i-2 
+    ##  5 20240222-m-replay-d-mqp-a-beatsaber-b-40-i-2 
+    ##  6 20240222-m-replay-d-mqp-a-beatsaber-b-50-i-2 
+    ##  7 20240222-m-replay-d-mqp-a-beatsaber-b-60-i-2 
+    ##  8 20240222-m-replay-d-mqp-a-beatsaber-b-70-i-2 
+    ##  9 20240222-m-replay-d-mqp-a-beatsaber-b-80-i-2 
+    ## 10 20240222-m-replay-d-mqp-a-beatsaber-b-90-i-2
+
+``` r
+d %>%
+  give_stats(Mbps_rx, by=c("a", "b"))
+```
+
+    ## # A tibble: 10 × 20
+    ##    a             b  mean stdev   min   q25 median   q75   q90   q95   q99   max
+    ##    <chr>     <int> <dbl> <dbl> <dbl> <dbl>  <dbl> <dbl> <dbl> <dbl> <dbl> <dbl>
+    ##  1 beatsaber    10  18.4  4.43  7.51  16.4   20.2  21.4  22.5  23.4  25.0  26.1
+    ##  2 beatsaber   100  91.7  2.25 77.5   90.7   91.8  93.0  93.9  94.6  95.5  96.6
+    ##  3 beatsaber    20  21.4  2.36  5.51  20.9   21.5  21.9  22.6  23.0  28.4  35.1
+    ##  4 beatsaber    30  31.9  2.83 13.3   31.1   31.9  32.5  33.6  34.4  41.9  51.1
+    ##  5 beatsaber    40  42.3  5.13 16.4   39.0   42.2  45.7  48.2  49.9  55.4  58.9
+    ##  6 beatsaber    50  52.7  8.87 29.2   46.4   52.2  59.7  64.2  66.0  73.2  76.9
+    ##  7 beatsaber    60  62.0 14.1  29.3   51.2   61.6  73.1  80.0  85.0  88.0  89.0
+    ##  8 beatsaber    70  70.4 15.5  35.1   56.9   72.2  83.9  90.0  91.0  93.9  94.5
+    ##  9 beatsaber    80  81.3 14.4  39.3   71.4   89.4  92.0  93.3  93.6  94.8  96.3
+    ## 10 beatsaber    90  91.5  2.99 68.1   90.9   92.0  93.0  94.0  94.9  95.7  96.1
+    ## # ℹ 8 more variables: iqr <dbl>, mean_maxd <dbl>, stdev_maxd <dbl>,
+    ## #   min_maxd <dbl>, q25_maxd <dbl>, median_maxd <dbl>, q75_maxd <dbl>,
+    ## #   max_maxd <dbl>
+
+``` r
+d %>%
+  ggplot(aes(x = Mbps_rx, y = factor(b))) +
   geom_boxplot() +
   stat_summary(fun=mean, geom="point", shape=21, size=2, color="black", fill="white") +
   annotate("rect", fill="white", xmin = 0, xmax = 100, ymin = 0.5, ymax = 1.5) +
@@ -1272,11 +944,36 @@ data_net_dev %>%
 ![](Results_files/figure-gfm/exp-bwlimit-bandwidth-all-box-1.svg)<!-- -->
 
 ``` r
-data_logcat_vrapi %>%
-  drop_na() %>%
+d <- data_logcat_vrapi %>%
   filter(ts > 5) %>%
-  filter(app > 0) %>%
-  ggplot(aes(x = app, y = factor(bwlimit))) +
+  drop_na(b) %>%
+  filter(a == "beatsaber") %>%
+  filter(i == 2) %>%
+  filter(b <= 100) %>%
+  filter(app > 0)
+
+d %>%
+  select(fname) %>%
+  unique()
+```
+
+    ## # A tibble: 10 × 1
+    ##    fname                                        
+    ##    <chr>                                        
+    ##  1 20240222-m-replay-d-mqp-a-beatsaber-b-10-i-2 
+    ##  2 20240222-m-replay-d-mqp-a-beatsaber-b-100-i-2
+    ##  3 20240222-m-replay-d-mqp-a-beatsaber-b-20-i-2 
+    ##  4 20240222-m-replay-d-mqp-a-beatsaber-b-30-i-2 
+    ##  5 20240222-m-replay-d-mqp-a-beatsaber-b-40-i-2 
+    ##  6 20240222-m-replay-d-mqp-a-beatsaber-b-50-i-2 
+    ##  7 20240222-m-replay-d-mqp-a-beatsaber-b-60-i-2 
+    ##  8 20240222-m-replay-d-mqp-a-beatsaber-b-70-i-2 
+    ##  9 20240222-m-replay-d-mqp-a-beatsaber-b-80-i-2 
+    ## 10 20240222-m-replay-d-mqp-a-beatsaber-b-90-i-2
+
+``` r
+d %>%
+  ggplot(aes(x = app, y = factor(b))) +
   # geom_vline(xintercept = 11.1, color = "orange", linetype = "dashed") +
   # geom_vline(xintercept = 13.9, color = "red") +
   geom_boxplot() +
@@ -1295,12 +992,58 @@ data_logcat_vrapi %>%
 ```
 
 ``` r
-data_logcat_vrapi %>%
-  drop_na(bwlimit) %>%
-  filter(game == "beatsaber") %>%
+d <- data_logcat_vrapi %>%
+  filter(ts > 5) %>%
+  drop_na(b) %>%
+  filter(a == "beatsaber") %>%
   filter(i == 2) %>%
-  filter(bwlimit <= 100) %>%
-  ggplot(aes(x = fps_render, y = factor(bwlimit))) +
+  filter(b <= 100) %>%
+  filter(app > 0)
+
+d %>%
+  select(fname) %>%
+  unique()
+```
+
+    ## # A tibble: 10 × 1
+    ##    fname                                        
+    ##    <chr>                                        
+    ##  1 20240222-m-replay-d-mqp-a-beatsaber-b-10-i-2 
+    ##  2 20240222-m-replay-d-mqp-a-beatsaber-b-100-i-2
+    ##  3 20240222-m-replay-d-mqp-a-beatsaber-b-20-i-2 
+    ##  4 20240222-m-replay-d-mqp-a-beatsaber-b-30-i-2 
+    ##  5 20240222-m-replay-d-mqp-a-beatsaber-b-40-i-2 
+    ##  6 20240222-m-replay-d-mqp-a-beatsaber-b-50-i-2 
+    ##  7 20240222-m-replay-d-mqp-a-beatsaber-b-60-i-2 
+    ##  8 20240222-m-replay-d-mqp-a-beatsaber-b-70-i-2 
+    ##  9 20240222-m-replay-d-mqp-a-beatsaber-b-80-i-2 
+    ## 10 20240222-m-replay-d-mqp-a-beatsaber-b-90-i-2
+
+``` r
+d %>%
+  give_stats(fps_render, by=c("a", "b"))
+```
+
+    ## # A tibble: 10 × 20
+    ##    a             b  mean stdev   min   q25 median   q75   q90   q95   q99   max
+    ##    <chr>     <int> <dbl> <dbl> <int> <dbl>  <dbl> <dbl> <dbl> <dbl> <dbl> <int>
+    ##  1 beatsaber    10  48.3 5.11     19    47     49    51    53    54    56    71
+    ##  2 beatsaber   100  72.0 0.187    72    72     72    72    72    72    73    73
+    ##  3 beatsaber    20  64.7 2.70     56    63     64    66    68    70    72    72
+    ##  4 beatsaber    30  69.5 1.64     64    69     69    71    72    72    72    72
+    ##  5 beatsaber    40  70.9 1.53     67    69     72    72    72    72    73    73
+    ##  6 beatsaber    50  71.3 1.41     65    71     72    72    72    72    73    73
+    ##  7 beatsaber    60  71.4 1.44     66    72     72    72    72    72    73    73
+    ##  8 beatsaber    70  71.7 0.995    67    72     72    72    72    72    73    73
+    ##  9 beatsaber    80  71.9 0.658    68    72     72    72    72    72    73    73
+    ## 10 beatsaber    90  72.0 0.187    72    72     72    72    72    72    73    73
+    ## # ℹ 8 more variables: iqr <dbl>, mean_maxd <dbl>, stdev_maxd <dbl>,
+    ## #   min_maxd <int>, q25_maxd <dbl>, median_maxd <dbl>, q75_maxd <dbl>,
+    ## #   max_maxd <int>
+
+``` r
+d %>%
+  ggplot(aes(x = fps_render, y = factor(b))) +
   geom_vline(xintercept =72, color = "red") +
   geom_boxplot() +
   stat_summary(fun=mean, geom="point", shape=21, size=2, color="black", fill="white") +
@@ -1317,25 +1060,36 @@ data_logcat_vrapi %>%
 ![](Results_files/figure-gfm/exp-bwlimit-fps-all-box-1.svg)<!-- -->
 
 ``` r
-data_logcat_vrapi %>%
-  drop_na(bwlimit) %>%
-  ggplot(aes(x = cpu_util, y = factor(bwlimit))) +
-  geom_boxplot() +
-  xlim(0, 100) +
-  labs(x = "CPU utilization [%]", y = "BW Limit [Mbps]  ") +
-  theme_half_open() +
-  background_grid()
+d <- data_logcat_vrapi %>%
+  filter(ts > 5) %>%
+  drop_na(b) %>%
+  filter(a == "beatsaber") %>%
+  filter(i == 2) %>%
+  filter(b <= 100) %>%
+  filter(app > 0)
+
+d %>%
+  select(fname) %>%
+  unique()
 ```
 
-![](Results_files/figure-gfm/unnamed-chunk-16-1.svg)<!-- -->
+    ## # A tibble: 10 × 1
+    ##    fname                                        
+    ##    <chr>                                        
+    ##  1 20240222-m-replay-d-mqp-a-beatsaber-b-10-i-2 
+    ##  2 20240222-m-replay-d-mqp-a-beatsaber-b-100-i-2
+    ##  3 20240222-m-replay-d-mqp-a-beatsaber-b-20-i-2 
+    ##  4 20240222-m-replay-d-mqp-a-beatsaber-b-30-i-2 
+    ##  5 20240222-m-replay-d-mqp-a-beatsaber-b-40-i-2 
+    ##  6 20240222-m-replay-d-mqp-a-beatsaber-b-50-i-2 
+    ##  7 20240222-m-replay-d-mqp-a-beatsaber-b-60-i-2 
+    ##  8 20240222-m-replay-d-mqp-a-beatsaber-b-70-i-2 
+    ##  9 20240222-m-replay-d-mqp-a-beatsaber-b-80-i-2 
+    ## 10 20240222-m-replay-d-mqp-a-beatsaber-b-90-i-2
 
 ``` r
-data_logcat_vrapi %>%
-  drop_na(bwlimit) %>%
-  filter(game == "beatsaber") %>%
-  filter(i == 2) %>%
-  filter(bwlimit <= 100) %>%
-  ggplot(aes(x = gpu_util, y = factor(bwlimit))) +
+d %>%
+  ggplot(aes(x = gpu_util, y = factor(b))) +
   geom_boxplot() +
   stat_summary(fun=mean, geom="point", shape=21, size=2, color="black", fill="white") +
   annotate("rect", fill="white", xmin = 0, xmax = 100, ymin = 0.5, ymax = 1.5) +
@@ -1351,85 +1105,56 @@ data_logcat_vrapi %>%
 ![](Results_files/figure-gfm/exp-bwlimit-gpu-util-all-box-1.svg)<!-- -->
 
 ``` r
-data_logcat_vrapi %>%
-  drop_na(bwlimit) %>%
-  ggplot(aes(x = ts_m, y = cpu_level)) +
-  geom_line() +
-  labs(x = "Time [m]", y = "CPU level") +
-  ylim(0, NA) +
-  theme_half_open() +
-  background_grid() +
-  facet_grid(cols = vars(bwlimit))
-```
-
-![](Results_files/figure-gfm/unnamed-chunk-17-1.svg)<!-- -->
-
-``` r
-data_logcat_vrapi %>%
-  drop_na(bwlimit) %>%
-  ggplot(aes(x = cpu_level, y = factor(bwlimit))) +
-  geom_boxplot() +
-  labs(x = "Time [m]", y = "CPU level") +
-  xlim(0, NA) +
-  theme_half_open() +
-  background_grid()
-```
-
-![](Results_files/figure-gfm/unnamed-chunk-18-1.svg)<!-- -->
-
-``` r
-data_logcat_vrapi %>%
-  drop_na(bwlimit) %>%
-  ggplot(aes(x = ts_m, y = gpu_level)) +
-  geom_line() +
-  labs(x = "Time [m]", y = "GPU level") +
-  ylim(0, NA) +
-  theme_half_open() +
-  background_grid() +
-  facet_grid(cols = vars(bwlimit))
-```
-
-![](Results_files/figure-gfm/unnamed-chunk-19-1.svg)<!-- -->
-
-``` r
-data_host_sys_metrics %>%
-  drop_na() %>%
-  ggplot(aes(x = as.numeric(cpu.percent), y = factor(bwlimit))) +
-  geom_boxplot() +
-  xlim(0, 100) +
-  labs(x = "CPU utilization [%]", y = "BW Limit [Mbps]    ") +
-  theme_cowplot(15) +
-  background_grid()
-```
-
-![](Results_files/figure-gfm/unnamed-chunk-20-1.svg)<!-- -->
-
-``` r
-data_host_gpu_metrics %>%
-  drop_na(bwlimit) %>%
-  ggplot(aes(x = as.numeric(load) * 100, y = factor(bwlimit))) +
-  geom_boxplot() +
-  xlim(0, 100) +
-  labs(x = "GPU utilization [%]", y = "BW Limit [Mbps]    ") +
-  theme_cowplot(15) +
-  background_grid()
-```
-
-    ## Warning in FUN(X[[i]], ...): NAs introduced by coercion
-
-    ## Warning: Removed 1 rows containing non-finite values (`stat_boxplot()`).
-
-![](Results_files/figure-gfm/unnamed-chunk-21-1.svg)<!-- -->
-
-``` r
 d <- data_batterymanager_companion %>%
-  drop_na(bwlimit) %>%
-  filter(game == "beatsaber") %>%
+  filter(ts > 5) %>%
+  drop_na(b) %>%
+  filter(a == "beatsaber") %>%
   filter(i == 2) %>%
-  filter(bwlimit <= 100)
+  filter(b <= 100)
 
 d %>%
-  ggplot(aes(x=-power_w, y=factor(bwlimit))) +
+  select(fname) %>%
+  unique()
+```
+
+    ## # A tibble: 10 × 1
+    ##    fname                                        
+    ##    <chr>                                        
+    ##  1 20240222-m-replay-d-mqp-a-beatsaber-b-10-i-2 
+    ##  2 20240222-m-replay-d-mqp-a-beatsaber-b-100-i-2
+    ##  3 20240222-m-replay-d-mqp-a-beatsaber-b-20-i-2 
+    ##  4 20240222-m-replay-d-mqp-a-beatsaber-b-30-i-2 
+    ##  5 20240222-m-replay-d-mqp-a-beatsaber-b-40-i-2 
+    ##  6 20240222-m-replay-d-mqp-a-beatsaber-b-50-i-2 
+    ##  7 20240222-m-replay-d-mqp-a-beatsaber-b-60-i-2 
+    ##  8 20240222-m-replay-d-mqp-a-beatsaber-b-70-i-2 
+    ##  9 20240222-m-replay-d-mqp-a-beatsaber-b-80-i-2 
+    ## 10 20240222-m-replay-d-mqp-a-beatsaber-b-90-i-2
+
+``` r
+d %>%
+  give_stats(-power_w, by = c("b"))
+```
+
+    ## # A tibble: 10 × 19
+    ##        b  mean stdev   min   q25 median   q75   q90   q95   q99   max   iqr
+    ##    <int> <dbl> <dbl> <dbl> <dbl>  <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl>
+    ##  1    10  8.45 0.253  7.01  8.39   8.47  8.58  8.63  8.71  8.84  8.88 0.190
+    ##  2   100  9.29 0.342  7.39  9.27   9.35  9.42  9.49  9.54  9.65 10.4  0.151
+    ##  3    20  8.99 0.397  7.04  8.88   9.01  9.20  9.39  9.52  9.69  9.98 0.320
+    ##  4    30  9.04 0.362  6.98  8.97   9.09  9.18  9.31  9.39  9.63 10.2  0.210
+    ##  5    40  8.98 0.334  7.16  8.94   9.04  9.11  9.17  9.22  9.48  9.67 0.168
+    ##  6    50  9.14 0.295  7.32  9.10   9.17  9.26  9.35  9.41  9.50  9.53 0.151
+    ##  7    60  9.21 0.317  7.37  9.16   9.26  9.34  9.42  9.48  9.68  9.69 0.171
+    ##  8    70  9.14 0.377  6.87  9.11   9.20  9.29  9.37  9.40  9.74  9.81 0.183
+    ##  9    80  9.22 0.359  7.21  9.15   9.30  9.38  9.46  9.50  9.65 10.0  0.231
+    ## 10    90  9.22 0.305  7.56  9.19   9.25  9.33  9.41  9.47  9.63  9.73 0.137
+    ## # ℹ 7 more variables: mean_maxd <dbl>, stdev_maxd <dbl>, min_maxd <dbl>,
+    ## #   q25_maxd <dbl>, median_maxd <dbl>, q75_maxd <dbl>, max_maxd <dbl>
+
+``` r
+d %>%
+  ggplot(aes(x=-power_w, y=factor(b))) +
   geom_boxplot() +
   stat_summary(fun=mean, geom="point", shape=21, size=2, color="black", fill="white") +
   annotate("rect", fill="white", xmin = 0, xmax = 10, ymin = 0.5, ymax = 1.5) +
@@ -1447,26 +1172,7 @@ d %>%
 
 ![](Results_files/figure-gfm/exp-bwlimit-battery-power-all-box-1.svg)<!-- -->
 
-``` r
-d %>%
-  give_stats(-power_w, by = c("bwlimit"))
-```
-
-    ## # A tibble: 10 × 19
-    ##    bwlimit  mean stdev   min   q25 median   q75   q90   q95   q99   max   iqr
-    ##      <int> <dbl> <dbl> <dbl> <dbl>  <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl>
-    ##  1      10  8.45 0.253  7.01  8.39   8.47  8.58  8.63  8.71  8.85  8.88 0.192
-    ##  2     100  9.27 0.369  7.39  9.26   9.34  9.41  9.49  9.53  9.65 10.4  0.158
-    ##  3      20  8.98 0.424  7.04  8.87   9.01  9.19  9.39  9.52  9.72 10.0  0.320
-    ##  4      30  9.02 0.394  6.98  8.97   9.07  9.18  9.31  9.39  9.63 10.2  0.210
-    ##  5      40  8.97 0.353  7.16  8.93   9.03  9.11  9.17  9.22  9.48  9.67 0.180
-    ##  6      50  9.12 0.338  7.25  9.10   9.17  9.25  9.35  9.41  9.50  9.53 0.154
-    ##  7      60  9.18 0.358  7.32  9.16   9.26  9.33  9.41  9.48  9.68  9.69 0.176
-    ##  8      70  9.12 0.392  6.87  9.09   9.19  9.29  9.37  9.40  9.74  9.81 0.204
-    ##  9      80  9.21 0.385  7.21  9.14   9.28  9.38  9.46  9.50  9.63 10.0  0.238
-    ## 10      90  9.20 0.332  7.56  9.19   9.25  9.33  9.41  9.47  9.63  9.73 0.140
-    ## # ℹ 7 more variables: mean_maxd <dbl>, stdev_maxd <dbl>, min_maxd <dbl>,
-    ## #   q25_maxd <dbl>, median_maxd <dbl>, q75_maxd <dbl>, max_maxd <dbl>
+## Local vs Streamed
 
 ## Performance Variability
 
@@ -1485,10 +1191,12 @@ experienced by the user. Therefore, it makes sense to cut out the first
 few seconds of the experiments in most plots.
 
 ``` r
-data_logcat_vrapi %>%
-  filter(game == "gorillatag") %>%
-  filter(config == "MQ3") %>%
-  filter(ts < 60) %>%
+d <- data_logcat_vrapi %>%
+  filter(a == "gorillatag") %>%
+  filter(d_h == "MQ3") %>%
+  filter(ts < 60)
+
+d %>%
   ggplot(aes(x = ts, y = fps_render, group = i, color = i)) +
   geom_line() +
   ylim(0, NA) +
@@ -1498,14 +1206,34 @@ data_logcat_vrapi %>%
   labs(x = "Time [s]", y = "Frame time [ms]  ")
 ```
 
-![](Results_files/figure-gfm/unnamed-chunk-22-1.svg)<!-- -->
+![](Results_files/figure-gfm/unnamed-chunk-2-1.svg)<!-- -->
 
 ``` r
-data_logcat_vrapi %>%
-  filter(game == "gorillatag") %>%
-  filter(config == "MQ3") %>%
+d <- data_logcat_vrapi %>%
+  filter(a == "gorillatag") %>%
+  filter(d_h == "MQ3") %>%
   filter(i <= 8) %>%
-  filter(ts > 60) %>%
+  filter(ts > 60)
+
+d %>%
+  select(fname) %>%
+  unique()
+```
+
+    ## # A tibble: 8 × 1
+    ##   fname                                        
+    ##   <chr>                                        
+    ## 1 20240118-m-replay-d-mq3-a-gorillatag-l-16-i-1
+    ## 2 20240118-m-replay-d-mq3-a-gorillatag-l-16-i-2
+    ## 3 20240118-m-replay-d-mq3-a-gorillatag-l-16-i-3
+    ## 4 20240118-m-replay-d-mq3-a-gorillatag-l-16-i-4
+    ## 5 20240118-m-replay-d-mq3-a-gorillatag-l-16-i-5
+    ## 6 20240118-m-replay-d-mq3-a-gorillatag-l-16-i-6
+    ## 7 20240118-m-replay-d-mq3-a-gorillatag-l-16-i-7
+    ## 8 20240118-m-replay-d-mq3-a-gorillatag-l-16-i-8
+
+``` r
+d %>%
   ggplot(aes(x = fps_render, group = i, y = i)) +
   geom_boxplot() +
   xlim(0, NA) +
@@ -1519,11 +1247,31 @@ data_logcat_vrapi %>%
 ![](Results_files/figure-gfm/val-playback-perfvar-fps-1.svg)<!-- -->
 
 ``` r
-data_logcat_vrapi %>%
-  filter(game == "gorillatag") %>%
-  filter(config == "MQ3") %>%
+d <- data_logcat_vrapi %>%
+  filter(a == "gorillatag") %>%
+  filter(d_h == "MQ3") %>%
   filter(i <= 8) %>%
-  filter(ts > 60) %>%
+  filter(ts > 60)
+
+d %>%
+  select(fname) %>%
+  unique()
+```
+
+    ## # A tibble: 8 × 1
+    ##   fname                                        
+    ##   <chr>                                        
+    ## 1 20240118-m-replay-d-mq3-a-gorillatag-l-16-i-1
+    ## 2 20240118-m-replay-d-mq3-a-gorillatag-l-16-i-2
+    ## 3 20240118-m-replay-d-mq3-a-gorillatag-l-16-i-3
+    ## 4 20240118-m-replay-d-mq3-a-gorillatag-l-16-i-4
+    ## 5 20240118-m-replay-d-mq3-a-gorillatag-l-16-i-5
+    ## 6 20240118-m-replay-d-mq3-a-gorillatag-l-16-i-6
+    ## 7 20240118-m-replay-d-mq3-a-gorillatag-l-16-i-7
+    ## 8 20240118-m-replay-d-mq3-a-gorillatag-l-16-i-8
+
+``` r
+d %>%
   ggplot(aes(x = app, group = i, y = i)) +
   geom_boxplot() +
   geom_vline(xintercept = 11.1, color = "orange", linetype = "dashed") +
@@ -1542,29 +1290,47 @@ data_logcat_vrapi %>%
 
 ``` r
 d <- data_logcat_vrapi %>%
-  filter(game == "gorillatag") %>%
-  filter(config == "MQ3") %>%
+  filter(a == "gorillatag") %>%
+  filter(d_h == "MQ3") %>%
   filter(i <= 8) %>%
   filter(ts > 60)
 
+d %>%
+  select(fname) %>%
+  unique()
+```
+
+    ## # A tibble: 8 × 1
+    ##   fname                                        
+    ##   <chr>                                        
+    ## 1 20240118-m-replay-d-mq3-a-gorillatag-l-16-i-1
+    ## 2 20240118-m-replay-d-mq3-a-gorillatag-l-16-i-2
+    ## 3 20240118-m-replay-d-mq3-a-gorillatag-l-16-i-3
+    ## 4 20240118-m-replay-d-mq3-a-gorillatag-l-16-i-4
+    ## 5 20240118-m-replay-d-mq3-a-gorillatag-l-16-i-5
+    ## 6 20240118-m-replay-d-mq3-a-gorillatag-l-16-i-6
+    ## 7 20240118-m-replay-d-mq3-a-gorillatag-l-16-i-7
+    ## 8 20240118-m-replay-d-mq3-a-gorillatag-l-16-i-8
+
+``` r
 d %>%
   give_stats(gpu_util)
 ```
 
     ## # A tibble: 8 × 21
-    ##   game       config     i  mean stdev   min   q25 median   q75   q90   q95   q99
-    ##   <chr>      <chr>  <int> <dbl> <dbl> <int> <dbl>  <dbl> <dbl> <dbl> <dbl> <dbl>
-    ## 1 gorillatag MQ3        1  36.8  4.96    29    33     35    40    45  46.0  50.0
-    ## 2 gorillatag MQ3        2  36.5  5.09    28    32     35    40    45  46    49  
-    ## 3 gorillatag MQ3        3  36.1  5.17    28    32     34    41    44  45    48  
-    ## 4 gorillatag MQ3        4  36.0  4.62    28    32     35    39    43  45    47.0
-    ## 5 gorillatag MQ3        5  36.7  4.56    28    33     36    40    43  45    48  
-    ## 6 gorillatag MQ3        6  35.4  4.83    27    31     34    39    42  44    48  
-    ## 7 gorillatag MQ3        7  36.6  5.04    29    32     35    41    44  46    48  
-    ## 8 gorillatag MQ3        8  36.7  4.69    28    33     36    40    43  45    49  
-    ## # ℹ 9 more variables: max <int>, iqr <dbl>, mean_maxd <dbl>, stdev_maxd <dbl>,
-    ## #   min_maxd <int>, q25_maxd <dbl>, median_maxd <dbl>, q75_maxd <dbl>,
-    ## #   max_maxd <int>
+    ##   game_h      d_h       i  mean stdev   min   q25 median   q75   q90   q95   q99
+    ##   <chr>       <chr> <dbl> <dbl> <dbl> <dbl> <dbl>  <dbl> <dbl> <dbl> <dbl> <dbl>
+    ## 1 Gorilla Tag MQ3       1  36.8  4.96    29    33     35    40    45  46.0  50.0
+    ## 2 Gorilla Tag MQ3       2  36.5  5.09    28    32     35    40    45  46    49  
+    ## 3 Gorilla Tag MQ3       3  36.1  5.17    28    32     34    41    44  45    48  
+    ## 4 Gorilla Tag MQ3       4  36.0  4.62    28    32     35    39    43  45    47.0
+    ## 5 Gorilla Tag MQ3       5  36.7  4.56    28    33     36    40    43  45    48  
+    ## 6 Gorilla Tag MQ3       6  35.4  4.83    27    31     34    39    42  44    48  
+    ## 7 Gorilla Tag MQ3       7  36.6  5.04    29    32     35    41    44  46    48  
+    ## 8 Gorilla Tag MQ3       8  36.7  4.69    28    33     36    40    43  45    49  
+    ## # ℹ 9 more variables: max <dbl>, iqr <dbl>, mean_maxd <dbl>, stdev_maxd <dbl>,
+    ## #   min_maxd <dbl>, q25_maxd <dbl>, median_maxd <dbl>, q75_maxd <dbl>,
+    ## #   max_maxd <dbl>
 
 ``` r
 d %>%  
@@ -1584,29 +1350,47 @@ d %>%
 
 ``` r
 d <- data_logcat_vrapi %>%
-  filter(game == "gorillatag") %>%
-  filter(config == "MQ3") %>%
+  filter(a == "gorillatag") %>%
+  filter(d_h == "MQ3") %>%
   filter(i <= 8) %>%
   filter(ts > 60)
 
+d %>%
+  select(fname) %>%
+  unique()
+```
+
+    ## # A tibble: 8 × 1
+    ##   fname                                        
+    ##   <chr>                                        
+    ## 1 20240118-m-replay-d-mq3-a-gorillatag-l-16-i-1
+    ## 2 20240118-m-replay-d-mq3-a-gorillatag-l-16-i-2
+    ## 3 20240118-m-replay-d-mq3-a-gorillatag-l-16-i-3
+    ## 4 20240118-m-replay-d-mq3-a-gorillatag-l-16-i-4
+    ## 5 20240118-m-replay-d-mq3-a-gorillatag-l-16-i-5
+    ## 6 20240118-m-replay-d-mq3-a-gorillatag-l-16-i-6
+    ## 7 20240118-m-replay-d-mq3-a-gorillatag-l-16-i-7
+    ## 8 20240118-m-replay-d-mq3-a-gorillatag-l-16-i-8
+
+``` r
 d %>%
   give_stats(cpu_util)
 ```
 
     ## # A tibble: 8 × 21
-    ##   game       config     i  mean stdev   min   q25 median   q75   q90   q95   q99
-    ##   <chr>      <chr>  <int> <dbl> <dbl> <int> <dbl>  <dbl> <dbl> <dbl> <dbl> <dbl>
-    ## 1 gorillatag MQ3        1  51.2  5.41    37    47     51    55    58    60  64.0
-    ## 2 gorillatag MQ3        2  56.0  5.23    39    53     56    59    63    65  69  
-    ## 3 gorillatag MQ3        3  48.9  5.27    36    45     49    52    56    57  62  
-    ## 4 gorillatag MQ3        4  51.5  5.10    37    48     52    55    58    60  63.0
-    ## 5 gorillatag MQ3        5  58.3  4.59    43    55     58    61    64    65  71  
-    ## 6 gorillatag MQ3        6  53.7  4.27    42    51     54    56    59    61  64  
-    ## 7 gorillatag MQ3        7  59.3  4.50    47    56     59    62    65    67  71  
-    ## 8 gorillatag MQ3        8  54.3  4.21    44    51     54    57    60    61  66  
-    ## # ℹ 9 more variables: max <int>, iqr <dbl>, mean_maxd <dbl>, stdev_maxd <dbl>,
-    ## #   min_maxd <int>, q25_maxd <dbl>, median_maxd <dbl>, q75_maxd <dbl>,
-    ## #   max_maxd <int>
+    ##   game_h      d_h       i  mean stdev   min   q25 median   q75   q90   q95   q99
+    ##   <chr>       <chr> <dbl> <dbl> <dbl> <dbl> <dbl>  <dbl> <dbl> <dbl> <dbl> <dbl>
+    ## 1 Gorilla Tag MQ3       1  51.2  5.41    37    47     51    55    58    60  64.0
+    ## 2 Gorilla Tag MQ3       2  56.0  5.23    39    53     56    59    63    65  69  
+    ## 3 Gorilla Tag MQ3       3  48.9  5.27    36    45     49    52    56    57  62  
+    ## 4 Gorilla Tag MQ3       4  51.5  5.10    37    48     52    55    58    60  63.0
+    ## 5 Gorilla Tag MQ3       5  58.3  4.59    43    55     58    61    64    65  71  
+    ## 6 Gorilla Tag MQ3       6  53.7  4.27    42    51     54    56    59    61  64  
+    ## 7 Gorilla Tag MQ3       7  59.3  4.50    47    56     59    62    65    67  71  
+    ## 8 Gorilla Tag MQ3       8  54.3  4.21    44    51     54    57    60    61  66  
+    ## # ℹ 9 more variables: max <dbl>, iqr <dbl>, mean_maxd <dbl>, stdev_maxd <dbl>,
+    ## #   min_maxd <dbl>, q25_maxd <dbl>, median_maxd <dbl>, q75_maxd <dbl>,
+    ## #   max_maxd <dbl>
 
 ``` r
 d %>%
@@ -1628,75 +1412,45 @@ Variability of network usage.
 
 ``` r
 d <- data_net_dev %>%
-  filter(game == "gorillatag") %>%
-  filter(config == "MQ3") %>%
+  filter(a == "gorillatag") %>%
+  filter(d_h == "MQ3") %>%
   filter(i <= 8) %>%
   filter(ts > 60)
 
 d %>%
+  select(fname) %>%
+  unique()
+```
+
+    ## # A tibble: 8 × 1
+    ##   fname                                        
+    ##   <chr>                                        
+    ## 1 20240118-m-replay-d-mq3-a-gorillatag-l-16-i-1
+    ## 2 20240118-m-replay-d-mq3-a-gorillatag-l-16-i-2
+    ## 3 20240118-m-replay-d-mq3-a-gorillatag-l-16-i-3
+    ## 4 20240118-m-replay-d-mq3-a-gorillatag-l-16-i-4
+    ## 5 20240118-m-replay-d-mq3-a-gorillatag-l-16-i-5
+    ## 6 20240118-m-replay-d-mq3-a-gorillatag-l-16-i-6
+    ## 7 20240118-m-replay-d-mq3-a-gorillatag-l-16-i-7
+    ## 8 20240118-m-replay-d-mq3-a-gorillatag-l-16-i-8
+
+``` r
+d %>%
   give_stats(Mbps_rx)
 ```
 
-    ## Warning: There were 2 warnings in `summarise()`.
-    ## The first warning was:
-    ## ℹ In argument: `min = min(v)`.
-    ## Caused by warning in `min()`:
-    ## ! no non-missing arguments to min; returning Inf
-    ## ℹ Run `dplyr::last_dplyr_warnings()` to see the 1 remaining warning.
-
-    ## Warning: There were 2 warnings in `mutate()`.
-    ## The first warning was:
-    ## ℹ In argument: `mean_maxd = max(mean) - min(mean)`.
-    ## Caused by warning in `max()`:
-    ## ! no non-missing arguments to max; returning -Inf
-    ## ℹ Run `dplyr::last_dplyr_warnings()` to see the 1 remaining warning.
-
-    ## Warning: There were 2 warnings in `mutate()`.
-    ## The first warning was:
-    ## ℹ In argument: `stdev_maxd = max(stdev) - min(stdev)`.
-    ## Caused by warning in `max()`:
-    ## ! no non-missing arguments to max; returning -Inf
-    ## ℹ Run `dplyr::last_dplyr_warnings()` to see the 1 remaining warning.
-
-    ## Warning: There were 2 warnings in `mutate()`.
-    ## The first warning was:
-    ## ℹ In argument: `min_maxd = max(min) - min(min)`.
-    ## Caused by warning in `max()`:
-    ## ! no non-missing arguments to max; returning -Inf
-    ## ℹ Run `dplyr::last_dplyr_warnings()` to see the 1 remaining warning.
-
-    ## Warning: There were 2 warnings in `mutate()`.
-    ## The first warning was:
-    ## ℹ In argument: `q25_maxd = max(q25) - min(q25)`.
-    ## Caused by warning in `max()`:
-    ## ! no non-missing arguments to max; returning -Inf
-    ## ℹ Run `dplyr::last_dplyr_warnings()` to see the 1 remaining warning.
-
-    ## Warning: There were 2 warnings in `mutate()`.
-    ## The first warning was:
-    ## ℹ In argument: `median_maxd = max(median) - min(median)`.
-    ## Caused by warning in `max()`:
-    ## ! no non-missing arguments to max; returning -Inf
-    ## ℹ Run `dplyr::last_dplyr_warnings()` to see the 1 remaining warning.
-
-    ## Warning: There were 2 warnings in `mutate()`.
-    ## The first warning was:
-    ## ℹ In argument: `q75_maxd = max(q75) - min(q75)`.
-    ## Caused by warning in `max()`:
-    ## ! no non-missing arguments to max; returning -Inf
-    ## ℹ Run `dplyr::last_dplyr_warnings()` to see the 1 remaining warning.
-
-    ## Warning: There were 2 warnings in `mutate()`.
-    ## The first warning was:
-    ## ℹ In argument: `max_maxd = max(max) - min(max)`.
-    ## Caused by warning in `max()`:
-    ## ! no non-missing arguments to max; returning -Inf
-    ## ℹ Run `dplyr::last_dplyr_warnings()` to see the 1 remaining warning.
-
-    ## # A tibble: 0 × 21
-    ## # ℹ 21 variables: game <chr>, config <chr>, i <int>, mean <dbl>, stdev <dbl>,
-    ## #   min <dbl>, q25 <dbl>, median <dbl>, q75 <dbl>, q90 <dbl>, q95 <dbl>,
-    ## #   q99 <dbl>, max <dbl>, iqr <dbl>, mean_maxd <dbl>, stdev_maxd <dbl>,
+    ## # A tibble: 8 × 21
+    ##   game_h    d_h       i  mean  stdev    min   q25 median   q75   q90   q95   q99
+    ##   <chr>     <chr> <dbl> <dbl>  <dbl>  <dbl> <dbl>  <dbl> <dbl> <dbl> <dbl> <dbl>
+    ## 1 Gorilla … MQ3       1 0.204 0.0304 0.137  0.185  0.201 0.219 0.237 0.249 0.301
+    ## 2 Gorilla … MQ3       2 0.190 0.0384 0.0294 0.171  0.189 0.205 0.223 0.242 0.341
+    ## 3 Gorilla … MQ3       3 0.213 0.0363 0.132  0.191  0.208 0.229 0.252 0.270 0.373
+    ## 4 Gorilla … MQ3       4 0.168 0.0358 0.0708 0.149  0.167 0.183 0.204 0.217 0.301
+    ## 5 Gorilla … MQ3       5 0.199 0.0463 0.136  0.177  0.192 0.212 0.231 0.251 0.362
+    ## 6 Gorilla … MQ3       6 0.210 0.0341 0.142  0.189  0.205 0.225 0.246 0.264 0.356
+    ## 7 Gorilla … MQ3       7 0.218 0.0384 0.131  0.193  0.214 0.237 0.261 0.278 0.355
+    ## 8 Gorilla … MQ3       8 0.217 0.0466 0.161  0.196  0.212 0.229 0.248 0.263 0.343
+    ## # ℹ 9 more variables: max <dbl>, iqr <dbl>, mean_maxd <dbl>, stdev_maxd <dbl>,
     ## #   min_maxd <dbl>, q25_maxd <dbl>, median_maxd <dbl>, q75_maxd <dbl>,
     ## #   max_maxd <dbl>
 
@@ -1715,44 +1469,53 @@ d %>%
 
 ``` r
 data_net_dev %>%
-  filter(game == "gorillatag") %>%
-  filter(config == "MQ3") %>%
+  filter(a == "gorillatag") %>%
+  filter(d_h == "MQ3") %>%
   filter(i <= 8) %>%
-  filter(ts > 60) %>%
-  ggplot(aes(x = Mbps_tx, y = i, group = i)) +
-  geom_boxplot() +
-  labs(x = "Bytes sent [Mbps]", y = "Iteration") +
-  theme_cowplot(15) +
-  background_grid() +
-  coord_cartesian(clip="off") +
-  theme(legend.position = "none", plot.margin=margin(0,0.2,0,0, "cm"))
+  filter(ts > 60)
 ```
 
-![](Results_files/figure-gfm/val-playback-perfvar-tx_bytes_box-1.svg)<!-- -->
+    ## # A tibble: 7,193 × 44
+    ##       ts  rx_bytes rx_packets rx_errs rx_drop rx_fifo rx_frame rx_compressed
+    ##    <int>     <dbl>      <int>   <int>   <int>   <int>    <int>         <int>
+    ##  1    61 238625176     281557       0       0       0        0             0
+    ##  2    62 238655057     281693       0       0       0        0             0
+    ##  3    63 238680691     281826       0       0       0        0             0
+    ##  4    64 238706651     281962       0       0       0        0             0
+    ##  5    65 238729432     282080       0       0       0        0             0
+    ##  6    66 238773500     282296       0       0       0        0             0
+    ##  7    67 238806906     282446       0       0       0        0             0
+    ##  8    68 238839091     282602       0       0       0        0             0
+    ##  9    69 238866916     282744       0       0       0        0             0
+    ## 10    70 238895136     282881       0       0       0        0             0
+    ## # ℹ 7,183 more rows
+    ## # ℹ 36 more variables: rx_multicast <int>, tx_bytes <dbl>, tx_packets <int>,
+    ## #   tx_errs <int>, tx_drop <int>, tx_fifo <int>, tx_colls <int>,
+    ## #   tx_carrier <int>, tx_compressed <int>, date <int>, a <chr>, n <chr>,
+    ## #   e <chr>, src <chr>, dst <chr>, airline <chr>, fname <chr>, ts_m <dbl>,
+    ## #   m <chr>, d <chr>, l <int>, i <dbl>, song <chr>, diff <chr>, b <int>,
+    ## #   p <dbl>, d_h <chr>, game_h <chr>, bps_tx <dbl>, kbps_tx <dbl>, …
 
 ``` r
-data_net_dev %>%
-  filter(game == "gorillatag") %>%
-  filter(config == "MQ3") %>%
-  filter(i <= 8) %>%
-  filter(ts > 60) %>%
-  ggplot(aes(Mbps_rx, group = i, color=i)) +
-  stat_ecdf(geom = "step", pad = FALSE) +
-  labs(x = "Bytes received [Mbps]", y = "Fraction") +
-  theme_cowplot(15) +
-  background_grid() +
-  coord_cartesian(clip="off") +
-  theme(legend.position = "none", plot.margin=margin(0,0.2,0,0, "cm"))
+d %>%
+  select(fname) %>%
+  unique()
 ```
 
-![](Results_files/figure-gfm/val-playback-perfvar-rx_bytes_cdf-1.svg)<!-- -->
+    ## # A tibble: 8 × 1
+    ##   fname                                        
+    ##   <chr>                                        
+    ## 1 20240118-m-replay-d-mq3-a-gorillatag-l-16-i-1
+    ## 2 20240118-m-replay-d-mq3-a-gorillatag-l-16-i-2
+    ## 3 20240118-m-replay-d-mq3-a-gorillatag-l-16-i-3
+    ## 4 20240118-m-replay-d-mq3-a-gorillatag-l-16-i-4
+    ## 5 20240118-m-replay-d-mq3-a-gorillatag-l-16-i-5
+    ## 6 20240118-m-replay-d-mq3-a-gorillatag-l-16-i-6
+    ## 7 20240118-m-replay-d-mq3-a-gorillatag-l-16-i-7
+    ## 8 20240118-m-replay-d-mq3-a-gorillatag-l-16-i-8
 
 ``` r
-data_net_dev %>%
-  filter(game == "gorillatag") %>%
-  filter(config == "MQ3") %>%
-  filter(i <= 8) %>%
-  filter(ts > 60) %>%
+d %>%
   ggplot() +
   stat_ecdf(aes(x = Mbps_rx, y = log10(1 - after_stat(y)), group = i, color = i), pad=FALSE) +
   scale_y_continuous(breaks = seq(-3, 0), 
@@ -1768,38 +1531,54 @@ data_net_dev %>%
 ![](Results_files/figure-gfm/val-playback-perfvar-rx_bytes_rcdf-1.svg)<!-- -->
 
 ``` r
-# test_data <- data_net_dev %>%
-#   filter(game == "gorillatag") %>%
-#   filter(config == "MQ3")
-# 
-#  # ks2Test(test_data %>% filter(i == 4) %>% pull(Mbps_tx), test_data %>% filter(i == 3) %>% pull(Mbps_tx),321')
-#  
-#  ks.test(test_data %>% filter(i == 4) %>% pull(Mbps_tx),  test_data %>% filter(i == 3) %>% pull(Mbps_tx), alternative = "two.sided", exact = FALSE, conf.level = 0.1)
+data_net_dev %>%
+  filter(a == "gorillatag") %>%
+  filter(d_h == "MQ3") %>%
+  filter(i <= 8) %>%
+  filter(ts > 60)
 ```
 
+    ## # A tibble: 7,193 × 44
+    ##       ts  rx_bytes rx_packets rx_errs rx_drop rx_fifo rx_frame rx_compressed
+    ##    <int>     <dbl>      <int>   <int>   <int>   <int>    <int>         <int>
+    ##  1    61 238625176     281557       0       0       0        0             0
+    ##  2    62 238655057     281693       0       0       0        0             0
+    ##  3    63 238680691     281826       0       0       0        0             0
+    ##  4    64 238706651     281962       0       0       0        0             0
+    ##  5    65 238729432     282080       0       0       0        0             0
+    ##  6    66 238773500     282296       0       0       0        0             0
+    ##  7    67 238806906     282446       0       0       0        0             0
+    ##  8    68 238839091     282602       0       0       0        0             0
+    ##  9    69 238866916     282744       0       0       0        0             0
+    ## 10    70 238895136     282881       0       0       0        0             0
+    ## # ℹ 7,183 more rows
+    ## # ℹ 36 more variables: rx_multicast <int>, tx_bytes <dbl>, tx_packets <int>,
+    ## #   tx_errs <int>, tx_drop <int>, tx_fifo <int>, tx_colls <int>,
+    ## #   tx_carrier <int>, tx_compressed <int>, date <int>, a <chr>, n <chr>,
+    ## #   e <chr>, src <chr>, dst <chr>, airline <chr>, fname <chr>, ts_m <dbl>,
+    ## #   m <chr>, d <chr>, l <int>, i <dbl>, song <chr>, diff <chr>, b <int>,
+    ## #   p <dbl>, d_h <chr>, game_h <chr>, bps_tx <dbl>, kbps_tx <dbl>, …
+
 ``` r
-data_net_dev %>%
-  filter(game == "gorillatag") %>%
-  filter(config == "MQ3") %>%
-  filter(i <= 8) %>%
-  filter(ts > 60) %>%
-  ggplot(aes(Mbps_tx, group = i, color=i)) +
-  stat_ecdf(geom = "step", pad = FALSE) +
-  labs(x = "Bytes sent [Mbps]", y = "Fraction") +
-  theme_cowplot(15) +
-  background_grid() +
-  coord_cartesian(clip="off") +
-  theme(legend.position = "none", plot.margin=margin(0,0,0,0, "cm"))
+d %>%
+  select(fname) %>%
+  unique()
 ```
 
-![](Results_files/figure-gfm/val-playback-perfvar-tx_bytes_cdf-1.svg)<!-- -->
+    ## # A tibble: 8 × 1
+    ##   fname                                        
+    ##   <chr>                                        
+    ## 1 20240118-m-replay-d-mq3-a-gorillatag-l-16-i-1
+    ## 2 20240118-m-replay-d-mq3-a-gorillatag-l-16-i-2
+    ## 3 20240118-m-replay-d-mq3-a-gorillatag-l-16-i-3
+    ## 4 20240118-m-replay-d-mq3-a-gorillatag-l-16-i-4
+    ## 5 20240118-m-replay-d-mq3-a-gorillatag-l-16-i-5
+    ## 6 20240118-m-replay-d-mq3-a-gorillatag-l-16-i-6
+    ## 7 20240118-m-replay-d-mq3-a-gorillatag-l-16-i-7
+    ## 8 20240118-m-replay-d-mq3-a-gorillatag-l-16-i-8
 
 ``` r
-data_net_dev %>%
-  filter(game == "gorillatag") %>%
-  filter(config == "MQ3") %>%
-  filter(i <= 8) %>%
-  filter(ts > 60) %>%
+d %>%
   ggplot() +
   stat_ecdf(aes(x = Mbps_tx, y = log10(1 - after_stat(y)), group = i, color = i), pad=FALSE) +
   scale_y_continuous(breaks = seq(-3, 0), 
@@ -1822,9 +1601,53 @@ this. Why the \>1Mbps network spikes?S
 
 ``` r
 data_net_dev %>%
-  filter(game == "gorillatag") %>%
-  filter(config == "MQ3") %>%
+  filter(a == "gorillatag") %>%
+  filter(d_h == "MQ3") %>%
   filter(i <= 8) %>%
+  filter(ts > 60)
+```
+
+    ## # A tibble: 7,193 × 44
+    ##       ts  rx_bytes rx_packets rx_errs rx_drop rx_fifo rx_frame rx_compressed
+    ##    <int>     <dbl>      <int>   <int>   <int>   <int>    <int>         <int>
+    ##  1    61 238625176     281557       0       0       0        0             0
+    ##  2    62 238655057     281693       0       0       0        0             0
+    ##  3    63 238680691     281826       0       0       0        0             0
+    ##  4    64 238706651     281962       0       0       0        0             0
+    ##  5    65 238729432     282080       0       0       0        0             0
+    ##  6    66 238773500     282296       0       0       0        0             0
+    ##  7    67 238806906     282446       0       0       0        0             0
+    ##  8    68 238839091     282602       0       0       0        0             0
+    ##  9    69 238866916     282744       0       0       0        0             0
+    ## 10    70 238895136     282881       0       0       0        0             0
+    ## # ℹ 7,183 more rows
+    ## # ℹ 36 more variables: rx_multicast <int>, tx_bytes <dbl>, tx_packets <int>,
+    ## #   tx_errs <int>, tx_drop <int>, tx_fifo <int>, tx_colls <int>,
+    ## #   tx_carrier <int>, tx_compressed <int>, date <int>, a <chr>, n <chr>,
+    ## #   e <chr>, src <chr>, dst <chr>, airline <chr>, fname <chr>, ts_m <dbl>,
+    ## #   m <chr>, d <chr>, l <int>, i <dbl>, song <chr>, diff <chr>, b <int>,
+    ## #   p <dbl>, d_h <chr>, game_h <chr>, bps_tx <dbl>, kbps_tx <dbl>, …
+
+``` r
+d %>%
+  select(fname) %>%
+  unique()
+```
+
+    ## # A tibble: 8 × 1
+    ##   fname                                        
+    ##   <chr>                                        
+    ## 1 20240118-m-replay-d-mq3-a-gorillatag-l-16-i-1
+    ## 2 20240118-m-replay-d-mq3-a-gorillatag-l-16-i-2
+    ## 3 20240118-m-replay-d-mq3-a-gorillatag-l-16-i-3
+    ## 4 20240118-m-replay-d-mq3-a-gorillatag-l-16-i-4
+    ## 5 20240118-m-replay-d-mq3-a-gorillatag-l-16-i-5
+    ## 6 20240118-m-replay-d-mq3-a-gorillatag-l-16-i-6
+    ## 7 20240118-m-replay-d-mq3-a-gorillatag-l-16-i-7
+    ## 8 20240118-m-replay-d-mq3-a-gorillatag-l-16-i-8
+
+``` r
+d %>%
   ggplot(aes(x = ts_m, y = Mbps_tx, group = i, color = i)) +
   geom_line() +
   ylim(0, NA) +
