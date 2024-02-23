@@ -1081,7 +1081,7 @@ data_net_dev %>%
 ```
 
 ```{r exp-bwlimit-bandwidth-all-box, fig.width = 3, fig.height = 2}
-data_net_dev %>%
+d <- data_net_dev %>%
   filter(ts > 5) %>%
   drop_na(bwlimit) %>%
   filter(game == "beatsaber") %>%
@@ -1089,7 +1089,9 @@ data_net_dev %>%
   filter(bwlimit <= 100) %>%
   group_by(game, config) %>%
   slice(2:n()) %>%
-  ungroup() %>%
+  ungroup()
+
+d %>%
   ggplot(aes(x = Mbps_rx, y = factor(bwlimit))) +
   geom_boxplot() +
   stat_summary(fun=mean, geom="point", shape=21, size=2, color="black", fill="white") +
@@ -1102,6 +1104,9 @@ data_net_dev %>%
   labs(x = "BW measured [Mbps]", y = "BW limit [Mbps]   ") +
   coord_cartesian(clip="off") +
   theme(plot.margin=margin(0,0.2,0,0, "cm"))
+
+d %>%
+  give_stats(Mbps_rx, by=c("game", "bwlimit"))
 ```
 
 ```{r exp-bwlimit-frametime-all-box, fig.width = 3, fig.height = 2}
@@ -1123,11 +1128,13 @@ data_logcat_vrapi %>%
 ```
 
 ```{r exp-bwlimit-fps-all-box, fig.width = 3, fig.height = 2}
-data_logcat_vrapi %>%
+d <- data_logcat_vrapi %>%
   drop_na(bwlimit) %>%
   filter(game == "beatsaber") %>%
   filter(i == 2) %>%
-  filter(bwlimit <= 100) %>%
+  filter(bwlimit <= 100)
+
+d %>%
   ggplot(aes(x = fps_render, y = factor(bwlimit))) +
   geom_vline(xintercept =72, color = "red") +
   geom_boxplot() +
@@ -1140,6 +1147,9 @@ data_logcat_vrapi %>%
   labs(x="Frames per second", y="Bandwidth [Mbps]       ") +
   coord_cartesian(clip="off") +
   theme(plot.margin=margin(0,0,0,0, "cm"))
+
+d %>%
+  give_stats(fps_render, by=c("game", "bwlimit"))
 ```
 
 ```{r, fig.width = 3, fig.height = 3}
@@ -1255,6 +1265,10 @@ d %>%
 d %>%
   give_stats(-power_w, by = c("bwlimit"))
 ```
+
+## Local vs Streamed
+
+
 
 ## Performance Variability
 
