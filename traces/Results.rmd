@@ -33,10 +33,12 @@ saveplot <- function(filename, ...) {
   knitr::plot_crop(filename)
 }
 
-traces_replays <- list.files(".", pattern="[0-9]+-trace-[a-z]+-mq[23p]-16m-replay-n[0-9]")
+files <- list.files(".", pattern="[0-9]+(.+-.+)+")
 
-# 20240222-trace-beatsaber-mqp-bw_10
-bandwidth_replays <- list.files(".", pattern="[0-9]+-trace-[a-z]+-mq[23p]-n[0-9]-bw_[0-9]")
+# traces_replays <- list.files(".", pattern="[0-9]+-trace-[a-z]+-mq[23p]-16m-replay-n[0-9]")
+# 
+# # 20240222-trace-beatsaber-mqp-bw_10
+# bandwidth_replays <- list.files(".", pattern="[0-9]+-trace-[a-z]+-mq[23p]-n[0-9]-bw_[0-9]")
 
 to_human_name <- function(name) {
   if (str_split_i(name, "-", 4) == "mq3") {
@@ -93,91 +95,89 @@ give_stats <- function(tb, colname, by = c("game", "config", "i")) {
     mutate(max_maxd = max(max) - min(max))
 }
 
-data_host_sys_metrics <- NULL
-for (f in traces_replays) {
-  y <- read_csv(here(f, "host_sys_metrics.log"), col_types = cols(.default = "c"))
-  stop_for_problems(y)
-  x <- y %>%
-    mutate(game = str_split_i(f, "-", 3)) %>%
-    mutate(i = str_split_i(f, "-", -1) %>% str_split_i("n", 2)) %>%
-    mutate(bwlimit = NA) %>%
-    mutate(ts = as.numeric(timestamp)) %>%
-    mutate(ts = ts - min(ts)) %>%
-    mutate(ts_m = ts / 60) %>%
-    mutate(config = f)
-  data_host_sys_metrics <- x %>%
-    bind_rows(data_host_sys_metrics, .)
+add_columns_from_dir_name <- function(df, f) {
+  p <- str_split(f, "-")[[1]]
+  df <- df %>%
+    mutate(date = p[1])
+  i <- 2
+  while (i <= length(p)) {
+    v <- p[i+1]
+    df <- df %>%
+      mutate("{p[i]}" := v)
+    i <- i + 2
+  }
+  df
 }
-for (f in bandwidth_replays) {
-  data_host_sys_metrics <- read_csv(here(f, "host_sys_metrics.log"), col_types = cols(.default = "c")) %>%
-    mutate(game = str_split_i(f, "-", 3)) %>%
-    mutate(i = str_split_i(f, "-", -2) %>% str_split_i("n", 2)) %>%
-    mutate(bwlimit = str_split_i(f, "_", 2)) %>%
-    mutate(ts = as.numeric(timestamp)) %>%
-    mutate(ts = ts - min(ts)) %>%
-    mutate(ts_m = ts / 60) %>%
-    mutate(config = f) %>%
+```
+
+```{r}
+data_host_sys_metrics <- NULL
+for (f in files) {
+  fp <- here(f, "host_sys_metrics.log")
+  if (!file.exists(fp)) {
+    next
+  }
+  data_host_sys_metrics <- read_csv(fp, col_types = cols(.default = "c")) %>%
+    add_columns_from_dir_name(f) %>%
+    mutate(fname = f) %>%
     bind_rows(data_host_sys_metrics, .)
 }
 data_host_sys_metrics <- data_host_sys_metrics %>%
-  type.convert(as.is = TRUE)
+  filter(timestamp != "timestamp") %>%
+  type.convert(as.is = TRUE) %>%
+  group_by(fname) %>%
+  mutate(ts = timestamp) %>%
+  mutate(ts = ts - min(ts)) %>%
+  mutate(ts_m = ts / 60) %>%
+  ungroup()
+```
 
+```{r}
 data_host_gpu_metrics <- NULL
-for (f in traces_replays) {
-  data_host_gpu_metrics <- read_csv(here(f, "host_gpu_metrics.log"), col_types = cols(.default = "c")) %>%
-    mutate(game = str_split_i(f, "-", 3)) %>%
-    mutate(i = str_split_i(f, "-", -1) %>% str_split_i("n", 2)) %>%
-    mutate(bwlimit = NA) %>%
-    mutate(ts = as.numeric(timestamp)) %>%
-    mutate(ts = ts - min(ts)) %>%
-    mutate(ts_m = ts / 60) %>%
-    mutate(config = f) %>%
-    bind_rows(data_host_gpu_metrics, .)
-}
-for (f in bandwidth_replays) {
-  data_host_gpu_metrics <- read_csv(here(f, "host_gpu_metrics.log"), col_types = cols(.default = "c")) %>%
-    mutate(game = str_split_i(f, "-", 3)) %>%
-    mutate(i = str_split_i(f, "-", -2) %>% str_split_i("n", 2)) %>%
-    mutate(bwlimit = str_split_i(f, "_", 2)) %>%
-    mutate(ts = as.numeric(timestamp)) %>%
-    mutate(ts = ts - min(ts)) %>%
-    mutate(ts_m = ts / 60) %>%
-    mutate(config = f) %>%
+for (f in files) {
+  fp <- here(f, "host_gpu_metrics.log")
+  if (!file.exists(fp)) {
+    next
+  }
+  data_host_gpu_metrics <- read_csv(fp, col_types = cols(.default = "c")) %>%
+    add_columns_from_dir_name(f) %>%
+    mutate(fname = f) %>%
     bind_rows(data_host_gpu_metrics, .)
 }
 data_host_gpu_metrics <- data_host_gpu_metrics %>%
-  type.convert(as.is = TRUE)
+  filter(timestamp != "timestamp") %>%
+  type.convert(as.is = TRUE) %>%
+  group_by(fname) %>%
+  mutate(ts = as.numeric(timestamp)) %>%
+  mutate(ts = ts - min(ts)) %>%
+  mutate(ts_m = ts / 60) %>%
+  ungroup()
+```
 
+```{r}
 pattern <- c(month="-?\\d+", "-", day="-?\\d+", "\\s+", hour="-?\\d+", ":", minute="-?\\d+", ":", second="-?\\d+", "\\.", millisecond="-?\\d+", "\\s+", pid="-?\\d+", "\\s+", tid="-?\\d+", "\\s+", level="\\w", "\\s+VrApi\\s+:\\s+FPS=",fps_render="-?\\d+", "/", fps_refresh="-?\\d+", ",Prd=", prd="-?\\d+", "ms,Tear=", tear="-?\\d+", ",Early=", early="-?\\d+", ",Stale=", stale="-?\\d+", ",Stale2/5/10/max=", stale2="-?\\d+", "/", stale5="-?\\d+", "/", stale10="-?\\d+", "/", stalemax="-?\\d+", ",VSnc=", vsnc="-?\\d+", ",Lat=", lat="-?-?\\d+", ",Fov=", fov="-?\\d+\\w*", ",CPU", cpun="\\d", "/GPU=", cpu_level="-?\\d+", "/", gpu_level="-?\\d+", ",", cpu_freq="-?\\d+", "/", gpu_freq="-?\\d+", "MHz,OC=", oc=".+", ",TA=", ta_atw="-?\\d+\\w*", "/", ta_main="-?\\d+\\w*", "/", ta_render="-?\\d+\\w*", ",SP=", sp_atw="\\w", "/", sp_main="\\w", "/", sp_render="\\w", ",Mem=", mem="-?\\d+", "MHz,Free=", free="-?\\d+", "MB,PLS=", pls="-?\\d+", ",Temp=", temp_bat="-?\\d+\\.\\d+", "C/", temp_sens="-?\\d+\\.\\d+", "C,TW=", tw="-?\\d+\\.\\d+", "ms,App=", app="-?\\d+\\.\\d+", "ms,GD=", gd="-?\\d+\\.\\d+", "ms,CPU&GPU=", cpu_gpu="-?\\d+\\.\\d+", "ms,LCnt=", lcnt="-?\\d+", "\\(DR", dr="-?\\d+", ",LM", lm="-?\\d+", "\\),GPU%=", gpu_percent="-?\\d+\\.\\d+", ",CPU%=", cpu_percent="-?\\d+\\.\\d+", "\\(W", cpu_percent_worst="-?\\d+\\.\\d+", "\\),DSF=", dsf="-?\\d+\\.\\d+", ",CFL=", cfl_min="-?\\d+\\.\\d+", "/", cfl_max="-?\\d+\\.\\d+", ",ICFLp95=", icflp95="-?\\d+\\.\\d+", ",LD=", ld="-?\\d+", ",SF=", sf="-?\\d+\\.\\d+", ",LP=", lp="-?\\d+", ",DVFS=", dvfs="-?\\d+")
 
 data_logcat_vrapi <- NULL
-for (f in traces_replays) {
+for (f in files) {
   data_logcat_vrapi <- readLines(here(f, "logcat_VrApi.log")) %>%
     tibble(line = .) %>%
-    mutate(game = str_split_i(f, "-", 3)) %>%
-    mutate(i = str_split_i(f, "-", -1) %>% str_split_i("n", 2)) %>%
-    mutate(bwlimit = NA) %>%
     filter(grepl("^.+\\s+VrApi\\s+:\\s+FPS=", line)) %>%
     separate_wider_regex(line, pattern) %>%
-    mutate(ts = as.numeric(second) + (60*as.numeric(minute)) + (60*60*as.numeric(hour))) %>%
-    mutate(ts = ts - min(ts)) %>%
-    mutate(ts_m = ts / 60) %>%
-    mutate(cpu_util = 100 * as.numeric(cpu_percent)) %>%
-    mutate(cpu_freq_ghz = as.numeric(cpu_freq) / 1000) %>%
-    mutate(cpu_freq_rel = (as.numeric(cpu_freq) - min(as.numeric(cpu_freq))) / max(as.numeric(cpu_freq))) %>%
-    rowwise() %>%
-    mutate(cpu_freq_rel = max(0.01, cpu_freq_rel)) %>%
-    ungroup() %>%
-    mutate(cpu_usage_ltp = as.numeric(cpu_level) * as.numeric(cpu_percent)) %>%
-    mutate(cpu_usage_ftp = as.numeric(cpu_freq) * as.numeric(cpu_percent)) %>%
-    mutate(cpu_usage_ftp_rel = as.numeric(cpu_freq_rel) * as.numeric(cpu_percent)) %>%
-    mutate(cpu_util_worst = 100 * as.numeric(cpu_percent_worst)) %>%
-    mutate(gpu_util = 100 * as.numeric(gpu_percent)) %>%
-    mutate(gpu_usage_ltp = as.numeric(gpu_level) * as.numeric(gpu_percent)) %>%
-    mutate(gpu_usage_ftp = as.numeric(gpu_freq) * as.numeric(gpu_percent)) %>%
-    mutate(config = f) %>%
+    mutate(fname = f) %>%
     bind_rows(data_logcat_vrapi, .)
 }
+data_logcat_vrapi <- data_logcat_vrapi %>%
+  type.convert(as.is = TRUE) %>%
+  group_by(fname) %>%
+  mutate(ts = second + (60*minute) + (60*60*hour)) %>%
+  mutate(ts = ts - min(ts)) %>%
+  mutate(ts_m = ts / 60) %>%
+  mutate(cpu_util = 100 * cpu_percent) %>%
+  mutate(cpu_freq_ghz = cpu_freq / 1000) %>%
+  mutate(gpu_util = 100 * gpu_percent)
+```
+
+```{r}
 for (f in bandwidth_replays) {
   data_logcat_vrapi <- readLines(here(f, "logcat_VrApi.log")) %>%
     tibble(line = .) %>%
@@ -1268,7 +1268,95 @@ d %>%
 
 ## Local vs Streamed
 
+```{r}
+localvsstream_files <- c("20240223-trace-beatsaber-mqp-4m-record-n1")
 
+lvs_data_logcat_vrapi <- NULL
+for (f in localvsstream_files) {
+  lvs_data_logcat_vrapi <- readLines(here(f, "logcat_VrApi.log")) %>%
+    tibble(line = .) %>%
+    mutate(game = str_split_i(f, "-", 3)) %>%
+    mutate(i = str_split_i(f, "-", -1) %>% str_split_i("n", 2)) %>%
+    mutate(bwlimit = NA) %>%
+    filter(grepl("^.+\\s+VrApi\\s+:\\s+FPS=", line)) %>%
+    separate_wider_regex(line, pattern) %>%
+    mutate(ts = as.numeric(second) + (60*as.numeric(minute)) + (60*60*as.numeric(hour))) %>%
+    mutate(ts = ts - min(ts)) %>%
+    mutate(ts_m = ts / 60) %>%
+    mutate(cpu_util = 100 * as.numeric(cpu_percent)) %>%
+    mutate(cpu_freq_ghz = as.numeric(cpu_freq) / 1000) %>%
+    mutate(cpu_freq_rel = (as.numeric(cpu_freq) - min(as.numeric(cpu_freq))) / max(as.numeric(cpu_freq))) %>%
+    rowwise() %>%
+    mutate(cpu_freq_rel = max(0.01, cpu_freq_rel)) %>%
+    ungroup() %>%
+    mutate(cpu_usage_ltp = as.numeric(cpu_level) * as.numeric(cpu_percent)) %>%
+    mutate(cpu_usage_ftp = as.numeric(cpu_freq) * as.numeric(cpu_percent)) %>%
+    mutate(cpu_usage_ftp_rel = as.numeric(cpu_freq_rel) * as.numeric(cpu_percent)) %>%
+    mutate(cpu_util_worst = 100 * as.numeric(cpu_percent_worst)) %>%
+    mutate(gpu_util = 100 * as.numeric(gpu_percent)) %>%
+    mutate(gpu_usage_ltp = as.numeric(gpu_level) * as.numeric(gpu_percent)) %>%
+    mutate(gpu_usage_ftp = as.numeric(gpu_freq) * as.numeric(gpu_percent)) %>%
+    mutate(config = f) %>%
+    bind_rows(lvs_data_logcat_vrapi, .)
+}
+
+lvs_data_net_dev <- NULL
+for (f in traces_replays) {
+  lvs_data_net_dev <- readLines(here(f, "net_dev.log")) %>%
+    tibble(line = .) %>%
+    mutate(game = str_split_i(f, "-", 3)) %>%
+    mutate(i = str_split_i(f, "-", -1) %>% str_split_i("n", 2)) %>%
+    mutate(bwlimit = NA) %>%
+    filter(grepl("^\\s+wlan0:\\s+", line)) %>%
+    separate_wider_regex(line, pattern) %>%
+    mutate(ts = 0:(n() - 1)) %>%
+    select(ts, everything()) %>%
+    mutate(ts_m = ts / 60) %>%
+    mutate(config = f) %>%
+    bind_rows(lvs_data_net_dev, .)
+}
+
+lvs_data_host_gpu_metrics <- NULL
+for (f in localvsstream_files) {
+  lvs_data_host_gpu_metrics <- read_csv(here(f, "host_gpu_metrics.log"), col_types = cols(.default = "c")) %>%
+    mutate(game = str_split_i(f, "-", 3)) %>%
+    mutate(i = str_split_i(f, "-", -1) %>% str_split_i("n", 2)) %>%
+    mutate(bwlimit = NA) %>%
+    mutate(ts = as.numeric(timestamp)) %>%
+    mutate(ts = ts - min(ts)) %>%
+    mutate(ts_m = ts / 60) %>%
+    mutate(config = f) %>%
+    bind_rows(lvs_data_host_gpu_metrics, .)
+}
+
+lvs_data_host_sys_metrics <- NULL
+for (f in localvsstream_files) {
+  lvs_data_host_sys_metrics <- read_csv(here(f, "host_sys_metrics.log"), col_types = cols(.default = "c")) %>%
+    mutate(game = str_split_i(f, "-", 3)) %>%
+    mutate(i = str_split_i(f, "-", -1) %>% str_split_i("n", 2)) %>%
+    mutate(bwlimit = NA) %>%
+    mutate(ts = as.numeric(timestamp)) %>%
+    mutate(ts = ts - min(ts)) %>%
+    mutate(ts_m = ts / 60) %>%
+    mutate(config = f) %>%
+    bind_rows(lvs_data_host_sys_metrics, .)
+}
+```
+
+```{r exp-localvsstream-gpu-util-all-box, fig.width = 3, fig.height = 2}
+data_logcat_vrapi %>%
+  filter(is.na(bwlimit))
+
+  ggplot(aes(x = gpu_util, y = config)) +
+  geom_boxplot() +
+  stat_summary(fun=mean, geom="point", shape=21, size=2, color="black", fill="white") +
+  xlim(0, 100) +
+  labs(x = "GPU utilization [%]", y = "Bandwidth [Mbps]       ") +
+  theme_cowplot(15) +
+  background_grid() +
+  coord_cartesian(clip="off") +
+  theme(plot.margin=margin(0,0.1,0,0, "cm"))
+```
 
 ## Performance Variability
 
