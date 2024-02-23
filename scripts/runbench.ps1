@@ -178,7 +178,9 @@ try {
     Set-Content -Path $modeFilePath -Value "$Mode $TraceFile"
 
     # Set Bandwidth limit if configured
-    & "$PSScriptRoot\network-emulate\net-delay-static.ps1" $BWLimit
+    if ( $PSBoundParameters.ContainsKey('BWLimit')) {
+        & "$PSScriptRoot\network-emulate\net-delay-static.ps1" $BWLimit
+    }
 
     # Start tracing
     $TraceJob = Start-ThreadJob -StreamingHost $Host -InitializationScript $functions -ScriptBlock {
@@ -254,8 +256,10 @@ finally {
     Stop-Job $TraceJob
 
     # Stop Bandwidth limiting, if set
-    Write-Output "Removing bandwidth limit"
-    net stop nlsvc
+    if ( $PSBoundParameters.ContainsKey('BWLimit')) {
+        Write-Output "Removing bandwidth limit"
+        net stop nlsvc
+    }
 
     # Plot results
     Write-Output "Copying R Notebook"
