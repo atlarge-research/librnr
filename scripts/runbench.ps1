@@ -220,9 +220,17 @@ try {
             Start-Sleep -Seconds $Seconds
         }
         else {
-            # Recording, sleep until the user stops the script with an interrupt
-            while ($True) {
-                Start-Sleep 5
+            # Recording
+            if ( $PSBoundParameters.ContainsKey('Duration')) {
+                Write-Output "Will sleep for $Duration seconds"
+                Start-Sleep $Duration
+            }
+            else {
+                # sleep until the user stops the script with an interrupt
+                while ($True) {
+                    Write-Output "WARNING: Will sleep for until user interrupt!"
+                    Start-Sleep 5
+                }
             }
         }
     }

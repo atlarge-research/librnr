@@ -12,6 +12,7 @@ Experiment
     - [Battery Usage](#battery-usage)
   - [Bandwidth Limits](#bandwidth-limits)
   - [Local vs Streamed](#local-vs-streamed)
+  - [Hand Tracking](#hand-tracking)
   - [Performance Variability](#performance-variability)
     - [Local Apps](#local-apps)
 
@@ -55,6 +56,8 @@ device_to_human_name <- function(d) {
     "MQP"
   } else if (d == "mq2") {
     "MQ2"
+  } else if (d == "pixel6a") {
+    "Pixel 6a"
   } else {
     name
   }
@@ -162,7 +165,7 @@ data_host_gpu_metrics <- data_host_gpu_metrics %>%
   ungroup()
 
 # Load VR logcat system metrics data
-pattern <- c(month="-?\\d+", "-", day="-?\\d+", "\\s+", hour="-?\\d+", ":", minute="-?\\d+", ":", second="-?\\d+", "\\.", millisecond="-?\\d+", "\\s+", pid="-?\\d+", "\\s+", tid="-?\\d+", "\\s+", level="\\w", "\\s+VrApi\\s+:\\s+FPS=",fps_render="-?\\d+", "/", fps_refresh="-?\\d+", ",Prd=", prd="-?\\d+", "ms,Tear=", tear="-?\\d+", ",Early=", early="-?\\d+", ",Stale=", stale="-?\\d+", ",Stale2/5/10/max=", stale2="-?\\d+", "/", stale5="-?\\d+", "/", stale10="-?\\d+", "/", stalemax="-?\\d+", ",VSnc=", vsnc="-?\\d+", ",Lat=", lat="-?-?\\d+", ",Fov=", fov="-?\\d+\\w*", ",CPU", cpun="\\d", "/GPU=", cpu_level="-?\\d+", "/", gpu_level="-?\\d+", ",", cpu_freq="-?\\d+", "/", gpu_freq="-?\\d+", "MHz,OC=", oc=".+", ",TA=", ta_atw="-?\\d+\\w*", "/", ta_main="-?\\d+\\w*", "/", ta_render="-?\\d+\\w*", ",SP=", sp_atw="\\w", "/", sp_main="\\w", "/", sp_render="\\w", ",Mem=", mem="-?\\d+", "MHz,Free=", free="-?\\d+", "MB,PLS=", pls="-?\\d+", ",Temp=", temp_bat="-?\\d+\\.\\d+", "C/", temp_sens="-?\\d+\\.\\d+", "C,TW=", tw="-?\\d+\\.\\d+", "ms,App=", app="-?\\d+\\.\\d+", "ms,GD=", gd="-?\\d+\\.\\d+", "ms,CPU&GPU=", cpu_gpu="-?\\d+\\.\\d+", "ms,LCnt=", lcnt="-?\\d+", "\\(DR", dr="-?\\d+", ",LM", lm="-?\\d+", "\\),GPU%=", gpu_percent="-?\\d+\\.\\d+", ",CPU%=", cpu_percent="-?\\d+\\.\\d+", "\\(W", cpu_percent_worst="-?\\d+\\.\\d+", "\\),DSF=", dsf="-?\\d+\\.\\d+", ",CFL=", cfl_min="-?\\d+\\.\\d+", "/", cfl_max="-?\\d+\\.\\d+", ",ICFLp95=", icflp95="-?\\d+\\.\\d+", ",LD=", ld="-?\\d+", ",SF=", sf="-?\\d+\\.\\d+", ",LP=", lp="-?\\d+", ",DVFS=", dvfs="-?\\d+")
+pattern <- c(month="-?\\d+", "-", day="-?\\d+", "\\s+", hour="-?\\d+", ":", minute="-?\\d+", ":", second="-?\\d+", "\\.", millisecond="-?\\d+", "\\s+", pid="-?\\d+", "\\s+", tid="-?\\d+", "\\s+", level="\\w", "\\s+VrApi\\s+:\\s+FPS=",fps_render="-?\\d+", "/", fps_refresh="-?\\d+", ",Prd=", prd="-?\\d+", "ms,Tear=", tear="-?\\d+", ",Early=", early="-?\\d+", ",Stale=", stale="-?\\d+", ",Stale2/5/10/max=", stale2="-?\\d+", "/", stale5="-?\\d+", "/", stale10="-?\\d+", "/", stalemax="-?\\d+", ",VSnc=", vsnc="-?\\d+", ",Lat=", lat="-?-?\\d+", ",Fov=", fov="-?\\d+\\w*", ",CPU", cpun="\\d", "/GPU=", cpu_level="-?\\d+", "/", gpu_level="-?\\d+", ",", cpu_freq="-?\\d+", "/", gpu_freq="-?\\d+", "MHz,OC=", oc=".+", ",TA=", ta_atw="-?\\d+\\w*", "/", ta_main="-?\\d+\\w*", "/", ta_render="-?\\d+\\w*", ",SP=", sp_atw="\\w", "/", sp_main="\\w", "/", sp_render="\\w", ",Mem=", mem="-?\\d+", "MHz,Free=", free="-?\\d+", "MB,PLS=", pls="-?\\d+", ",Temp=", temp_bat="-?\\d+\\.\\d+", "C/", temp_sens="-?\\d+\\.\\d+", "C,TW=", tw="-?\\d+\\.\\d+", "ms,App=", app="-?\\d+\\.\\d+", "ms,GD=", gd="-?\\d+\\.\\d+", "ms,CPU&GPU=", cpu_gpu="-?\\d+\\.\\d+", "ms,LCnt=", lcnt="-?\\d+", "\\(DR", dr="-?\\d+", ",LM", lm="-?\\d+", "\\),GPU%=", gpu_percent="-?\\d+\\.\\d+", ",CPU%=", cpu_percent="-?\\d+\\.\\d+", "\\(W", cpu_percent_worst="-?\\d+\\.\\d+", "\\),DSF=", dsf="-?\\d+\\.\\d+", ",CFL=", cfl_min="-?\\d+\\.\\d+", "/", cfl_max="-?\\d+\\.\\d+", ",ICFLp95=", icflp95="-?\\d+\\.\\d+", ",LD=", ld="-?\\d+", ",SF=", sf="-?\\d+\\.\\d+", ",LP=", lp="-?\\d+", ",DVFS=", dvfs="-?\\d+", ".*")
 data_logcat_vrapi <- NULL
 for (f in files) {
   fp <- here(f, "logcat_VrApi.log")
@@ -192,7 +195,7 @@ data_logcat_vrapi <- data_logcat_vrapi %>%
 data_logcat_vrapi
 ```
 
-    ## # A tibble: 78,600 × 80
+    ## # A tibble: 81,673 × 80
     ##    month   day  hour minute second millisecond   pid   tid level fps_render
     ##    <int> <int> <int>  <int>  <int>       <int> <int> <int> <chr>      <int>
     ##  1    12    11     2     59     45         524  1975  3146 I             90
@@ -205,7 +208,7 @@ data_logcat_vrapi
     ##  8    12    11     2     59     52         524  1975  3146 I             90
     ##  9    12    11     2     59     53         524  1975  3146 I             90
     ## 10    12    11     2     59     54         524  1975  3146 I             90
-    ## # ℹ 78,590 more rows
+    ## # ℹ 81,663 more rows
     ## # ℹ 70 more variables: fps_refresh <int>, prd <int>, tear <int>, early <int>,
     ## #   stale <int>, stale2 <int>, stale5 <int>, stale10 <int>, stalemax <int>,
     ## #   vsnc <int>, lat <int>, fov <chr>, cpun <int>, cpu_level <int>,
@@ -255,7 +258,7 @@ data_net_dev <- data_net_dev %>%
 data_net_dev
 ```
 
-    ## # A tibble: 72,744 × 44
+    ## # A tibble: 75,809 × 44
     ##       ts rx_bytes rx_packets rx_errs rx_drop rx_fifo rx_frame rx_compressed
     ##    <int>    <dbl>      <int>   <int>   <int>   <int>    <int>         <int>
     ##  1     0 22648810      36024       0       0       0        0             0
@@ -268,7 +271,7 @@ data_net_dev
     ##  8     7 22682726      36323       0       0       0        0             0
     ##  9     8 22691887      36383       0       0       0        0             0
     ## 10     9 22694465      36425       0       0       0        0             0
-    ## # ℹ 72,734 more rows
+    ## # ℹ 75,799 more rows
     ## # ℹ 36 more variables: rx_multicast <int>, tx_bytes <dbl>, tx_packets <int>,
     ## #   tx_errs <int>, tx_drop <int>, tx_fifo <int>, tx_colls <int>,
     ## #   tx_carrier <int>, tx_compressed <int>, date <int>, a <chr>, n <chr>,
@@ -311,7 +314,7 @@ data_batterymanager_companion <- data_batterymanager_companion %>%
 data_batterymanager_companion
 ```
 
-    ## # A tibble: 40,695 × 27
+    ## # A tibble: 41,890 × 28
     ##    month   day  hour minute second millisecond   pid   tid ts_milli  current
     ##    <int> <int> <int>  <int>  <int>       <int> <int> <int>    <dbl>    <int>
     ##  1     1    16    13     56      7         733  6505  6529        0 -1833983
@@ -324,13 +327,68 @@ data_batterymanager_companion
     ##  8     1    16    13     56     14         758  6505  6529     7025 -1550292
     ##  9     1    16    13     56     15         761  6505  6529     8028 -1501952
     ## 10     1    16    13     56     16         763  6505  6529     9030 -1864256
-    ## # ℹ 40,685 more rows
-    ## # ℹ 17 more variables: voltage <int>, date <int>, m <chr>, d <chr>, a <chr>,
-    ## #   l <int>, i <int>, fname <chr>, b <int>, d_h <chr>, game_h <chr>, ts <dbl>,
-    ## #   ts_m <dbl>, current_ma <dbl>, current_a <dbl>, voltage_v <dbl>,
+    ## # ℹ 41,880 more rows
+    ## # ℹ 18 more variables: voltage <int>, date <int>, m <chr>, d <chr>, a <chr>,
+    ## #   l <int>, i <int>, fname <chr>, b <int>, n <chr>, d_h <chr>, game_h <chr>,
+    ## #   ts <dbl>, ts_m <dbl>, current_ma <dbl>, current_a <dbl>, voltage_v <dbl>,
     ## #   power_w <dbl>
 
 ``` r
+# Load iperf data
+pattern <- c("\\[\\s*", id="\\d+", "\\]\\s+", start = "\\d+\\.?\\d*", "-", stop = "\\d+\\.?\\d*", "\\s+", unit = "\\w+", "\\s+", transfer = "\\d+\\.?\\d*", "\\s+", transfer_unit="\\w+", "\\s+", bitrate="\\d+\\.?\\d*", "\\s+", bitrate_unit="\\w+/?\\w*", "\\s+", retry="\\d+", "\\s+", cwnd="\\d+\\.?\\d*", "\\s+", cwnd_unit="\\w+")
+data_iperf <- NULL
+for (f in files) {
+  fp <- here(f, "iperf.txt")
+  if (!file.exists(fp)) {
+    next
+  }
+  data_iperf <- readLines(fp) %>%
+    tibble(line = .) %>%
+    filter(grepl("\\s+\\d+\\s+\\w+/\\w+\\s+\\d+\\s+\\d+(\\.\\d+)?\\s+\\w+", line)) %>%
+    separate_wider_regex(line, pattern) %>%
+    add_columns_from_dir_name(f) %>%
+    mutate(fname = f) %>%
+    bind_rows(data_iperf, .)
+}
+```
+
+    ## Warning in readLines(fp): incomplete final line found on
+    ## '/mnt/c/Users/atl_gaming/repos/openxr-librnr/traces/20240224-m-baseline-d-mq2-a-iperf/iperf.txt'
+
+    ## Warning in readLines(fp): incomplete final line found on
+    ## '/mnt/c/Users/atl_gaming/repos/openxr-librnr/traces/20240224-m-baseline-d-mq2-a-iperf-n-l1k/iperf.txt'
+
+    ## Warning in readLines(fp): incomplete final line found on
+    ## '/mnt/c/Users/atl_gaming/repos/openxr-librnr/traces/20240224-m-baseline-d-mq3-a-iperf/iperf.txt'
+
+    ## Warning in readLines(fp): incomplete final line found on
+    ## '/mnt/c/Users/atl_gaming/repos/openxr-librnr/traces/20240224-m-baseline-d-mq3-a-iperf-n-l1k/iperf.txt'
+
+    ## Warning in readLines(fp): incomplete final line found on
+    ## '/mnt/c/Users/atl_gaming/repos/openxr-librnr/traces/20240224-m-baseline-d-mqp-a-iperf/iperf.txt'
+
+    ## Warning in readLines(fp): incomplete final line found on
+    ## '/mnt/c/Users/atl_gaming/repos/openxr-librnr/traces/20240224-m-baseline-d-mqp-a-iperf-n-l1k/iperf.txt'
+
+    ## Warning in readLines(fp): incomplete final line found on
+    ## '/mnt/c/Users/atl_gaming/repos/openxr-librnr/traces/20240224-m-baseline-d-pixel6a-a-iperf/iperf.txt'
+
+    ## Warning in readLines(fp): incomplete final line found on
+    ## '/mnt/c/Users/atl_gaming/repos/openxr-librnr/traces/20240224-m-baseline-d-pixel6a-a-iperf-n-l1k/iperf.txt'
+
+``` r
+data_iperf <- data_iperf %>%
+  type.convert(as.is=TRUE) %>%
+  mutate(d_h = map_chr(d, device_to_human_name)) %>%
+  mutate(game_h = map_chr(a, game_to_human_name)) %>%
+  mutate(bps = NA) %>%
+  mutate(bps = ifelse(bitrate_unit == "Gbits/sec", bitrate * 1000000000, bps)) %>%
+  mutate(bps = ifelse(bitrate_unit == "Mbits/sec", bitrate * 1000000, bps)) %>%
+  mutate(bps = ifelse(bitrate_unit == "kbits/sec", bitrate * 1000, bps)) %>%
+  mutate(kbps = bps / 1000) %>%
+  mutate(Mbps = bps / 1000000) %>%
+  mutate(Gbps = bps / 1000000000)
+
 # Define some nice colors
 game_colors <- c(g_moss = "#ccbb44",
                  g_gorillatag="#66ccee",
@@ -521,6 +579,66 @@ iperf_data %>%
 
 ![](Results_files/figure-gfm/iperf-mqp-1.svg)<!-- -->
 
+``` r
+d <- data_iperf %>%
+  filter(is.na(n))
+
+d %>%
+  select(fname) %>%
+  unique()
+```
+
+    ## # A tibble: 4 × 1
+    ##   fname                                
+    ##   <chr>                                
+    ## 1 20240224-m-baseline-d-mq2-a-iperf    
+    ## 2 20240224-m-baseline-d-mq3-a-iperf    
+    ## 3 20240224-m-baseline-d-mqp-a-iperf    
+    ## 4 20240224-m-baseline-d-pixel6a-a-iperf
+
+``` r
+d %>%
+  give_stats(Mbps, by=c("d_h"))
+```
+
+    ## Warning: Using an external vector in selections was deprecated in tidyselect 1.1.0.
+    ## ℹ Please use `all_of()` or `any_of()` instead.
+    ##   # Was:
+    ##   data %>% select(by)
+    ## 
+    ##   # Now:
+    ##   data %>% select(all_of(by))
+    ## 
+    ## See <https://tidyselect.r-lib.org/reference/faq-external-vector.html>.
+    ## This warning is displayed once every 8 hours.
+    ## Call `lifecycle::last_lifecycle_warnings()` to see where this warning was
+    ## generated.
+
+    ## # A tibble: 4 × 19
+    ##   d_h       mean stdev   min   q25 median   q75   q90   q95   q99   max   iqr
+    ##   <chr>    <dbl> <dbl> <dbl> <dbl>  <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl>
+    ## 1 MQ2       762.  40.3   661   744    765  789.   818  818   822.   828  44.8
+    ## 2 MQ3       721.  23.8   619   713    724  734    744  744   744.   745  21  
+    ## 3 MQP       722.  20.4   671   713    724  734    744  745.  755    755  21  
+    ## 4 Pixel 6a  926.  20.3   870   923    933  933    944  944   948.   954  10  
+    ## # ℹ 7 more variables: mean_maxd <dbl>, stdev_maxd <dbl>, min_maxd <dbl>,
+    ## #   q25_maxd <dbl>, median_maxd <dbl>, q75_maxd <dbl>, max_maxd <dbl>
+
+``` r
+d %>%
+  ggplot(aes(x = Mbps, y = d_h)) +
+  geom_boxplot() +
+  stat_summary(fun=mean, geom="point", shape=21, size=2, color="black", fill="white") +
+  xlim(0,NA) +
+  theme_cowplot(15) +
+  background_grid() +
+  labs(x = "Bitrate [Mbps]", y = "Device") +
+  coord_cartesian(clip="off") +
+  theme(plot.margin=margin(0,0.6,0,0, "cm"))
+```
+
+![](Results_files/figure-gfm/exp-iperf-bandwidth-all-box-1.svg)<!-- -->
+
 ## Evolution of Hardware
 
 ### Frames per Second
@@ -641,19 +759,6 @@ d %>%
 d %>%
   give_stats(app)
 ```
-
-    ## Warning: Using an external vector in selections was deprecated in tidyselect 1.1.0.
-    ## ℹ Please use `all_of()` or `any_of()` instead.
-    ##   # Was:
-    ##   data %>% select(by)
-    ## 
-    ##   # Now:
-    ##   data %>% select(all_of(by))
-    ## 
-    ## See <https://tidyselect.r-lib.org/reference/faq-external-vector.html>.
-    ## This warning is displayed once every 8 hours.
-    ## Call `lifecycle::last_lifecycle_warnings()` to see where this warning was
-    ## generated.
 
     ## # A tibble: 12 × 21
     ##    game_h    d_h       i  mean  stdev   min   q25 median   q75   q90   q95   q99
@@ -1173,6 +1278,479 @@ d %>%
 ![](Results_files/figure-gfm/exp-bwlimit-battery-power-all-box-1.svg)<!-- -->
 
 ## Local vs Streamed
+
+``` r
+d <- data_batterymanager_companion %>%
+  filter(ts > 5) %>%
+  filter(fname == "20240222-m-replay-d-mqp-a-beatsaber-b-100-i-2" | fname == "20240223-m-record-d-mqp-a-beatsaber-l-4-i-1")
+
+d %>%
+  select(fname) %>%
+  unique()
+```
+
+    ## # A tibble: 2 × 1
+    ##   fname                                        
+    ##   <chr>                                        
+    ## 1 20240222-m-replay-d-mqp-a-beatsaber-b-100-i-2
+    ## 2 20240223-m-record-d-mqp-a-beatsaber-l-4-i-1
+
+``` r
+d %>%
+  give_stats(-power_w, by = c("fname"))
+```
+
+    ## # A tibble: 2 × 19
+    ##   fname        mean stdev   min   q25 median   q75   q90   q95   q99   max   iqr
+    ##   <chr>       <dbl> <dbl> <dbl> <dbl>  <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl>
+    ## 1 20240222-m…  9.29 0.342  7.39  9.27   9.35  9.42  9.49  9.54  9.65 10.4  0.151
+    ## 2 20240223-m…  7.75 0.750  6.30  7.26   7.48  7.86  9.38  9.53  9.73  9.97 0.602
+    ## # ℹ 7 more variables: mean_maxd <dbl>, stdev_maxd <dbl>, min_maxd <dbl>,
+    ## #   q25_maxd <dbl>, median_maxd <dbl>, q75_maxd <dbl>, max_maxd <dbl>
+
+``` r
+d %>%
+  mutate(setup = ifelse(is.na(b), "Local", "Stream")) %>%
+  ggplot(aes(x=-power_w, y=setup)) +
+  geom_boxplot() +
+  stat_summary(fun=mean, geom="point", shape=21, size=2, color="black", fill="white") +
+  theme(strip.background=element_rect(fill="white")) +
+  theme_cowplot(15) +
+  background_grid() +
+  theme(legend.position="none", strip.background=element_rect(fill="white")) +
+  xlim(0, NA) +
+  labs(y = "Setup", x = "Power [W]") +
+  scale_fill_manual(values=device_colors) +
+  coord_cartesian(clip="off") +
+  theme(plot.margin=margin(0,0.1,0,0, "cm"))
+```
+
+![](Results_files/figure-gfm/exp-lvs-battery-power-all-box-1.svg)<!-- -->
+
+``` r
+d <- data_logcat_vrapi %>%
+  filter(ts > 5) %>%
+  filter(fname == "20240222-m-replay-d-mqp-a-beatsaber-b-100-i-2" | fname == "20240223-m-record-d-mqp-a-beatsaber-l-4-i-1")
+
+
+d %>%
+  select(fname) %>%
+  unique()
+```
+
+    ## # A tibble: 2 × 1
+    ##   fname                                        
+    ##   <chr>                                        
+    ## 1 20240222-m-replay-d-mqp-a-beatsaber-b-100-i-2
+    ## 2 20240223-m-record-d-mqp-a-beatsaber-l-4-i-1
+
+``` r
+d %>%
+  give_stats(gpu_util, by = c("fname"))
+```
+
+    ## # A tibble: 2 × 19
+    ##   fname        mean stdev   min   q25 median   q75   q90   q95   q99   max   iqr
+    ##   <chr>       <dbl> <dbl> <dbl> <dbl>  <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl>
+    ## 1 20240222-m…  61.3  1.57    47    61     61  62    63      63  64      65  1   
+    ## 2 20240223-m…  66.9  9.34     8    65     68  71.2  74.9    75  76.2    80  6.25
+    ## # ℹ 7 more variables: mean_maxd <dbl>, stdev_maxd <dbl>, min_maxd <dbl>,
+    ## #   q25_maxd <dbl>, median_maxd <dbl>, q75_maxd <dbl>, max_maxd <dbl>
+
+``` r
+d %>%
+  mutate(setup = ifelse(is.na(b), "Local", "Stream")) %>%
+  ggplot(aes(x = gpu_util, y = setup)) +
+  geom_boxplot() +
+  stat_summary(fun=mean, geom="point", shape=21, size=2, color="black", fill="white") +
+  xlim(0, 100) +
+  labs(x = "GPU utilization [%]", y = "Setup") +
+  theme_cowplot(15) +
+  background_grid() +
+  coord_cartesian(clip="off") +
+  theme(plot.margin=margin(0,0.2,0,0, "cm"))
+```
+
+![](Results_files/figure-gfm/exp-lvs-gpu-util-all-box-1.svg)<!-- -->
+
+``` r
+d <- data_logcat_vrapi %>%
+  filter(ts > 5) %>%
+  filter(fname == "20240222-m-replay-d-mqp-a-beatsaber-b-100-i-2" | fname == "20240223-m-record-d-mqp-a-beatsaber-l-4-i-1")
+
+
+d %>%
+  select(fname) %>%
+  unique()
+```
+
+    ## # A tibble: 2 × 1
+    ##   fname                                        
+    ##   <chr>                                        
+    ## 1 20240222-m-replay-d-mqp-a-beatsaber-b-100-i-2
+    ## 2 20240223-m-record-d-mqp-a-beatsaber-l-4-i-1
+
+``` r
+d %>%
+  give_stats(cpu_util, by = c("fname"))
+```
+
+    ## # A tibble: 2 × 19
+    ##   fname        mean stdev   min   q25 median   q75   q90   q95   q99   max   iqr
+    ##   <chr>       <dbl> <dbl> <dbl> <dbl>  <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl>
+    ## 1 20240222-m…  16.3  6.04     4    12     16    20    24  25.9  29.6    42     8
+    ## 2 20240223-m…  29.2  6.54    16    26     29    32    34  37.4  49.4   100     6
+    ## # ℹ 7 more variables: mean_maxd <dbl>, stdev_maxd <dbl>, min_maxd <dbl>,
+    ## #   q25_maxd <dbl>, median_maxd <dbl>, q75_maxd <dbl>, max_maxd <dbl>
+
+``` r
+d %>%
+  mutate(setup = ifelse(is.na(b), "Local", "Stream")) %>%
+  ggplot(aes(x = cpu_util, y = setup)) +
+  geom_boxplot() +
+  stat_summary(fun=mean, geom="point", shape=21, size=2, color="black", fill="white") +
+  xlim(0, 100) +
+  labs(x = "CPU utilization [%]", y = "Setup") +
+  theme_cowplot(15) +
+  background_grid() +
+  coord_cartesian(clip="off") +
+  theme(plot.margin=margin(0,0.2,0,0, "cm"))
+```
+
+![](Results_files/figure-gfm/exp-lvs-cpu-util-all-box-1.svg)<!-- -->
+
+``` r
+d <- data_logcat_vrapi %>%
+  filter(ts > 5) %>%
+  filter(fname == "20240222-m-replay-d-mqp-a-beatsaber-b-100-i-2" | fname == "20240223-m-record-d-mqp-a-beatsaber-l-4-i-1")
+
+
+d %>%
+  select(fname) %>%
+  unique()
+```
+
+    ## # A tibble: 2 × 1
+    ##   fname                                        
+    ##   <chr>                                        
+    ## 1 20240222-m-replay-d-mqp-a-beatsaber-b-100-i-2
+    ## 2 20240223-m-record-d-mqp-a-beatsaber-l-4-i-1
+
+``` r
+d %>%
+  give_stats(fps_render, by = c("fname"))
+```
+
+    ## # A tibble: 2 × 19
+    ##   fname        mean stdev   min   q25 median   q75   q90   q95   q99   max   iqr
+    ##   <chr>       <dbl> <dbl> <int> <dbl>  <dbl> <dbl> <dbl> <dbl> <dbl> <int> <dbl>
+    ## 1 20240222-m…  72.0 0.187    72    72     72    72    72    72    73    73     0
+    ## 2 20240223-m…  89.0 7.25     29    90     90    91    91    91    91    91     1
+    ## # ℹ 7 more variables: mean_maxd <dbl>, stdev_maxd <dbl>, min_maxd <int>,
+    ## #   q25_maxd <dbl>, median_maxd <dbl>, q75_maxd <dbl>, max_maxd <int>
+
+``` r
+d %>%
+  mutate(setup = ifelse(is.na(b), "Local", "Stream")) %>%
+  ggplot(aes(x = fps_render, y = setup)) +
+  geom_boxplot() +
+  stat_summary(fun=mean, geom="point", shape=21, size=2, color="black", fill="white") +
+  xlim(0, NA) +
+  labs(x = "Frames per second", y = "Setup") +
+  theme_cowplot(15) +
+  background_grid() +
+  coord_cartesian(clip="off") +
+  theme(plot.margin=margin(0,0.2,0,0, "cm"))
+```
+
+![](Results_files/figure-gfm/exp-lvs-fps-all-box-1.svg)<!-- -->
+
+``` r
+d <- data_net_dev %>%
+  filter(ts > 5) %>%
+  filter(fname == "20240222-m-replay-d-mqp-a-beatsaber-b-100-i-2" | fname == "20240223-m-record-d-mqp-a-beatsaber-l-4-i-1")
+
+d %>%
+  select(fname) %>%
+  unique()
+```
+
+    ## # A tibble: 2 × 1
+    ##   fname                                        
+    ##   <chr>                                        
+    ## 1 20240222-m-replay-d-mqp-a-beatsaber-b-100-i-2
+    ## 2 20240223-m-record-d-mqp-a-beatsaber-l-4-i-1
+
+``` r
+d %>%
+  give_stats(Mbps_rx, by = c("fname"))
+```
+
+    ## # A tibble: 2 × 19
+    ##   fname        mean  stdev     min     q25  median     q75     q90    q95    q99
+    ##   <chr>       <dbl>  <dbl>   <dbl>   <dbl>   <dbl>   <dbl>   <dbl>  <dbl>  <dbl>
+    ## 1 20240222… 91.7    2.25   77.5    90.7    91.8    93.0    93.9    94.6   95.5  
+    ## 2 20240223…  0.0383 0.0310  0.0233  0.0244  0.0259  0.0373  0.0618  0.112  0.178
+    ## # ℹ 9 more variables: max <dbl>, iqr <dbl>, mean_maxd <dbl>, stdev_maxd <dbl>,
+    ## #   min_maxd <dbl>, q25_maxd <dbl>, median_maxd <dbl>, q75_maxd <dbl>,
+    ## #   max_maxd <dbl>
+
+``` r
+d %>%
+  mutate(setup = ifelse(is.na(b), "Local", "Stream")) %>%
+  ggplot(aes(x = Mbps_rx, y = setup)) +
+  geom_boxplot() +
+  stat_summary(fun=mean, geom="point", shape=21, size=2, color="black", fill="white") +
+  scale_x_continuous(breaks = seq(0, 100, by = 20), limits=c(0,NA)) +
+  theme_cowplot(15) +
+  background_grid(major = "xy", minor="x") +
+  # xlim(0, NA) +
+  labs(x = "Bandwidth [Mbps]", y = "Setup") +
+  coord_cartesian(clip="off") +
+  theme(plot.margin=margin(0,0.4,0,0, "cm"))
+```
+
+![](Results_files/figure-gfm/exp-lvs-bandwidth-all-box-1.svg)<!-- -->
+
+## Hand Tracking
+
+``` r
+d <- data_logcat_vrapi %>%
+  filter(ts > 5) %>%
+  filter(ts <= 600) %>%
+  filter(a == "wordle") %>%
+  filter(i == 2)
+
+d %>%
+  select(fname) %>%
+  unique()
+```
+
+    ## # A tibble: 2 × 1
+    ##   fname                                              
+    ##   <chr>                                              
+    ## 1 20240224-m-baseline-d-mqp-a-wordle-i-2-n-controller
+    ## 2 20240224-m-baseline-d-mqp-a-wordle-i-2-n-hand
+
+``` r
+d %>%
+  give_stats(cpu_util, by = c("fname"))
+```
+
+    ## # A tibble: 2 × 19
+    ##   fname        mean stdev   min   q25 median   q75   q90   q95   q99   max   iqr
+    ##   <chr>       <dbl> <dbl> <dbl> <dbl>  <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl>
+    ## 1 20240224-m…  48.6  17.3    21    34     46    63    71    75  93.1   100    29
+    ## 2 20240224-m…  41.0  16.4    17    28     36    53    66    71  82.2    97    25
+    ## # ℹ 7 more variables: mean_maxd <dbl>, stdev_maxd <dbl>, min_maxd <dbl>,
+    ## #   q25_maxd <dbl>, median_maxd <dbl>, q75_maxd <dbl>, max_maxd <dbl>
+
+``` r
+d %>%
+  mutate(setup = ifelse(is.na(b), "Local", "Stream")) %>%
+  ggplot(aes(x = cpu_util, y = n)) +
+  geom_boxplot() +
+  stat_summary(fun=mean, geom="point", shape=21, size=2, color="black", fill="white") +
+  xlim(0, 100) +
+  labs(x = "CPU utilization [%]", y = "Setup") +
+  theme_cowplot(15) +
+  background_grid() +
+  coord_cartesian(clip="off") +
+  theme(plot.margin=margin(0,0.2,0,0, "cm"))
+```
+
+![](Results_files/figure-gfm/exp-hand-cpu-util-all-box-1.svg)<!-- -->
+
+``` r
+d <- data_logcat_vrapi %>%
+  filter(ts > 5) %>%
+  filter(ts <= 600) %>%
+  filter(a == "wordle") %>%
+  filter(i == 2)
+
+d %>%
+  select(fname) %>%
+  unique()
+```
+
+    ## # A tibble: 2 × 1
+    ##   fname                                              
+    ##   <chr>                                              
+    ## 1 20240224-m-baseline-d-mqp-a-wordle-i-2-n-controller
+    ## 2 20240224-m-baseline-d-mqp-a-wordle-i-2-n-hand
+
+``` r
+d %>%
+  give_stats(cpu_level, by = c("fname"))
+```
+
+    ## # A tibble: 2 × 19
+    ##   fname        mean stdev   min   q25 median   q75   q90   q95   q99   max   iqr
+    ##   <chr>       <dbl> <dbl> <int> <dbl>  <dbl> <dbl> <dbl> <dbl> <dbl> <int> <dbl>
+    ## 1 20240224-m…  2.20 0.617     2     2      2     2     3     3     5     5     0
+    ## 2 20240224-m…  2.09 0.395     2     2      2     2     2     3     5     5     0
+    ## # ℹ 7 more variables: mean_maxd <dbl>, stdev_maxd <dbl>, min_maxd <int>,
+    ## #   q25_maxd <dbl>, median_maxd <dbl>, q75_maxd <dbl>, max_maxd <int>
+
+``` r
+d %>%
+  mutate(setup = ifelse(is.na(b), "Local", "Stream")) %>%
+  ggplot(aes(x = cpu_level, y = n)) +
+  geom_boxplot() +
+  stat_summary(fun=mean, geom="point", shape=21, size=2, color="black", fill="white") +
+  xlim(0, NA) +
+  labs(x = "CPU level", y = "Setup") +
+  theme_cowplot(15) +
+  background_grid() +
+  coord_cartesian(clip="off") +
+  theme(plot.margin=margin(0,0.2,0,0, "cm"))
+```
+
+![](Results_files/figure-gfm/exp-hand-cpu-level-all-box-1.svg)<!-- -->
+
+``` r
+d <- data_logcat_vrapi %>%
+  filter(ts > 5) %>%
+  filter(ts <= 600) %>%
+  filter(a == "wordle") %>%
+  filter(i == 2)
+
+d %>%
+  select(fname) %>%
+  unique()
+```
+
+    ## # A tibble: 2 × 1
+    ##   fname                                              
+    ##   <chr>                                              
+    ## 1 20240224-m-baseline-d-mqp-a-wordle-i-2-n-controller
+    ## 2 20240224-m-baseline-d-mqp-a-wordle-i-2-n-hand
+
+``` r
+d %>%
+  give_stats(cpu_util, by = c("fname"))
+```
+
+    ## # A tibble: 2 × 19
+    ##   fname        mean stdev   min   q25 median   q75   q90   q95   q99   max   iqr
+    ##   <chr>       <dbl> <dbl> <dbl> <dbl>  <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl>
+    ## 1 20240224-m…  48.6  17.3    21    34     46    63    71    75  93.1   100    29
+    ## 2 20240224-m…  41.0  16.4    17    28     36    53    66    71  82.2    97    25
+    ## # ℹ 7 more variables: mean_maxd <dbl>, stdev_maxd <dbl>, min_maxd <dbl>,
+    ## #   q25_maxd <dbl>, median_maxd <dbl>, q75_maxd <dbl>, max_maxd <dbl>
+
+``` r
+d %>%
+  mutate(setup = ifelse(is.na(b), "Local", "Stream")) %>%
+  ggplot(aes(x = gpu_util, y = n)) +
+  geom_boxplot() +
+  stat_summary(fun=mean, geom="point", shape=21, size=2, color="black", fill="white") +
+  xlim(0, 100) +
+  labs(x = "GPU utilization [%] ", y = "Setup") +
+  theme_cowplot(15) +
+  background_grid() +
+  coord_cartesian(clip="off") +
+  theme(plot.margin=margin(0,0.2,0,0, "cm"))
+```
+
+![](Results_files/figure-gfm/exp-hand-gpu-util-all-box-1.svg)<!-- -->
+
+``` r
+d <- data_logcat_vrapi %>%
+  filter(ts > 5) %>%
+  filter(ts <= 600) %>%
+  filter(a == "wordle") %>%
+  filter(i == 2)
+
+d %>%
+  select(fname) %>%
+  unique()
+```
+
+    ## # A tibble: 2 × 1
+    ##   fname                                              
+    ##   <chr>                                              
+    ## 1 20240224-m-baseline-d-mqp-a-wordle-i-2-n-controller
+    ## 2 20240224-m-baseline-d-mqp-a-wordle-i-2-n-hand
+
+``` r
+d %>%
+  give_stats(gpu_level, by = c("fname"))
+```
+
+    ## # A tibble: 2 × 19
+    ##   fname        mean stdev   min   q25 median   q75   q90   q95   q99   max   iqr
+    ##   <chr>       <dbl> <dbl> <int> <dbl>  <dbl> <dbl> <dbl> <dbl> <dbl> <int> <dbl>
+    ## 1 20240224-m…  3.06 0.242     3     3      3     3     3     4     4     4     0
+    ## 2 20240224-m…  3.02 0.129     3     3      3     3     3     3     4     4     0
+    ## # ℹ 7 more variables: mean_maxd <dbl>, stdev_maxd <dbl>, min_maxd <int>,
+    ## #   q25_maxd <dbl>, median_maxd <dbl>, q75_maxd <dbl>, max_maxd <int>
+
+``` r
+d %>%
+  mutate(setup = ifelse(is.na(b), "Local", "Stream")) %>%
+  ggplot(aes(x = gpu_level, y = n)) +
+  geom_boxplot() +
+  stat_summary(fun=mean, geom="point", shape=21, size=2, color="black", fill="white") +
+  xlim(0, NA) +
+  labs(x = "CPU level", y = "Setup") +
+  theme_cowplot(15) +
+  background_grid() +
+  coord_cartesian(clip="off") +
+  theme(plot.margin=margin(0,0.2,0,0, "cm"))
+```
+
+![](Results_files/figure-gfm/exp-hand-gpu-level-all-box-1.svg)<!-- -->
+
+``` r
+d <- data_batterymanager_companion %>%
+  filter(ts > 5) %>%
+  filter(ts <= 600) %>%
+  filter(a == "wordle") %>%
+  filter(i == 2)
+
+d %>%
+  select(fname) %>%
+  unique()
+```
+
+    ## # A tibble: 2 × 1
+    ##   fname                                              
+    ##   <chr>                                              
+    ## 1 20240224-m-baseline-d-mqp-a-wordle-i-2-n-controller
+    ## 2 20240224-m-baseline-d-mqp-a-wordle-i-2-n-hand
+
+``` r
+d %>%
+  give_stats(-power_w, by = c("fname"))
+```
+
+    ## # A tibble: 2 × 19
+    ##   fname        mean stdev   min   q25 median   q75   q90   q95   q99   max   iqr
+    ##   <chr>       <dbl> <dbl> <dbl> <dbl>  <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl>
+    ## 1 20240224-m…  8.89 0.386  8.13  8.62   8.82  9.11  9.40  9.62 10.1   10.5 0.490
+    ## 2 20240224-m…  8.89 0.306  8.31  8.67   8.84  9.08  9.30  9.40  9.94  10.8 0.404
+    ## # ℹ 7 more variables: mean_maxd <dbl>, stdev_maxd <dbl>, min_maxd <dbl>,
+    ## #   q25_maxd <dbl>, median_maxd <dbl>, q75_maxd <dbl>, max_maxd <dbl>
+
+``` r
+d %>%
+  mutate(setup = ifelse(is.na(b), "Local", "Stream")) %>%
+  ggplot(aes(x=-power_w, y=n)) +
+  geom_boxplot() +
+  stat_summary(fun=mean, geom="point", shape=21, size=2, color="black", fill="white") +
+  theme(strip.background=element_rect(fill="white")) +
+  theme_cowplot(15) +
+  background_grid() +
+  theme(legend.position="none", strip.background=element_rect(fill="white")) +
+  xlim(0, NA) +
+  labs(y = "Setup", x = "Power [W]") +
+  scale_fill_manual(values=device_colors) +
+  coord_cartesian(clip="off") +
+  theme(plot.margin=margin(0,0.1,0,0, "cm"))
+```
+
+![](Results_files/figure-gfm/exp-hand-battery-power-all-box-1.svg)<!-- -->
 
 ## Performance Variability
 

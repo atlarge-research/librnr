@@ -1,0 +1,10 @@
+
+Key       Value
+---       -----
+TraceFile trace.txt
+Mode      record
+App       C:\Windows\notepad.exe
+OutDir    ..\traces\20240224-m-baseline-d-mqp-a-wordle-i-2-n-hand
+Duration  600
+S2Battery True
+
