@@ -1548,15 +1548,63 @@ d %>%
 ``` r
 d %>%
   mutate(setup = ifelse(is.na(b), "Local", "Stream")) %>%
+  ggplot(aes(x = fps_render, y = n)) +
+  geom_vline(xintercept = 90, color = "red") +
+  geom_boxplot() +
+  stat_summary(fun=mean, geom="point", shape=21, size=2, color="black", fill="white") +
+  xlim(0, 100) +
+  labs(x = "Frames per second", y = "Setup    ") +
+  theme_cowplot(15) +
+  background_grid() +
+  coord_cartesian(clip="off") +
+  theme(plot.margin=margin(0,0.3,0,0, "cm"))
+```
+
+![](Results_files/figure-gfm/exp-hand-fps-all-box-1.svg)<!-- -->
+
+``` r
+d <- data_logcat_vrapi %>%
+  filter(ts > 5) %>%
+  filter(ts <= 600) %>%
+  filter(a == "wordle") %>%
+  filter(i == 2)
+
+d %>%
+  select(fname) %>%
+  unique()
+```
+
+    ## # A tibble: 2 × 1
+    ##   fname                                              
+    ##   <chr>                                              
+    ## 1 20240224-m-baseline-d-mqp-a-wordle-i-2-n-controller
+    ## 2 20240224-m-baseline-d-mqp-a-wordle-i-2-n-hand
+
+``` r
+d %>%
+  give_stats(cpu_util, by = c("fname"))
+```
+
+    ## # A tibble: 2 × 19
+    ##   fname        mean stdev   min   q25 median   q75   q90   q95   q99   max   iqr
+    ##   <chr>       <dbl> <dbl> <dbl> <dbl>  <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl>
+    ## 1 20240224-m…  48.6  17.3    21    34     46    63    71    75  93.1   100    29
+    ## 2 20240224-m…  41.0  16.4    17    28     36    53    66    71  82.2    97    25
+    ## # ℹ 7 more variables: mean_maxd <dbl>, stdev_maxd <dbl>, min_maxd <dbl>,
+    ## #   q25_maxd <dbl>, median_maxd <dbl>, q75_maxd <dbl>, max_maxd <dbl>
+
+``` r
+d %>%
+  mutate(setup = ifelse(is.na(b), "Local", "Stream")) %>%
   ggplot(aes(x = cpu_util, y = n)) +
   geom_boxplot() +
   stat_summary(fun=mean, geom="point", shape=21, size=2, color="black", fill="white") +
   xlim(0, 100) +
-  labs(x = "CPU utilization [%]", y = "Setup") +
+  labs(x = "CPU utilization [%]", y = "Setup    ") +
   theme_cowplot(15) +
   background_grid() +
   coord_cartesian(clip="off") +
-  theme(plot.margin=margin(0,0.2,0,0, "cm"))
+  theme(plot.margin=margin(0,0.3,0,0, "cm"))
 ```
 
 ![](Results_files/figure-gfm/exp-hand-cpu-util-all-box-1.svg)<!-- -->
@@ -1599,7 +1647,7 @@ d %>%
   geom_boxplot() +
   stat_summary(fun=mean, geom="point", shape=21, size=2, color="black", fill="white") +
   xlim(0, NA) +
-  labs(x = "CPU level", y = "Setup") +
+  labs(x = "CPU level", y = "Setup    ") +
   theme_cowplot(15) +
   background_grid() +
   coord_cartesian(clip="off") +
@@ -1646,7 +1694,7 @@ d %>%
   geom_boxplot() +
   stat_summary(fun=mean, geom="point", shape=21, size=2, color="black", fill="white") +
   xlim(0, 100) +
-  labs(x = "GPU utilization [%] ", y = "Setup") +
+  labs(x = "GPU utilization [%] ", y = "Setup    ") +
   theme_cowplot(15) +
   background_grid() +
   coord_cartesian(clip="off") +
@@ -1693,7 +1741,7 @@ d %>%
   geom_boxplot() +
   stat_summary(fun=mean, geom="point", shape=21, size=2, color="black", fill="white") +
   xlim(0, NA) +
-  labs(x = "CPU level", y = "Setup") +
+  labs(x = "CPU level", y = "Setup    ") +
   theme_cowplot(15) +
   background_grid() +
   coord_cartesian(clip="off") +
@@ -1744,7 +1792,7 @@ d %>%
   background_grid() +
   theme(legend.position="none", strip.background=element_rect(fill="white")) +
   xlim(0, NA) +
-  labs(y = "Setup", x = "Power [W]") +
+  labs(y = "Setup    ", x = "Power [W]") +
   scale_fill_manual(values=device_colors) +
   coord_cartesian(clip="off") +
   theme(plot.margin=margin(0,0.1,0,0, "cm"))
