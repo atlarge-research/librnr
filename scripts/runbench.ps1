@@ -33,10 +33,10 @@ Start-Sleep -Seconds $Delay
 
 $functions = {
     function Trace-Metrics(
-            [Parameter(Mandatory)][string]$OutDir,
-            [Parameter(Mandatory)][bool]$S2Battery,
-            [Parameter(Mandatory)][bool]$NoHostTrace,
-            [Parameter(Mandatory)][string]$PSScriptRoot
+        [Parameter(Mandatory)][string]$OutDir,
+        [Parameter(Mandatory)][bool]$S2Battery,
+        [Parameter(Mandatory)][bool]$NoHostTrace,
+        [Parameter(Mandatory)][string]$PSScriptRoot
     ) {
         # Give warnings/errors when using undefined variables and such
         Set-StrictMode -Version latest
@@ -200,6 +200,7 @@ try {
             adb shell setprop debug.oculus.autoDriverMode Record
         }
         adb shell dumpsys package $Class >> "$OutDir/apk-package-dumpsys.txt"
+        Write-Host "Starting app $Class/$Activity"
         adb shell am start -S $Class/$Activity > nul 2>&1
 
         Write-Host "Sleeping for $Duration seconds..."
