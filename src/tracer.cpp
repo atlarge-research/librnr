@@ -193,6 +193,8 @@ namespace tracer {
             sstream >> changed >> isActive >> lastChanged >> value.x >> value.y;
             entry.body = p;
             vector2fActionMap[entry.path] = entry;
+        } else if (entry.type == 'h') {
+            // haptic feedback, ignore
         } else {
             stringstream buffer;
             buffer << "RNR ERROR invalid trace entry type: " << entry.type;
