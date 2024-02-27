@@ -21,6 +21,8 @@ namespace tracer {
     map<string, map<uint32_t, traceEntry>> viewMap;
     map<string, traceEntry> floatActionMap;
     map<string, traceEntry> booleanActionMap;
+    map<string, traceEntry> hapticActionMap;
+    map<string, traceEntry> vector2fActionMap;
     map<char32_t, traceEntry> refSpaceMap;
 
     Mode init() {
@@ -181,6 +183,16 @@ namespace tracer {
             sstream >> changed >> isActive >> lastChanged >> value;
             entry.body = f;
             floatActionMap[entry.path] = entry;
+        } else if (entry.type == 'p') {
+            traceActionVector2f p{};
+            auto &changed = p.changed;
+            auto &isActive = p.isActive;
+            auto &lastChanged = p.lastChanged;
+            auto &value = p.value;
+
+            sstream >> changed >> isActive >> lastChanged >> value.x >> value.y;
+            entry.body = p;
+            vector2fActionMap[entry.path] = entry;
         } else {
             stringstream buffer;
             buffer << "RNR ERROR invalid trace entry type: " << entry.type;
@@ -295,6 +307,27 @@ namespace tracer {
         return true;
     }
 
+    void writeActionVector2f(traceEntry e) {
+        assert(holds_alternative<traceActionVector2f>(e.body));
+        auto &f = get<traceActionVector2f>(e.body);
+
+        writeHead(e);
+        trace << " " << f.changed << " " << f.isActive << " " << f.lastChanged << " " << f.value.x << " " << f.value.y;
+        trace << endl;
+    }
+
+    bool readNextActionVector2f(XrTime until, traceEntry *e) {
+        assert(holds_alternative<traceActionVector2f>(e->body));
+        auto &f = get<traceActionVector2f>(e->body);
+
+        if (!readUntil(until) || vector2fActionMap.find(e->path) == vector2fActionMap.end()) {
+            return false;
+        }
+
+        *e = vector2fActionMap[e->path];
+        return true;
+    }
+
     void writeActionBoolean(traceEntry e) {
         assert(holds_alternative<traceActionBoolean>(e.body));
         auto &b = get<traceActionBoolean>(e.body);
@@ -313,6 +346,27 @@ namespace tracer {
         }
 
         *e = booleanActionMap[e->path];
+        return true;
+    }
+
+    void writeApplyHaptic(traceEntry e) {
+        assert(holds_alternative<traceApplyHaptic>(e.body));
+        auto &h = get<traceApplyHaptic>(e.body);
+
+        writeHead(e);
+        trace << " " << h.value;
+        trace << endl;
+    }
+
+    bool readNextApplyHaptic(XrTime until, traceEntry *e) {
+        assert(holds_alternative<traceApplyHaptic>(e->body));
+        auto &h = get<traceApplyHaptic>(e->body);
+
+        if (!readUntil(until) || hapticActionMap.find(e->path) == hapticActionMap.end()) {
+            return false;
+        }
+
+        *e = hapticActionMap[e->path];
         return true;
     }
 }

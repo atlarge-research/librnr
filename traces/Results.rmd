@@ -305,6 +305,45 @@ c_emph <- "#06bd55"
 c_demph <- "gray"
 ```
 
+## librnr Performance Overhead
+
+```{r librnr-overhead, fig.width=9, fig.height=2}
+d <- data_logcat_vrapi %>%
+  filter(date == 20240227) %>%
+  filter(ts > 60) %>%
+  filter(ts < 180)
+
+d %>%
+  select(fname) %>%
+  unique()
+
+# d %>%
+#   give_stats(gpu_util, by=c("i", "m"))
+
+d %>%
+  ggplot(aes(x = gpu_util, y = factor(i))) +
+  geom_boxplot() +
+  stat_summary(fun=mean, geom="point", shape=21, size=2, color="black", fill="white") +
+  xlim(0,NA) +
+  theme_cowplot(15) +
+  background_grid() +
+  labs(x = "GPU utilization [%]", y = "Iteration") +
+  coord_cartesian(clip="off") +
+  theme(plot.margin=margin(0,0.6,0,0, "cm")) +
+  facet_grid(cols = vars(m))
+
+d %>%
+  ggplot(aes(y = gpu_util, x = ts, color = factor(i))) +
+  geom_line() +
+  ylim(0,NA) +
+  theme_cowplot(15) +
+  background_grid() +
+  labs(y = "GPU utilization [%]", x = "Time [s]") +
+  coord_cartesian(clip="off") +
+  theme(plot.margin=margin(0,0.6,0,0, "cm")) +
+  facet_grid(cols = vars(m))
+```
+
 ## Network Tests
 
 ```{r iperf-mqp, fig.width=3, fig.height=2}
@@ -1086,7 +1125,7 @@ d %>%
   unique()
 
 d %>%
-  give_stats(cpu_util, by = c("fname"))
+  give_stats(gpu_util, by = c("fname"))
 
 d %>%
   mutate(setup = ifelse(is.na(b), "Local", "Stream")) %>%
