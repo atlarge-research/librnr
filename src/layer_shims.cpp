@@ -502,7 +502,7 @@ bool replayGetActionStateVector2f(const XrActionStateGetInfo *getInfo, XrActionS
     }
 
     e.body = tracer::traceActionVector2f{};
-    if (!tracer::readNextActionVector2f(&e)) {
+    if (!tracer::readNextActionVector2f(frameTime, &e)) {
         return false;
     }
     assert(holds_alternative<tracer::traceActionVector2f>(e.body));
