@@ -653,11 +653,15 @@ void recordApplyHapticFeedback(XrHapticActionInfo *hapticActionInfo, XrHapticBas
 XRAPI_ATTR XrResult XRAPI_CALL thisLayer_xrApplyHapticFeedback(XrSession session, XrHapticActionInfo *hapticActionInfo,
                                                                XrHapticBaseHeader *hapticBaseHeader) {
     static PFN_xrApplyHapticFeedback nextLayer_xrApplyHapticFeedback = GetNextLayerFunction(xrApplyHapticFeedback);
-    // Disable haptic feedback when in replay mode
-    if (mode == tracer::REPLAY) {
-        return XR_SUCCESS;
+
+    stringstream buffer;
+    buffer << "RNR xrApplyHapticFeedback ";
+    buffer << frameTime;
+    Log::Write(Log::Level::Info, buffer.str());
+
+    if (mode == tracer::RECORD) {
+        recordApplyHapticFeedback(hapticActionInfo, hapticBaseHeader);
     }
-    recordApplyHapticFeedback(hapticActionInfo, hapticBaseHeader);
 
     auto res = nextLayer_xrApplyHapticFeedback(session, hapticActionInfo, hapticBaseHeader);
     return res;
