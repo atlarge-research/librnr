@@ -4,7 +4,8 @@ scripts/network-emulate/ubuntu2204.iso
 scripts/network-emulate/metabench/
 scripts/network-emulate/metabench.vdi
 scripts/network-emulate/metabench.ova
-scripts/network-emulate/mahimahi
+scripts/network-emulate/traces/mahimahi
+scripts/network-emulate/traces/Cellular-Traces-2018
 
 # ------------------------------
 # SPDX-FileCopyrightText: 2021 Arthur Brainville (Ybalrid) <ybalrid@ybalrid.info>
@@ -430,5 +431,4 @@ BeatSaberVersion.txt
 !traces/**/*.csv
 
 # Large files
-traces/20240116-trace-azsq-mqp-16m-n1/trace.txt
-traces/20240118-trace-azsq-mq2-16m-replay-n1/trace.txt
+traces/20240118-m-replay-d-mq2-a-azsq-l-16-i-1/

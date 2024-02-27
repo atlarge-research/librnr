@@ -1,0 +1,11 @@
+
+Key       Value
+---       -----
+OutDir    ..\traces\20240224-m-record-d-mq3-a-gorillatag-n-wireshark
+Class     com.AnotherAxiom.GorillaTag
+Activity  com.unity3d.player.UnityPlayerActivity
+Duration  960
+S2Battery True
+Mode      replay
+TraceFile ..\traces\20240116-m-record-d-mqp-a-gorillatag-l-16-i-1\trace.txt
+

@@ -1,0 +1,53 @@
+{
+  "$type": "SeriousBit.NetBalancer.Core.Rules.TrafficRule[], SeriousBit.NetBalancer.Core",
+  "$values": [
+    {
+      "$type": "SeriousBit.NetBalancer.Core.Rules.TrafficRule, SeriousBit.NetBalancer.Core",
+      "Id": "08dc28b5-4bf4-9ab7-5a9b-0431d869d458",
+      "Name": "New Rule",
+      "Pid": "",
+      "FilterId": "",
+      "LocalPort": "",
+      "RemoteIp": "",
+      "RemotePort": "",
+      "AppProtocols": {
+        "$type": "System.UInt16[], mscorlib",
+        "$values": []
+      },
+      "Priority": {
+        "$type": "SeriousBit.NetBalancer.Core.Priorities.Priority, SeriousBit.NetBalancer.Core",
+        "DownloadPriority": "Custom",
+        "UploadPriority": "Custom",
+        "DownloadLimit": 6250000,
+        "UploadLimit": 6250000,
+        "DownloadPacketLimit": 0,
+        "UploadPacketLimit": 0,
+        "DownloadDelay": 0,
+        "UploadDelay": 0,
+        "DownloadDelayJitter": 0,
+        "UploadDelayJitter": 0,
+        "DownloadDropRate": 0.0,
+        "UploadDropRate": 0.0,
+        "PerConnectionLimits": false,
+        "IsBlocked": false
+      },
+      "Condition": {
+        "$type": "SeriousBit.NetBalancer.Core.Rules.TrafficRuleCondition, SeriousBit.NetBalancer.Core",
+        "enabled": false,
+        "moreThan": false,
+        "quantity": 1,
+        "unit": "Byte",
+        "time": 1,
+        "timeUnit": "Second"
+      },
+      "BlockLists": {
+        "$type": "System.Guid[], mscorlib",
+        "$values": []
+      },
+      "Enabled": true,
+      "Ssid": "",
+      "Packets": 0,
+      "IsProgrammatic": false
+    }
+  ]
+}

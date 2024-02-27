@@ -1,0 +1,10 @@
+
+Key       Value
+---       -----
+TraceFile ..\traces\20240117-trace-beatsaber-mqp-popstars_medium-n1\PopStars-Medium.txt
+Mode      replay
+App       C:\Program Files\Oculus\Software\Software\hyperbolic-magnetism-beat-saber\Beat Saber.exe
+S2Battery True
+OutDir    ..\traces\20240222-trace-beatsaber-mqp-n4-bw_70
+BWLimit   70
+

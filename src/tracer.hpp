@@ -70,29 +70,29 @@ namespace tracer {
 
     void writeView(traceEntry);
 
-    bool readNextView(traceEntry *);
+    bool readNextView(XrTime until, traceEntry *);
 
     void writeSpace(traceEntry);
 
-    bool readNextSpace(traceEntry *);
+    bool readNextSpace(XrTime until, traceEntry *);
 
     void writeCreateReferenceSpace(traceEntry);
 
-    bool readNextCreateReferenceSpace(traceEntry *);
+    bool readNextCreateReferenceSpace(XrTime until, traceEntry *);
 
     void writeActionFloat(traceEntry);
 
-    bool readNextActionFloat(traceEntry *);
+    bool readNextActionFloat(XrTime until, traceEntry *);
 
     void writeActionBoolean(traceEntry);
 
-    bool readNextActionBoolean(traceEntry *);
+    bool readNextActionBoolean(XrTime until, traceEntry *);
 
     void writeActionVector2f(traceEntry);
 
-    bool readNextActionVector2f(traceEntry *);
+    bool readNextActionVector2f(XrTime until, traceEntry *);
 
     void writeApplyHaptic(traceEntry);
 
-    bool readNextApplyHaptic(traceEntry *);
+    bool readNextApplyHaptic(XrTime until, traceEntry *);
 }

@@ -1,0 +1,27 @@
+
+Key       Value
+---       -----
+TraceFile ..\traces\20240117-trace-beatsaber-mqp-popstars_medium-n1\PopStars-Medium.txt
+Mode      replay
+App       C:\Program Files\Oculus\Software\Software\hyperbolic-magnetism-beat-saber\Beat Saber.exe
+OutDir    ..\traces\20240224-m-replay-d-mq3-a-beatsaber-song-popstars-diff-medium-n-wireshark
+S2Battery True
+
+
+Key       Value
+---       -----
+TraceFile ..\traces\20240117-d-mqp-m-record-a-beatsaber-song-popstars-diff-medium-i-1\PopStars-Medium.txt
+Mode      replay
+App       C:\Program Files\Oculus\Software\Software\hyperbolic-magnetism-beat-saber\Beat Saber.exe
+OutDir    ..\traces\20240224-m-replay-d-mq3-a-beatsaber-song-popstars-diff-medium-n-wireshark
+S2Battery True
+
+
+Key       Value
+---       -----
+TraceFile ..\traces\20240117-m-record-d-mqp-a-beatsaber-i-1-song-popstars-diff-medium\PopStars-Medium.txt
+Mode      replay
+App       C:\Program Files\Oculus\Software\Software\hyperbolic-magnetism-beat-saber\Beat Saber.exe
+OutDir    ..\traces\20240224-m-replay-d-mq3-a-beatsaber-song-popstars-diff-medium-n-wireshark
+S2Battery True
+

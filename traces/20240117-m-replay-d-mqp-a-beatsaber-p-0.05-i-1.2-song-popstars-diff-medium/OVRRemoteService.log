@@ -1,0 +1,3875 @@
+﻿
+ControllerGlue Status
+  Paired device: a1230d246357e90e, Type:  Right, Firmware: 1.32.2, ImuModel: ICM42686, Battery:  80%, Status: Active, ExternalStatus: CONNECTED_ACTIVE, TrackingStatus: POSITION, BrightnessLevel: VERY_DARK
+        Disabled:  1 times,    last from   10.706 to   10.751 (0.045s)
+       Searching:  1 times,    last from   10.751 to   11.382 (0.631s)
+          Active:  1 times, current from   16.624 (345.749s)
+         Blocked: never entered
+      Connecting:  1 times,    last from   11.382 to   16.624 (5.242s)
+  WiFi: Connected (P2p interface last stopped: --- s ago)
+  OTA: Success
+  Charging: false
+  Tracking Level: 6dof
+
+  Selftracked state transitions
+  10.751s (351.622s ago, +0.000s) - Pulsar Connected
+  11.781s (350.592s ago, +1.030s) - Wifi Requested
+  16.624s (345.749s ago, +4.843s) - Wifi Connected
+  36.063s (326.310s ago, +19.439s) - Tracking 6dof
+
+
+  Active Session Tracking Metrics:
+    session duration         : 351.622s
+    pulsar connected         : 351.622s ago
+    time to wifi             : 5.873s
+    first pose received      : 345.731s ago
+    first pose received to tracking 6dof in HMD : 18.871s
+    full tracking            : 326.310s ago
+    time to track            : (0s) ** (in hand after 6dof)
+    time to in-hand          : 27.266s
+    time to first map        : 0.020s, size=0KiB
+    map xfer to 6dof         : 19.419s
+    in-hand to 6dof          : -1.955s
+    connect to 6dof          : 25.311s
+    connect to 6dof in HMD   : 24.762s
+    connect to hmd 6dof      : -0.757s
+    maps sent                : 24, total=63643KiB
+    last map sent            : 9.905s ago, size=3595KiB
+    tracking lost count      : 1
+    invalid map count        : 0
+    build fingerprint        : oculus/starlet/starlet:12/SQ3A.220605.009.A1/50285100049700390:user/release-keys
+    time to ota requested    : ---
+
+
+  SelftrackedRemoteDeviceStateMachine history
+  Current state: Running
+
+  16.628s (345.746s ago) - Sending system state RUNNING
+  16.628s (345.746s ago) - Performing transition Standby -> Running: onStandbyToRunning
+  16.627s (345.746s ago) - Sending system state STANDBY
+  16.627s (345.746s ago) - Performing transition Sleep -> Standby: onSleepToStandby
+  16.627s (345.746s ago) - Sending system state SLEEP
+  16.627s (345.746s ago) - Performing transition WaitForWifi -> Sleep: onControllerIpConnectivityConfirmed
+  11.972s (350.402s ago) - Ignoring spammed wifi connection requests, resending previous response
+  11.970s (350.403s ago) - Sending system state RUNNING
+  11.781s (350.593s ago) - Performing transition VersionCheck -> WaitForWifi: onQuickStartInfo
+  11.753s (350.621s ago) - [VersionCheck] onQuickStartInfo: earlyVersionCheck: otaRequired=0
+  11.382s (350.991s ago) - Sending system state STANDBY
+  11.381s (350.992s ago) - Performing transition IdleDisconnected -> VersionCheck: onPulsarConnected
+
+
+  Paired device: 68221d94b36b41fa, Type:   Left, Firmware: 1.32.2, ImuModel: ICM42686, Battery:  76%, Status: Active, ExternalStatus: CONNECTED_ACTIVE, TrackingStatus: POSITION, BrightnessLevel: VERY_DARK
+        Disabled:  1 times,    last from   10.748 to   10.751 (0.003s)
+       Searching:  1 times,    last from   10.751 to   11.980 (1.229s)
+          Active:  1 times, current from   17.285 (345.089s)
+         Blocked: never entered
+      Connecting:  1 times,    last from   11.980 to   17.285 (5.305s)
+  WiFi: Connected (P2p interface last stopped: --- s ago)
+  OTA: Success
+  Charging: false
+  Tracking Level: 6dof
+
+  Selftracked state transitions
+  11.972s (350.401s ago, +0.000s) - Pulsar Connected
+  12.467s (349.907s ago, +0.495s) - Wifi Requested
+  17.285s (345.089s ago, +4.818s) - Wifi Connected
+  40.924s (321.449s ago, +23.640s) - Tracking 6dof
+
+
+  Active Session Tracking Metrics:
+    session duration         : 350.401s
+    pulsar connected         : 350.401s ago
+    time to wifi             : 5.313s
+    first pose received      : 345.078s ago
+    first pose received to tracking 6dof in HMD : 22.949s
+    full tracking            : 321.449s ago
+    time to track            : 2.709s
+    time to in-hand          : 26.242s
+    time to first map        : 0.012s, size=0KiB
+    map xfer to 6dof         : 23.628s
+    in-hand to 6dof          : 2.709s
+    connect to 6dof          : 28.952s
+    connect to 6dof in HMD   : 28.272s
+    connect to hmd 6dof      : -1.978s
+    maps sent                : 22, total=64935KiB
+    last map sent            : 36.945s ago, size=3620KiB
+    tracking lost count      : 3
+    invalid map count        : 0
+    build fingerprint        : oculus/starlet/starlet:12/SQ3A.220605.009.A1/50285100049700390:user/release-keys
+    time to ota requested    : ---
+
+
+  SelftrackedRemoteDeviceStateMachine history
+  Current state: Running
+
+  17.286s (345.088s ago) - Sending system state RUNNING
+  17.286s (345.088s ago) - Performing transition Standby -> Running: onStandbyToRunning
+  17.286s (345.088s ago) - Sending system state STANDBY
+  17.286s (345.088s ago) - Performing transition Sleep -> Standby: onSleepToStandby
+  17.285s (345.088s ago) - Sending system state SLEEP
+  17.285s (345.088s ago) - Performing transition WaitForWifi -> Sleep: onControllerIpConnectivityConfirmed
+  12.467s (349.907s ago) - Performing transition VersionCheck -> WaitForWifi: onQuickStartInfo
+  12.455s (349.919s ago) - [VersionCheck] onQuickStartInfo: earlyVersionCheck: otaRequired=0
+  11.979s (350.395s ago) - Performing transition IdleDisconnected -> VersionCheck: onPulsarConnected
+  11.971s (350.403s ago) - Sending system state RUNNING
+  11.383s (350.991s ago) - Sending system state STANDBY
+
+
+
+ControllerGlue history
+  11.384s (350.989s ago) - [controller] STANDBY -> RUNNING
+  10.750s (351.623s ago) - [controller] SLEEP -> STANDBY
+
+
+Pairing history
+
+
+ControllerGlue Status
+  Paired device: a1230d246357e90e, Type:  Right, Firmware: 1.32.2, ImuModel: ICM42686, Battery:  80%, Status: Active, ExternalStatus: CONNECTED_ACTIVE, TrackingStatus: POSITION, BrightnessLevel: VERY_DARK
+        Disabled:  1 times,    last from   10.706 to   10.751 (0.045s)
+       Searching:  1 times,    last from   10.751 to   11.382 (0.631s)
+          Active:  1 times, current from   16.624 (349.806s)
+         Blocked: never entered
+      Connecting:  1 times,    last from   11.382 to   16.624 (5.242s)
+  WiFi: Connected (P2p interface last stopped: --- s ago)
+  OTA: Success
+  Charging: false
+  Tracking Level: 6dof
+
+  Selftracked state transitions
+  10.751s (355.679s ago, +0.000s) - Pulsar Connected
+  11.781s (354.649s ago, +1.030s) - Wifi Requested
+  16.624s (349.807s ago, +4.843s) - Wifi Connected
+  36.063s (330.368s ago, +19.439s) - Tracking 6dof
+
+
+  Active Session Tracking Metrics:
+    session duration         : 355.679s
+    pulsar connected         : 355.679s ago
+    time to wifi             : 5.873s
+    first pose received      : 349.788s ago
+    first pose received to tracking 6dof in HMD : 18.871s
+    full tracking            : 330.368s ago
+    time to track            : (0s) ** (in hand after 6dof)
+    time to in-hand          : 27.266s
+    time to first map        : 0.020s, size=0KiB
+    map xfer to 6dof         : 19.419s
+    in-hand to 6dof          : -1.955s
+    connect to 6dof          : 25.311s
+    connect to 6dof in HMD   : 24.762s
+    connect to hmd 6dof      : -0.757s
+    maps sent                : 24, total=63643KiB
+    last map sent            : 13.963s ago, size=3595KiB
+    tracking lost count      : 1
+    invalid map count        : 0
+    build fingerprint        : oculus/starlet/starlet:12/SQ3A.220605.009.A1/50285100049700390:user/release-keys
+    time to ota requested    : ---
+
+
+  SelftrackedRemoteDeviceStateMachine history
+  Current state: Running
+
+  16.628s (349.803s ago) - Sending system state RUNNING
+  16.628s (349.803s ago) - Performing transition Standby -> Running: onStandbyToRunning
+  16.627s (349.803s ago) - Sending system state STANDBY
+  16.627s (349.803s ago) - Performing transition Sleep -> Standby: onSleepToStandby
+  16.627s (349.803s ago) - Sending system state SLEEP
+  16.627s (349.804s ago) - Performing transition WaitForWifi -> Sleep: onControllerIpConnectivityConfirmed
+  11.972s (354.459s ago) - Ignoring spammed wifi connection requests, resending previous response
+  11.970s (354.460s ago) - Sending system state RUNNING
+  11.781s (354.650s ago) - Performing transition VersionCheck -> WaitForWifi: onQuickStartInfo
+  11.753s (354.678s ago) - [VersionCheck] onQuickStartInfo: earlyVersionCheck: otaRequired=0
+  11.382s (355.048s ago) - Sending system state STANDBY
+  11.381s (355.049s ago) - Performing transition IdleDisconnected -> VersionCheck: onPulsarConnected
+
+
+  Paired device: 68221d94b36b41fa, Type:   Left, Firmware: 1.32.2, ImuModel: ICM42686, Battery:  76%, Status: Active, ExternalStatus: CONNECTED_ACTIVE, TrackingStatus: POSITION, BrightnessLevel: VERY_DARK
+        Disabled:  1 times,    last from   10.748 to   10.751 (0.003s)
+       Searching:  1 times,    last from   10.751 to   11.980 (1.229s)
+          Active:  1 times, current from   17.285 (349.146s)
+         Blocked: never entered
+      Connecting:  1 times,    last from   11.980 to   17.285 (5.305s)
+  WiFi: Connected (P2p interface last stopped: --- s ago)
+  OTA: Success
+  Charging: false
+  Tracking Level: 6dof
+
+  Selftracked state transitions
+  11.972s (354.459s ago, +0.000s) - Pulsar Connected
+  12.467s (353.964s ago, +0.495s) - Wifi Requested
+  17.285s (349.146s ago, +4.818s) - Wifi Connected
+  40.924s (325.507s ago, +23.640s) - Tracking 6dof
+
+
+  Active Session Tracking Metrics:
+    session duration         : 354.459s
+    pulsar connected         : 354.459s ago
+    time to wifi             : 5.313s
+    first pose received      : 349.135s ago
+    first pose received to tracking 6dof in HMD : 22.949s
+    full tracking            : 325.507s ago
+    time to track            : 2.709s
+    time to in-hand          : 26.242s
+    time to first map        : 0.012s, size=0KiB
+    map xfer to 6dof         : 23.628s
+    in-hand to 6dof          : 2.709s
+    connect to 6dof          : 28.952s
+    connect to 6dof in HMD   : 28.272s
+    connect to hmd 6dof      : -1.978s
+    maps sent                : 22, total=64935KiB
+    last map sent            : 41.002s ago, size=3620KiB
+    tracking lost count      : 3
+    invalid map count        : 0
+    build fingerprint        : oculus/starlet/starlet:12/SQ3A.220605.009.A1/50285100049700390:user/release-keys
+    time to ota requested    : ---
+
+
+  SelftrackedRemoteDeviceStateMachine history
+  Current state: Running
+
+  17.286s (349.145s ago) - Sending system state RUNNING
+  17.286s (349.145s ago) - Performing transition Standby -> Running: onStandbyToRunning
+  17.286s (349.145s ago) - Sending system state STANDBY
+  17.286s (349.145s ago) - Performing transition Sleep -> Standby: onSleepToStandby
+  17.285s (349.145s ago) - Sending system state SLEEP
+  17.285s (349.145s ago) - Performing transition WaitForWifi -> Sleep: onControllerIpConnectivityConfirmed
+  12.467s (353.964s ago) - Performing transition VersionCheck -> WaitForWifi: onQuickStartInfo
+  12.455s (353.976s ago) - [VersionCheck] onQuickStartInfo: earlyVersionCheck: otaRequired=0
+  11.979s (354.452s ago) - Performing transition IdleDisconnected -> VersionCheck: onPulsarConnected
+  11.971s (354.460s ago) - Sending system state RUNNING
+  11.383s (355.048s ago) - Sending system state STANDBY
+
+
+
+ControllerGlue history
+  11.384s (355.047s ago) - [controller] STANDBY -> RUNNING
+  10.750s (355.681s ago) - [controller] SLEEP -> STANDBY
+
+
+Pairing history
+
+
+ControllerGlue Status
+  Paired device: a1230d246357e90e, Type:  Right, Firmware: 1.32.2, ImuModel: ICM42686, Battery:  80%, Status: Active, ExternalStatus: CONNECTED_ACTIVE, TrackingStatus: POSITION, BrightnessLevel: VERY_DARK
+        Disabled:  1 times,    last from   10.706 to   10.751 (0.045s)
+       Searching:  1 times,    last from   10.751 to   11.382 (0.631s)
+          Active:  1 times, current from   16.624 (359.923s)
+         Blocked: never entered
+      Connecting:  1 times,    last from   11.382 to   16.624 (5.242s)
+  WiFi: Connected (P2p interface last stopped: --- s ago)
+  OTA: Success
+  Charging: false
+  Tracking Level: 6dof
+
+  Selftracked state transitions
+  10.751s (365.795s ago, +0.000s) - Pulsar Connected
+  11.781s (364.766s ago, +1.030s) - Wifi Requested
+  16.624s (359.923s ago, +4.843s) - Wifi Connected
+  36.063s (340.484s ago, +19.439s) - Tracking 6dof
+
+
+  Active Session Tracking Metrics:
+    session duration         : 365.795s
+    pulsar connected         : 365.795s ago
+    time to wifi             : 5.873s
+    first pose received      : 359.904s ago
+    first pose received to tracking 6dof in HMD : 18.871s
+    full tracking            : 340.484s ago
+    time to track            : (0s) ** (in hand after 6dof)
+    time to in-hand          : 27.266s
+    time to first map        : 0.020s, size=0KiB
+    map xfer to 6dof         : 19.419s
+    in-hand to 6dof          : -1.955s
+    connect to 6dof          : 25.311s
+    connect to 6dof in HMD   : 24.762s
+    connect to hmd 6dof      : -0.757s
+    maps sent                : 24, total=63643KiB
+    last map sent            : 24.079s ago, size=3595KiB
+    tracking lost count      : 1
+    invalid map count        : 0
+    build fingerprint        : oculus/starlet/starlet:12/SQ3A.220605.009.A1/50285100049700390:user/release-keys
+    time to ota requested    : ---
+
+
+  SelftrackedRemoteDeviceStateMachine history
+  Current state: Running
+
+  16.628s (359.919s ago) - Sending system state RUNNING
+  16.628s (359.919s ago) - Performing transition Standby -> Running: onStandbyToRunning
+  16.627s (359.919s ago) - Sending system state STANDBY
+  16.627s (359.919s ago) - Performing transition Sleep -> Standby: onSleepToStandby
+  16.627s (359.920s ago) - Sending system state SLEEP
+  16.627s (359.920s ago) - Performing transition WaitForWifi -> Sleep: onControllerIpConnectivityConfirmed
+  11.972s (364.575s ago) - Ignoring spammed wifi connection requests, resending previous response
+  11.970s (364.576s ago) - Sending system state RUNNING
+  11.781s (364.766s ago) - Performing transition VersionCheck -> WaitForWifi: onQuickStartInfo
+  11.753s (364.794s ago) - [VersionCheck] onQuickStartInfo: earlyVersionCheck: otaRequired=0
+  11.382s (365.164s ago) - Sending system state STANDBY
+  11.381s (365.166s ago) - Performing transition IdleDisconnected -> VersionCheck: onPulsarConnected
+
+
+  Paired device: 68221d94b36b41fa, Type:   Left, Firmware: 1.32.2, ImuModel: ICM42686, Battery:  76%, Status: Active, ExternalStatus: CONNECTED_ACTIVE, TrackingStatus: POSITION, BrightnessLevel: VERY_DARK
+        Disabled:  1 times,    last from   10.748 to   10.751 (0.003s)
+       Searching:  1 times,    last from   10.751 to   11.980 (1.229s)
+          Active:  1 times, current from   17.285 (359.262s)
+         Blocked: never entered
+      Connecting:  1 times,    last from   11.980 to   17.285 (5.305s)
+  WiFi: Connected (P2p interface last stopped: --- s ago)
+  OTA: Success
+  Charging: false
+  Tracking Level: 6dof
+
+  Selftracked state transitions
+  11.972s (364.575s ago, +0.000s) - Pulsar Connected
+  12.467s (364.080s ago, +0.495s) - Wifi Requested
+  17.285s (359.262s ago, +4.818s) - Wifi Connected
+  40.924s (335.623s ago, +23.640s) - Tracking 6dof
+
+
+  Active Session Tracking Metrics:
+    session duration         : 364.575s
+    pulsar connected         : 364.575s ago
+    time to wifi             : 5.313s
+    first pose received      : 359.251s ago
+    first pose received to tracking 6dof in HMD : 22.949s
+    full tracking            : 335.623s ago
+    time to track            : 2.709s
+    time to in-hand          : 26.242s
+    time to first map        : 0.012s, size=0KiB
+    map xfer to 6dof         : 23.628s
+    in-hand to 6dof          : 2.709s
+    connect to 6dof          : 28.952s
+    connect to 6dof in HMD   : 28.272s
+    connect to hmd 6dof      : -1.978s
+    maps sent                : 22, total=64935KiB
+    last map sent            : 51.118s ago, size=3620KiB
+    tracking lost count      : 3
+    invalid map count        : 0
+    build fingerprint        : oculus/starlet/starlet:12/SQ3A.220605.009.A1/50285100049700390:user/release-keys
+    time to ota requested    : ---
+
+
+  SelftrackedRemoteDeviceStateMachine history
+  Current state: Running
+
+  17.286s (359.261s ago) - Sending system state RUNNING
+  17.286s (359.261s ago) - Performing transition Standby -> Running: onStandbyToRunning
+  17.286s (359.261s ago) - Sending system state STANDBY
+  17.286s (359.261s ago) - Performing transition Sleep -> Standby: onSleepToStandby
+  17.285s (359.262s ago) - Sending system state SLEEP
+  17.285s (359.262s ago) - Performing transition WaitForWifi -> Sleep: onControllerIpConnectivityConfirmed
+  12.467s (364.080s ago) - Performing transition VersionCheck -> WaitForWifi: onQuickStartInfo
+  12.455s (364.092s ago) - [VersionCheck] onQuickStartInfo: earlyVersionCheck: otaRequired=0
+  11.979s (364.568s ago) - Performing transition IdleDisconnected -> VersionCheck: onPulsarConnected
+  11.971s (364.576s ago) - Sending system state RUNNING
+  11.383s (365.164s ago) - Sending system state STANDBY
+
+
+
+ControllerGlue history
+  11.384s (365.163s ago) - [controller] STANDBY -> RUNNING
+  10.750s (365.797s ago) - [controller] SLEEP -> STANDBY
+
+
+Pairing history
+
+
+ControllerGlue Status
+  Paired device: a1230d246357e90e, Type:  Right, Firmware: 1.32.2, ImuModel: ICM42686, Battery:  80%, Status: Active, ExternalStatus: CONNECTED_ACTIVE, TrackingStatus: POSITION, BrightnessLevel: VERY_DARK
+        Disabled:  1 times,    last from   10.706 to   10.751 (0.045s)
+       Searching:  1 times,    last from   10.751 to   11.382 (0.631s)
+          Active:  1 times, current from   16.624 (368.815s)
+         Blocked: never entered
+      Connecting:  1 times,    last from   11.382 to   16.624 (5.242s)
+  WiFi: Connected (P2p interface last stopped: --- s ago)
+  OTA: Success
+  Charging: false
+  Tracking Level: 6dof
+
+  Selftracked state transitions
+  10.751s (374.687s ago, +0.000s) - Pulsar Connected
+  11.781s (373.658s ago, +1.030s) - Wifi Requested
+  16.624s (368.815s ago, +4.843s) - Wifi Connected
+  36.063s (349.376s ago, +19.439s) - Tracking 6dof
+
+
+  Active Session Tracking Metrics:
+    session duration         : 374.687s
+    pulsar connected         : 374.687s ago
+    time to wifi             : 5.873s
+    first pose received      : 368.796s ago
+    first pose received to tracking 6dof in HMD : 18.871s
+    full tracking            : 349.376s ago
+    time to track            : (0s) ** (in hand after 6dof)
+    time to in-hand          : 27.266s
+    time to first map        : 0.020s, size=0KiB
+    map xfer to 6dof         : 19.419s
+    in-hand to 6dof          : -1.955s
+    connect to 6dof          : 25.311s
+    connect to 6dof in HMD   : 24.762s
+    connect to hmd 6dof      : -0.757s
+    maps sent                : 24, total=63643KiB
+    last map sent            : 32.971s ago, size=3595KiB
+    tracking lost count      : 1
+    invalid map count        : 0
+    build fingerprint        : oculus/starlet/starlet:12/SQ3A.220605.009.A1/50285100049700390:user/release-keys
+    time to ota requested    : ---
+
+
+  SelftrackedRemoteDeviceStateMachine history
+  Current state: Running
+
+  16.628s (368.811s ago) - Sending system state RUNNING
+  16.628s (368.811s ago) - Performing transition Standby -> Running: onStandbyToRunning
+  16.627s (368.811s ago) - Sending system state STANDBY
+  16.627s (368.811s ago) - Performing transition Sleep -> Standby: onSleepToStandby
+  16.627s (368.812s ago) - Sending system state SLEEP
+  16.627s (368.812s ago) - Performing transition WaitForWifi -> Sleep: onControllerIpConnectivityConfirmed
+  11.972s (373.467s ago) - Ignoring spammed wifi connection requests, resending previous response
+  11.970s (373.468s ago) - Sending system state RUNNING
+  11.781s (373.658s ago) - Performing transition VersionCheck -> WaitForWifi: onQuickStartInfo
+  11.753s (373.686s ago) - [VersionCheck] onQuickStartInfo: earlyVersionCheck: otaRequired=0
+  11.382s (374.056s ago) - Sending system state STANDBY
+  11.381s (374.058s ago) - Performing transition IdleDisconnected -> VersionCheck: onPulsarConnected
+
+
+  Paired device: 68221d94b36b41fa, Type:   Left, Firmware: 1.32.2, ImuModel: ICM42686, Battery:  76%, Status: Active, ExternalStatus: CONNECTED_ACTIVE, TrackingStatus: POSITION, BrightnessLevel: VERY_DARK
+        Disabled:  1 times,    last from   10.748 to   10.751 (0.003s)
+       Searching:  1 times,    last from   10.751 to   11.980 (1.229s)
+          Active:  1 times, current from   17.285 (368.154s)
+         Blocked: never entered
+      Connecting:  1 times,    last from   11.980 to   17.285 (5.305s)
+  WiFi: Connected (P2p interface last stopped: --- s ago)
+  OTA: Success
+  Charging: false
+  Tracking Level: 6dof
+
+  Selftracked state transitions
+  11.972s (373.467s ago, +0.000s) - Pulsar Connected
+  12.467s (372.972s ago, +0.495s) - Wifi Requested
+  17.285s (368.154s ago, +4.818s) - Wifi Connected
+  40.924s (344.515s ago, +23.640s) - Tracking 6dof
+
+
+  Active Session Tracking Metrics:
+    session duration         : 373.467s
+    pulsar connected         : 373.467s ago
+    time to wifi             : 5.313s
+    first pose received      : 368.143s ago
+    first pose received to tracking 6dof in HMD : 22.949s
+    full tracking            : 344.515s ago
+    time to track            : 2.709s
+    time to in-hand          : 26.242s
+    time to first map        : 0.012s, size=0KiB
+    map xfer to 6dof         : 23.628s
+    in-hand to 6dof          : 2.709s
+    connect to 6dof          : 28.952s
+    connect to 6dof in HMD   : 28.272s
+    connect to hmd 6dof      : -1.978s
+    maps sent                : 22, total=64935KiB
+    last map sent            : 60.010s ago, size=3620KiB
+    tracking lost count      : 3
+    invalid map count        : 0
+    build fingerprint        : oculus/starlet/starlet:12/SQ3A.220605.009.A1/50285100049700390:user/release-keys
+    time to ota requested    : ---
+
+
+  SelftrackedRemoteDeviceStateMachine history
+  Current state: Running
+
+  17.286s (368.153s ago) - Sending system state RUNNING
+  17.286s (368.153s ago) - Performing transition Standby -> Running: onStandbyToRunning
+  17.286s (368.154s ago) - Sending system state STANDBY
+  17.286s (368.154s ago) - Performing transition Sleep -> Standby: onSleepToStandby
+  17.285s (368.154s ago) - Sending system state SLEEP
+  17.285s (368.154s ago) - Performing transition WaitForWifi -> Sleep: onControllerIpConnectivityConfirmed
+  12.467s (372.972s ago) - Performing transition VersionCheck -> WaitForWifi: onQuickStartInfo
+  12.455s (372.984s ago) - [VersionCheck] onQuickStartInfo: earlyVersionCheck: otaRequired=0
+  11.979s (373.461s ago) - Performing transition IdleDisconnected -> VersionCheck: onPulsarConnected
+  11.971s (373.468s ago) - Sending system state RUNNING
+  11.383s (374.057s ago) - Sending system state STANDBY
+
+
+
+ControllerGlue history
+  11.384s (374.055s ago) - [controller] STANDBY -> RUNNING
+  10.750s (374.689s ago) - [controller] SLEEP -> STANDBY
+
+
+Pairing history
+
+
+ControllerGlue Status
+  Paired device: a1230d246357e90e, Type:  Right, Firmware: 1.32.2, ImuModel: ICM42686, Battery:  80%, Status: Active, ExternalStatus: CONNECTED_ACTIVE, TrackingStatus: POSITION, BrightnessLevel: VERY_DARK
+        Disabled:  1 times,    last from   10.706 to   10.751 (0.045s)
+       Searching:  1 times,    last from   10.751 to   11.382 (0.631s)
+          Active:  1 times, current from   16.624 (376.533s)
+         Blocked: never entered
+      Connecting:  1 times,    last from   11.382 to   16.624 (5.242s)
+  WiFi: Connected (P2p interface last stopped: --- s ago)
+  OTA: Success
+  Charging: false
+  Tracking Level: 6dof
+
+  Selftracked state transitions
+  10.751s (382.406s ago, +0.000s) - Pulsar Connected
+  11.781s (381.376s ago, +1.030s) - Wifi Requested
+  16.624s (376.533s ago, +4.843s) - Wifi Connected
+  36.063s (357.094s ago, +19.439s) - Tracking 6dof
+
+
+  Active Session Tracking Metrics:
+    session duration         : 382.406s
+    pulsar connected         : 382.406s ago
+    time to wifi             : 5.873s
+    first pose received      : 376.515s ago
+    first pose received to tracking 6dof in HMD : 18.871s
+    full tracking            : 357.094s ago
+    time to track            : (0s) ** (in hand after 6dof)
+    time to in-hand          : 27.266s
+    time to first map        : 0.020s, size=0KiB
+    map xfer to 6dof         : 19.419s
+    in-hand to 6dof          : -1.955s
+    connect to 6dof          : 25.311s
+    connect to 6dof in HMD   : 24.762s
+    connect to hmd 6dof      : -0.757s
+    maps sent                : 24, total=63643KiB
+    last map sent            : 40.690s ago, size=3595KiB
+    tracking lost count      : 1
+    invalid map count        : 0
+    build fingerprint        : oculus/starlet/starlet:12/SQ3A.220605.009.A1/50285100049700390:user/release-keys
+    time to ota requested    : ---
+
+
+  SelftrackedRemoteDeviceStateMachine history
+  Current state: Running
+
+  16.628s (376.530s ago) - Sending system state RUNNING
+  16.628s (376.530s ago) - Performing transition Standby -> Running: onStandbyToRunning
+  16.627s (376.530s ago) - Sending system state STANDBY
+  16.627s (376.530s ago) - Performing transition Sleep -> Standby: onSleepToStandby
+  16.627s (376.530s ago) - Sending system state SLEEP
+  16.627s (376.530s ago) - Performing transition WaitForWifi -> Sleep: onControllerIpConnectivityConfirmed
+  11.972s (381.186s ago) - Ignoring spammed wifi connection requests, resending previous response
+  11.970s (381.187s ago) - Sending system state RUNNING
+  11.781s (381.377s ago) - Performing transition VersionCheck -> WaitForWifi: onQuickStartInfo
+  11.753s (381.405s ago) - [VersionCheck] onQuickStartInfo: earlyVersionCheck: otaRequired=0
+  11.382s (381.775s ago) - Sending system state STANDBY
+  11.381s (381.776s ago) - Performing transition IdleDisconnected -> VersionCheck: onPulsarConnected
+
+
+  Paired device: 68221d94b36b41fa, Type:   Left, Firmware: 1.32.2, ImuModel: ICM42686, Battery:  76%, Status: Active, ExternalStatus: CONNECTED_ACTIVE, TrackingStatus: POSITION, BrightnessLevel: VERY_DARK
+        Disabled:  1 times,    last from   10.748 to   10.751 (0.003s)
+       Searching:  1 times,    last from   10.751 to   11.980 (1.229s)
+          Active:  1 times, current from   17.285 (375.873s)
+         Blocked: never entered
+      Connecting:  1 times,    last from   11.980 to   17.285 (5.305s)
+  WiFi: Connected (P2p interface last stopped: --- s ago)
+  OTA: Success
+  Charging: false
+  Tracking Level: 6dof
+
+  Selftracked state transitions
+  11.972s (381.185s ago, +0.000s) - Pulsar Connected
+  12.467s (380.691s ago, +0.495s) - Wifi Requested
+  17.285s (375.873s ago, +4.818s) - Wifi Connected
+  40.924s (352.233s ago, +23.640s) - Tracking 6dof
+
+
+  Active Session Tracking Metrics:
+    session duration         : 381.185s
+    pulsar connected         : 381.185s ago
+    time to wifi             : 5.313s
+    first pose received      : 375.862s ago
+    first pose received to tracking 6dof in HMD : 22.949s
+    full tracking            : 352.233s ago
+    time to track            : 2.709s
+    time to in-hand          : 26.242s
+    time to first map        : 0.012s, size=0KiB
+    map xfer to 6dof         : 23.628s
+    in-hand to 6dof          : 2.709s
+    connect to 6dof          : 28.952s
+    connect to 6dof in HMD   : 28.272s
+    connect to hmd 6dof      : -1.978s
+    maps sent                : 23, total=68492KiB
+    last map sent            : 1.733s ago, size=3557KiB
+    tracking lost count      : 3
+    invalid map count        : 0
+    build fingerprint        : oculus/starlet/starlet:12/SQ3A.220605.009.A1/50285100049700390:user/release-keys
+    time to ota requested    : ---
+
+
+  SelftrackedRemoteDeviceStateMachine history
+  Current state: Running
+
+  17.286s (375.872s ago) - Sending system state RUNNING
+  17.286s (375.872s ago) - Performing transition Standby -> Running: onStandbyToRunning
+  17.286s (375.872s ago) - Sending system state STANDBY
+  17.286s (375.872s ago) - Performing transition Sleep -> Standby: onSleepToStandby
+  17.285s (375.872s ago) - Sending system state SLEEP
+  17.285s (375.872s ago) - Performing transition WaitForWifi -> Sleep: onControllerIpConnectivityConfirmed
+  12.467s (380.691s ago) - Performing transition VersionCheck -> WaitForWifi: onQuickStartInfo
+  12.455s (380.703s ago) - [VersionCheck] onQuickStartInfo: earlyVersionCheck: otaRequired=0
+  11.979s (381.179s ago) - Performing transition IdleDisconnected -> VersionCheck: onPulsarConnected
+  11.971s (381.187s ago) - Sending system state RUNNING
+  11.383s (381.775s ago) - Sending system state STANDBY
+
+
+
+ControllerGlue history
+  11.384s (381.773s ago) - [controller] STANDBY -> RUNNING
+  10.750s (382.407s ago) - [controller] SLEEP -> STANDBY
+
+
+Pairing history
+
+
+ControllerGlue Status
+  Paired device: a1230d246357e90e, Type:  Right, Firmware: 1.32.2, ImuModel: ICM42686, Battery:  80%, Status: Active, ExternalStatus: CONNECTED_ACTIVE, TrackingStatus: POSITION, BrightnessLevel: VERY_DARK
+        Disabled:  1 times,    last from   10.706 to   10.751 (0.045s)
+       Searching:  1 times,    last from   10.751 to   11.382 (0.631s)
+          Active:  1 times, current from   16.624 (383.413s)
+         Blocked: never entered
+      Connecting:  1 times,    last from   11.382 to   16.624 (5.242s)
+  WiFi: Connected (P2p interface last stopped: --- s ago)
+  OTA: Success
+  Charging: false
+  Tracking Level: 6dof
+
+  Selftracked state transitions
+  10.751s (389.285s ago, +0.000s) - Pulsar Connected
+  11.781s (388.256s ago, +1.030s) - Wifi Requested
+  16.624s (383.413s ago, +4.843s) - Wifi Connected
+  36.063s (363.974s ago, +19.439s) - Tracking 6dof
+
+
+  Active Session Tracking Metrics:
+    session duration         : 389.285s
+    pulsar connected         : 389.285s ago
+    time to wifi             : 5.873s
+    first pose received      : 383.394s ago
+    first pose received to tracking 6dof in HMD : 18.871s
+    full tracking            : 363.974s ago
+    time to track            : (0s) ** (in hand after 6dof)
+    time to in-hand          : 27.266s
+    time to first map        : 0.020s, size=0KiB
+    map xfer to 6dof         : 19.419s
+    in-hand to 6dof          : -1.955s
+    connect to 6dof          : 25.311s
+    connect to 6dof in HMD   : 24.762s
+    connect to hmd 6dof      : -0.757s
+    maps sent                : 24, total=63643KiB
+    last map sent            : 47.569s ago, size=3595KiB
+    tracking lost count      : 1
+    invalid map count        : 0
+    build fingerprint        : oculus/starlet/starlet:12/SQ3A.220605.009.A1/50285100049700390:user/release-keys
+    time to ota requested    : ---
+
+
+  SelftrackedRemoteDeviceStateMachine history
+  Current state: Running
+
+  16.628s (383.410s ago) - Sending system state RUNNING
+  16.628s (383.410s ago) - Performing transition Standby -> Running: onStandbyToRunning
+  16.627s (383.410s ago) - Sending system state STANDBY
+  16.627s (383.410s ago) - Performing transition Sleep -> Standby: onSleepToStandby
+  16.627s (383.410s ago) - Sending system state SLEEP
+  16.627s (383.410s ago) - Performing transition WaitForWifi -> Sleep: onControllerIpConnectivityConfirmed
+  11.972s (388.065s ago) - Ignoring spammed wifi connection requests, resending previous response
+  11.970s (388.067s ago) - Sending system state RUNNING
+  11.781s (388.256s ago) - Performing transition VersionCheck -> WaitForWifi: onQuickStartInfo
+  11.753s (388.284s ago) - [VersionCheck] onQuickStartInfo: earlyVersionCheck: otaRequired=0
+  11.382s (388.655s ago) - Sending system state STANDBY
+  11.381s (388.656s ago) - Performing transition IdleDisconnected -> VersionCheck: onPulsarConnected
+
+
+  Paired device: 68221d94b36b41fa, Type:   Left, Firmware: 1.32.2, ImuModel: ICM42686, Battery:  76%, Status: Active, ExternalStatus: CONNECTED_ACTIVE, TrackingStatus: POSITION, BrightnessLevel: VERY_DARK
+        Disabled:  1 times,    last from   10.748 to   10.751 (0.003s)
+       Searching:  1 times,    last from   10.751 to   11.980 (1.229s)
+          Active:  1 times, current from   17.285 (382.753s)
+         Blocked: never entered
+      Connecting:  1 times,    last from   11.980 to   17.285 (5.305s)
+  WiFi: Connected (P2p interface last stopped: --- s ago)
+  OTA: Success
+  Charging: false
+  Tracking Level: 6dof
+
+  Selftracked state transitions
+  11.972s (388.065s ago, +0.000s) - Pulsar Connected
+  12.467s (387.570s ago, +0.495s) - Wifi Requested
+  17.285s (382.753s ago, +4.818s) - Wifi Connected
+  40.924s (359.113s ago, +23.640s) - Tracking 6dof
+
+
+  Active Session Tracking Metrics:
+    session duration         : 388.065s
+    pulsar connected         : 388.065s ago
+    time to wifi             : 5.313s
+    first pose received      : 382.742s ago
+    first pose received to tracking 6dof in HMD : 22.949s
+    full tracking            : 359.113s ago
+    time to track            : 2.709s
+    time to in-hand          : 26.242s
+    time to first map        : 0.012s, size=0KiB
+    map xfer to 6dof         : 23.628s
+    in-hand to 6dof          : 2.709s
+    connect to 6dof          : 28.952s
+    connect to 6dof in HMD   : 28.272s
+    connect to hmd 6dof      : -1.978s
+    maps sent                : 23, total=68492KiB
+    last map sent            : 8.613s ago, size=3557KiB
+    tracking lost count      : 3
+    invalid map count        : 0
+    build fingerprint        : oculus/starlet/starlet:12/SQ3A.220605.009.A1/50285100049700390:user/release-keys
+    time to ota requested    : ---
+
+
+  SelftrackedRemoteDeviceStateMachine history
+  Current state: Running
+
+  17.286s (382.752s ago) - Sending system state RUNNING
+  17.286s (382.752s ago) - Performing transition Standby -> Running: onStandbyToRunning
+  17.286s (382.752s ago) - Sending system state STANDBY
+  17.286s (382.752s ago) - Performing transition Sleep -> Standby: onSleepToStandby
+  17.285s (382.752s ago) - Sending system state SLEEP
+  17.285s (382.752s ago) - Performing transition WaitForWifi -> Sleep: onControllerIpConnectivityConfirmed
+  12.467s (387.571s ago) - Performing transition VersionCheck -> WaitForWifi: onQuickStartInfo
+  12.455s (387.582s ago) - [VersionCheck] onQuickStartInfo: earlyVersionCheck: otaRequired=0
+  11.979s (388.059s ago) - Performing transition IdleDisconnected -> VersionCheck: onPulsarConnected
+  11.971s (388.067s ago) - Sending system state RUNNING
+  11.383s (388.655s ago) - Sending system state STANDBY
+
+
+
+ControllerGlue history
+  11.384s (388.653s ago) - [controller] STANDBY -> RUNNING
+  10.750s (389.287s ago) - [controller] SLEEP -> STANDBY
+
+
+Pairing history
+
+
+ControllerGlue Status
+  Paired device: a1230d246357e90e, Type:  Right, Firmware: 1.32.2, ImuModel: ICM42686, Battery:  80%, Status: Active, ExternalStatus: CONNECTED_ACTIVE, TrackingStatus: POSITION, BrightnessLevel: VERY_DARK
+        Disabled:  1 times,    last from   10.706 to   10.751 (0.045s)
+       Searching:  1 times,    last from   10.751 to   11.382 (0.631s)
+          Active:  1 times, current from   16.624 (389.545s)
+         Blocked: never entered
+      Connecting:  1 times,    last from   11.382 to   16.624 (5.242s)
+  WiFi: Connected (P2p interface last stopped: --- s ago)
+  OTA: Success
+  Charging: false
+  Tracking Level: 6dof
+
+  Selftracked state transitions
+  10.751s (395.418s ago, +0.000s) - Pulsar Connected
+  11.781s (394.388s ago, +1.030s) - Wifi Requested
+  16.624s (389.545s ago, +4.843s) - Wifi Connected
+  36.063s (370.107s ago, +19.439s) - Tracking 6dof
+
+
+  Active Session Tracking Metrics:
+    session duration         : 395.418s
+    pulsar connected         : 395.418s ago
+    time to wifi             : 5.873s
+    first pose received      : 389.527s ago
+    first pose received to tracking 6dof in HMD : 18.871s
+    full tracking            : 370.107s ago
+    time to track            : (0s) ** (in hand after 6dof)
+    time to in-hand          : 27.266s
+    time to first map        : 0.020s, size=0KiB
+    map xfer to 6dof         : 19.419s
+    in-hand to 6dof          : -1.955s
+    connect to 6dof          : 25.311s
+    connect to 6dof in HMD   : 24.762s
+    connect to hmd 6dof      : -0.757s
+    maps sent                : 24, total=63643KiB
+    last map sent            : 53.702s ago, size=3595KiB
+    tracking lost count      : 1
+    invalid map count        : 0
+    build fingerprint        : oculus/starlet/starlet:12/SQ3A.220605.009.A1/50285100049700390:user/release-keys
+    time to ota requested    : ---
+
+
+  SelftrackedRemoteDeviceStateMachine history
+  Current state: Running
+
+  16.628s (389.542s ago) - Sending system state RUNNING
+  16.628s (389.542s ago) - Performing transition Standby -> Running: onStandbyToRunning
+  16.627s (389.542s ago) - Sending system state STANDBY
+  16.627s (389.542s ago) - Performing transition Sleep -> Standby: onSleepToStandby
+  16.627s (389.543s ago) - Sending system state SLEEP
+  16.627s (389.543s ago) - Performing transition WaitForWifi -> Sleep: onControllerIpConnectivityConfirmed
+  11.972s (394.198s ago) - Ignoring spammed wifi connection requests, resending previous response
+  11.970s (394.199s ago) - Sending system state RUNNING
+  11.781s (394.389s ago) - Performing transition VersionCheck -> WaitForWifi: onQuickStartInfo
+  11.753s (394.417s ago) - [VersionCheck] onQuickStartInfo: earlyVersionCheck: otaRequired=0
+  11.382s (394.787s ago) - Sending system state STANDBY
+  11.381s (394.788s ago) - Performing transition IdleDisconnected -> VersionCheck: onPulsarConnected
+
+
+  Paired device: 68221d94b36b41fa, Type:   Left, Firmware: 1.32.2, ImuModel: ICM42686, Battery:  76%, Status: Active, ExternalStatus: CONNECTED_ACTIVE, TrackingStatus: POSITION, BrightnessLevel: VERY_DARK
+        Disabled:  1 times,    last from   10.748 to   10.751 (0.003s)
+       Searching:  1 times,    last from   10.751 to   11.980 (1.229s)
+          Active:  1 times, current from   17.285 (388.885s)
+         Blocked: never entered
+      Connecting:  1 times,    last from   11.980 to   17.285 (5.305s)
+  WiFi: Connected (P2p interface last stopped: --- s ago)
+  OTA: Success
+  Charging: false
+  Tracking Level: 6dof
+
+  Selftracked state transitions
+  11.972s (394.198s ago, +0.000s) - Pulsar Connected
+  12.467s (393.703s ago, +0.495s) - Wifi Requested
+  17.285s (388.885s ago, +4.818s) - Wifi Connected
+  40.924s (365.246s ago, +23.640s) - Tracking 6dof
+
+
+  Active Session Tracking Metrics:
+    session duration         : 394.198s
+    pulsar connected         : 394.198s ago
+    time to wifi             : 5.313s
+    first pose received      : 388.874s ago
+    first pose received to tracking 6dof in HMD : 22.949s
+    full tracking            : 365.246s ago
+    time to track            : 2.709s
+    time to in-hand          : 26.242s
+    time to first map        : 0.012s, size=0KiB
+    map xfer to 6dof         : 23.628s
+    in-hand to 6dof          : 2.709s
+    connect to 6dof          : 28.952s
+    connect to 6dof in HMD   : 28.272s
+    connect to hmd 6dof      : -1.978s
+    maps sent                : 23, total=68492KiB
+    last map sent            : 14.745s ago, size=3557KiB
+    tracking lost count      : 3
+    invalid map count        : 0
+    build fingerprint        : oculus/starlet/starlet:12/SQ3A.220605.009.A1/50285100049700390:user/release-keys
+    time to ota requested    : ---
+
+
+  SelftrackedRemoteDeviceStateMachine history
+  Current state: Running
+
+  17.286s (388.884s ago) - Sending system state RUNNING
+  17.286s (388.884s ago) - Performing transition Standby -> Running: onStandbyToRunning
+  17.286s (388.884s ago) - Sending system state STANDBY
+  17.286s (388.884s ago) - Performing transition Sleep -> Standby: onSleepToStandby
+  17.285s (388.885s ago) - Sending system state SLEEP
+  17.285s (388.885s ago) - Performing transition WaitForWifi -> Sleep: onControllerIpConnectivityConfirmed
+  12.467s (393.703s ago) - Performing transition VersionCheck -> WaitForWifi: onQuickStartInfo
+  12.455s (393.715s ago) - [VersionCheck] onQuickStartInfo: earlyVersionCheck: otaRequired=0
+  11.979s (394.191s ago) - Performing transition IdleDisconnected -> VersionCheck: onPulsarConnected
+  11.971s (394.199s ago) - Sending system state RUNNING
+  11.383s (394.787s ago) - Sending system state STANDBY
+
+
+
+ControllerGlue history
+  11.384s (394.786s ago) - [controller] STANDBY -> RUNNING
+  10.750s (395.420s ago) - [controller] SLEEP -> STANDBY
+
+
+Pairing history
+
+
+ControllerGlue Status
+  Paired device: a1230d246357e90e, Type:  Right, Firmware: 1.32.2, ImuModel: ICM42686, Battery:  80%, Status: Active, ExternalStatus: CONNECTED_ACTIVE, TrackingStatus: POSITION, BrightnessLevel: VERY_DARK
+        Disabled:  1 times,    last from   10.706 to   10.751 (0.045s)
+       Searching:  1 times,    last from   10.751 to   11.382 (0.631s)
+          Active:  1 times, current from   16.624 (396.825s)
+         Blocked: never entered
+      Connecting:  1 times,    last from   11.382 to   16.624 (5.242s)
+  WiFi: Connected (P2p interface last stopped: --- s ago)
+  OTA: Success
+  Charging: false
+  Tracking Level: 6dof
+
+  Selftracked state transitions
+  10.751s (402.698s ago, +0.000s) - Pulsar Connected
+  11.781s (401.668s ago, +1.030s) - Wifi Requested
+  16.624s (396.825s ago, +4.843s) - Wifi Connected
+  36.063s (377.386s ago, +19.439s) - Tracking 6dof
+
+
+  Active Session Tracking Metrics:
+    session duration         : 402.698s
+    pulsar connected         : 402.698s ago
+    time to wifi             : 5.873s
+    first pose received      : 396.806s ago
+    first pose received to tracking 6dof in HMD : 18.871s
+    full tracking            : 377.386s ago
+    time to track            : (0s) ** (in hand after 6dof)
+    time to in-hand          : 27.266s
+    time to first map        : 0.020s, size=0KiB
+    map xfer to 6dof         : 19.419s
+    in-hand to 6dof          : -1.955s
+    connect to 6dof          : 25.311s
+    connect to 6dof in HMD   : 24.762s
+    connect to hmd 6dof      : -0.757s
+    maps sent                : 24, total=63643KiB
+    last map sent            : 60.981s ago, size=3595KiB
+    tracking lost count      : 1
+    invalid map count        : 0
+    build fingerprint        : oculus/starlet/starlet:12/SQ3A.220605.009.A1/50285100049700390:user/release-keys
+    time to ota requested    : ---
+
+
+  SelftrackedRemoteDeviceStateMachine history
+  Current state: Running
+
+  16.628s (396.822s ago) - Sending system state RUNNING
+  16.628s (396.822s ago) - Performing transition Standby -> Running: onStandbyToRunning
+  16.627s (396.822s ago) - Sending system state STANDBY
+  16.627s (396.822s ago) - Performing transition Sleep -> Standby: onSleepToStandby
+  16.627s (396.822s ago) - Sending system state SLEEP
+  16.627s (396.822s ago) - Performing transition WaitForWifi -> Sleep: onControllerIpConnectivityConfirmed
+  11.972s (401.477s ago) - Ignoring spammed wifi connection requests, resending previous response
+  11.970s (401.479s ago) - Sending system state RUNNING
+  11.781s (401.668s ago) - Performing transition VersionCheck -> WaitForWifi: onQuickStartInfo
+  11.753s (401.696s ago) - [VersionCheck] onQuickStartInfo: earlyVersionCheck: otaRequired=0
+  11.382s (402.067s ago) - Sending system state STANDBY
+  11.381s (402.068s ago) - Performing transition IdleDisconnected -> VersionCheck: onPulsarConnected
+
+
+  Paired device: 68221d94b36b41fa, Type:   Left, Firmware: 1.32.2, ImuModel: ICM42686, Battery:  75%, Status: Active, ExternalStatus: CONNECTED_ACTIVE, TrackingStatus: POSITION, BrightnessLevel: VERY_DARK
+        Disabled:  1 times,    last from   10.748 to   10.751 (0.003s)
+       Searching:  1 times,    last from   10.751 to   11.980 (1.229s)
+          Active:  1 times, current from   17.285 (396.165s)
+         Blocked: never entered
+      Connecting:  1 times,    last from   11.980 to   17.285 (5.305s)
+  WiFi: Connected (P2p interface last stopped: --- s ago)
+  OTA: Success
+  Charging: false
+  Tracking Level: 6dof
+
+  Selftracked state transitions
+  11.972s (401.477s ago, +0.000s) - Pulsar Connected
+  12.467s (400.982s ago, +0.495s) - Wifi Requested
+  17.285s (396.165s ago, +4.818s) - Wifi Connected
+  40.924s (372.525s ago, +23.640s) - Tracking 6dof
+
+
+  Active Session Tracking Metrics:
+    session duration         : 401.477s
+    pulsar connected         : 401.477s ago
+    time to wifi             : 5.313s
+    first pose received      : 396.154s ago
+    first pose received to tracking 6dof in HMD : 22.949s
+    full tracking            : 372.525s ago
+    time to track            : 2.709s
+    time to in-hand          : 26.242s
+    time to first map        : 0.012s, size=0KiB
+    map xfer to 6dof         : 23.628s
+    in-hand to 6dof          : 2.709s
+    connect to 6dof          : 28.952s
+    connect to 6dof in HMD   : 28.272s
+    connect to hmd 6dof      : -1.978s
+    maps sent                : 23, total=68492KiB
+    last map sent            : 22.025s ago, size=3557KiB
+    tracking lost count      : 3
+    invalid map count        : 0
+    build fingerprint        : oculus/starlet/starlet:12/SQ3A.220605.009.A1/50285100049700390:user/release-keys
+    time to ota requested    : ---
+
+
+  SelftrackedRemoteDeviceStateMachine history
+  Current state: Running
+
+  17.286s (396.164s ago) - Sending system state RUNNING
+  17.286s (396.164s ago) - Performing transition Standby -> Running: onStandbyToRunning
+  17.286s (396.164s ago) - Sending system state STANDBY
+  17.286s (396.164s ago) - Performing transition Sleep -> Standby: onSleepToStandby
+  17.285s (396.164s ago) - Sending system state SLEEP
+  17.285s (396.164s ago) - Performing transition WaitForWifi -> Sleep: onControllerIpConnectivityConfirmed
+  12.467s (400.983s ago) - Performing transition VersionCheck -> WaitForWifi: onQuickStartInfo
+  12.455s (400.994s ago) - [VersionCheck] onQuickStartInfo: earlyVersionCheck: otaRequired=0
+  11.979s (401.471s ago) - Performing transition IdleDisconnected -> VersionCheck: onPulsarConnected
+  11.971s (401.479s ago) - Sending system state RUNNING
+  11.383s (402.067s ago) - Sending system state STANDBY
+
+
+
+ControllerGlue history
+  11.384s (402.065s ago) - [controller] STANDBY -> RUNNING
+  10.750s (402.699s ago) - [controller] SLEEP -> STANDBY
+
+
+Pairing history
+
+
+ControllerGlue Status
+  Paired device: a1230d246357e90e, Type:  Right, Firmware: 1.32.2, ImuModel: ICM42686, Battery:  80%, Status: Active, ExternalStatus: CONNECTED_ACTIVE, TrackingStatus: POSITION, BrightnessLevel: VERY_DARK
+        Disabled:  1 times,    last from   10.706 to   10.751 (0.045s)
+       Searching:  1 times,    last from   10.751 to   11.382 (0.631s)
+          Active:  1 times, current from   16.624 (403.037s)
+         Blocked: never entered
+      Connecting:  1 times,    last from   11.382 to   16.624 (5.242s)
+  WiFi: Connected (P2p interface last stopped: --- s ago)
+  OTA: Success
+  Charging: false
+  Tracking Level: 6dof
+
+  Selftracked state transitions
+  10.751s (408.909s ago, +0.000s) - Pulsar Connected
+  11.781s (407.880s ago, +1.030s) - Wifi Requested
+  16.624s (403.037s ago, +4.843s) - Wifi Connected
+  36.063s (383.598s ago, +19.439s) - Tracking 6dof
+
+
+  Active Session Tracking Metrics:
+    session duration         : 408.909s
+    pulsar connected         : 408.909s ago
+    time to wifi             : 5.873s
+    first pose received      : 403.018s ago
+    first pose received to tracking 6dof in HMD : 18.871s
+    full tracking            : 383.598s ago
+    time to track            : (0s) ** (in hand after 6dof)
+    time to in-hand          : 27.266s
+    time to first map        : 0.020s, size=0KiB
+    map xfer to 6dof         : 19.419s
+    in-hand to 6dof          : -1.955s
+    connect to 6dof          : 25.311s
+    connect to 6dof in HMD   : 24.762s
+    connect to hmd 6dof      : -0.757s
+    maps sent                : 24, total=63643KiB
+    last map sent            : 67.193s ago, size=3595KiB
+    tracking lost count      : 1
+    invalid map count        : 0
+    build fingerprint        : oculus/starlet/starlet:12/SQ3A.220605.009.A1/50285100049700390:user/release-keys
+    time to ota requested    : ---
+
+
+  SelftrackedRemoteDeviceStateMachine history
+  Current state: Running
+
+  16.628s (403.033s ago) - Sending system state RUNNING
+  16.628s (403.033s ago) - Performing transition Standby -> Running: onStandbyToRunning
+  16.627s (403.033s ago) - Sending system state STANDBY
+  16.627s (403.033s ago) - Performing transition Sleep -> Standby: onSleepToStandby
+  16.627s (403.034s ago) - Sending system state SLEEP
+  16.627s (403.034s ago) - Performing transition WaitForWifi -> Sleep: onControllerIpConnectivityConfirmed
+  11.972s (407.689s ago) - Ignoring spammed wifi connection requests, resending previous response
+  11.970s (407.690s ago) - Sending system state RUNNING
+  11.781s (407.880s ago) - Performing transition VersionCheck -> WaitForWifi: onQuickStartInfo
+  11.753s (407.908s ago) - [VersionCheck] onQuickStartInfo: earlyVersionCheck: otaRequired=0
+  11.382s (408.278s ago) - Sending system state STANDBY
+  11.381s (408.280s ago) - Performing transition IdleDisconnected -> VersionCheck: onPulsarConnected
+
+
+  Paired device: 68221d94b36b41fa, Type:   Left, Firmware: 1.32.2, ImuModel: ICM42686, Battery:  75%, Status: Active, ExternalStatus: CONNECTED_ACTIVE, TrackingStatus: POSITION, BrightnessLevel: VERY_DARK
+        Disabled:  1 times,    last from   10.748 to   10.751 (0.003s)
+       Searching:  1 times,    last from   10.751 to   11.980 (1.229s)
+          Active:  1 times, current from   17.285 (402.376s)
+         Blocked: never entered
+      Connecting:  1 times,    last from   11.980 to   17.285 (5.305s)
+  WiFi: Connected (P2p interface last stopped: --- s ago)
+  OTA: Success
+  Charging: false
+  Tracking Level: 6dof
+
+  Selftracked state transitions
+  11.972s (407.689s ago, +0.000s) - Pulsar Connected
+  12.467s (407.194s ago, +0.495s) - Wifi Requested
+  17.285s (402.376s ago, +4.818s) - Wifi Connected
+  40.924s (378.737s ago, +23.640s) - Tracking 6dof
+
+
+  Active Session Tracking Metrics:
+    session duration         : 407.689s
+    pulsar connected         : 407.689s ago
+    time to wifi             : 5.313s
+    first pose received      : 402.366s ago
+    first pose received to tracking 6dof in HMD : 22.949s
+    full tracking            : 378.737s ago
+    time to track            : 2.709s
+    time to in-hand          : 26.242s
+    time to first map        : 0.012s, size=0KiB
+    map xfer to 6dof         : 23.628s
+    in-hand to 6dof          : 2.709s
+    connect to 6dof          : 28.952s
+    connect to 6dof in HMD   : 28.272s
+    connect to hmd 6dof      : -1.978s
+    maps sent                : 23, total=68492KiB
+    last map sent            : 28.237s ago, size=3557KiB
+    tracking lost count      : 3
+    invalid map count        : 0
+    build fingerprint        : oculus/starlet/starlet:12/SQ3A.220605.009.A1/50285100049700390:user/release-keys
+    time to ota requested    : ---
+
+
+  SelftrackedRemoteDeviceStateMachine history
+  Current state: Running
+
+  17.286s (402.375s ago) - Sending system state RUNNING
+  17.286s (402.375s ago) - Performing transition Standby -> Running: onStandbyToRunning
+  17.286s (402.376s ago) - Sending system state STANDBY
+  17.286s (402.376s ago) - Performing transition Sleep -> Standby: onSleepToStandby
+  17.285s (402.376s ago) - Sending system state SLEEP
+  17.285s (402.376s ago) - Performing transition WaitForWifi -> Sleep: onControllerIpConnectivityConfirmed
+  12.467s (407.194s ago) - Performing transition VersionCheck -> WaitForWifi: onQuickStartInfo
+  12.455s (407.206s ago) - [VersionCheck] onQuickStartInfo: earlyVersionCheck: otaRequired=0
+  11.979s (407.682s ago) - Performing transition IdleDisconnected -> VersionCheck: onPulsarConnected
+  11.971s (407.690s ago) - Sending system state RUNNING
+  11.383s (408.279s ago) - Sending system state STANDBY
+
+
+
+ControllerGlue history
+  11.384s (408.277s ago) - [controller] STANDBY -> RUNNING
+  10.750s (408.911s ago) - [controller] SLEEP -> STANDBY
+
+
+Pairing history
+
+
+ControllerGlue Status
+  Paired device: a1230d246357e90e, Type:  Right, Firmware: 1.32.2, ImuModel: ICM42686, Battery:  80%, Status: Active, ExternalStatus: CONNECTED_ACTIVE, TrackingStatus: POSITION, BrightnessLevel: VERY_DARK
+        Disabled:  1 times,    last from   10.706 to   10.751 (0.045s)
+       Searching:  1 times,    last from   10.751 to   11.382 (0.631s)
+          Active:  1 times, current from   16.624 (412.106s)
+         Blocked: never entered
+      Connecting:  1 times,    last from   11.382 to   16.624 (5.242s)
+  WiFi: Connected (P2p interface last stopped: --- s ago)
+  OTA: Success
+  Charging: false
+  Tracking Level: 6dof
+
+  Selftracked state transitions
+  10.751s (417.979s ago, +0.000s) - Pulsar Connected
+  11.781s (416.949s ago, +1.030s) - Wifi Requested
+  16.624s (412.106s ago, +4.843s) - Wifi Connected
+  36.063s (392.667s ago, +19.439s) - Tracking 6dof
+
+
+  Active Session Tracking Metrics:
+    session duration         : 417.979s
+    pulsar connected         : 417.979s ago
+    time to wifi             : 5.873s
+    first pose received      : 412.088s ago
+    first pose received to tracking 6dof in HMD : 18.871s
+    full tracking            : 392.667s ago
+    time to track            : (0s) ** (in hand after 6dof)
+    time to in-hand          : 27.266s
+    time to first map        : 0.020s, size=0KiB
+    map xfer to 6dof         : 19.419s
+    in-hand to 6dof          : -1.955s
+    connect to 6dof          : 25.311s
+    connect to 6dof in HMD   : 24.762s
+    connect to hmd 6dof      : -0.757s
+    maps sent                : 25, total=67176KiB
+    last map sent            : 7.254s ago, size=3533KiB
+    tracking lost count      : 1
+    invalid map count        : 0
+    build fingerprint        : oculus/starlet/starlet:12/SQ3A.220605.009.A1/50285100049700390:user/release-keys
+    time to ota requested    : ---
+
+
+  SelftrackedRemoteDeviceStateMachine history
+  Current state: Running
+
+  16.628s (412.103s ago) - Sending system state RUNNING
+  16.628s (412.103s ago) - Performing transition Standby -> Running: onStandbyToRunning
+  16.627s (412.103s ago) - Sending system state STANDBY
+  16.627s (412.103s ago) - Performing transition Sleep -> Standby: onSleepToStandby
+  16.627s (412.103s ago) - Sending system state SLEEP
+  16.627s (412.103s ago) - Performing transition WaitForWifi -> Sleep: onControllerIpConnectivityConfirmed
+  11.972s (416.759s ago) - Ignoring spammed wifi connection requests, resending previous response
+  11.970s (416.760s ago) - Sending system state RUNNING
+  11.781s (416.950s ago) - Performing transition VersionCheck -> WaitForWifi: onQuickStartInfo
+  11.753s (416.978s ago) - [VersionCheck] onQuickStartInfo: earlyVersionCheck: otaRequired=0
+  11.382s (417.348s ago) - Sending system state STANDBY
+  11.381s (417.349s ago) - Performing transition IdleDisconnected -> VersionCheck: onPulsarConnected
+
+
+  Paired device: 68221d94b36b41fa, Type:   Left, Firmware: 1.32.2, ImuModel: ICM42686, Battery:  75%, Status: Active, ExternalStatus: CONNECTED_ACTIVE, TrackingStatus: POSITION, BrightnessLevel: VERY_DARK
+        Disabled:  1 times,    last from   10.748 to   10.751 (0.003s)
+       Searching:  1 times,    last from   10.751 to   11.980 (1.229s)
+          Active:  1 times, current from   17.285 (411.446s)
+         Blocked: never entered
+      Connecting:  1 times,    last from   11.980 to   17.285 (5.305s)
+  WiFi: Connected (P2p interface last stopped: --- s ago)
+  OTA: Success
+  Charging: false
+  Tracking Level: 6dof
+
+  Selftracked state transitions
+  11.972s (416.758s ago, +0.000s) - Pulsar Connected
+  12.467s (416.264s ago, +0.495s) - Wifi Requested
+  17.285s (411.446s ago, +4.818s) - Wifi Connected
+  40.924s (387.806s ago, +23.640s) - Tracking 6dof
+
+
+  Active Session Tracking Metrics:
+    session duration         : 416.758s
+    pulsar connected         : 416.758s ago
+    time to wifi             : 5.313s
+    first pose received      : 411.435s ago
+    first pose received to tracking 6dof in HMD : 22.949s
+    full tracking            : 387.807s ago
+    time to track            : 2.709s
+    time to in-hand          : 26.242s
+    time to first map        : 0.012s, size=0KiB
+    map xfer to 6dof         : 23.628s
+    in-hand to 6dof          : 2.709s
+    connect to 6dof          : 28.952s
+    connect to 6dof in HMD   : 28.272s
+    connect to hmd 6dof      : -1.978s
+    maps sent                : 23, total=68492KiB
+    last map sent            : 37.306s ago, size=3557KiB
+    tracking lost count      : 3
+    invalid map count        : 0
+    build fingerprint        : oculus/starlet/starlet:12/SQ3A.220605.009.A1/50285100049700390:user/release-keys
+    time to ota requested    : ---
+
+
+  SelftrackedRemoteDeviceStateMachine history
+  Current state: Running
+
+  17.286s (411.445s ago) - Sending system state RUNNING
+  17.286s (411.445s ago) - Performing transition Standby -> Running: onStandbyToRunning
+  17.286s (411.445s ago) - Sending system state STANDBY
+  17.286s (411.445s ago) - Performing transition Sleep -> Standby: onSleepToStandby
+  17.285s (411.445s ago) - Sending system state SLEEP
+  17.285s (411.445s ago) - Performing transition WaitForWifi -> Sleep: onControllerIpConnectivityConfirmed
+  12.467s (416.264s ago) - Performing transition VersionCheck -> WaitForWifi: onQuickStartInfo
+  12.455s (416.276s ago) - [VersionCheck] onQuickStartInfo: earlyVersionCheck: otaRequired=0
+  11.979s (416.752s ago) - Performing transition IdleDisconnected -> VersionCheck: onPulsarConnected
+  11.971s (416.760s ago) - Sending system state RUNNING
+  11.383s (417.348s ago) - Sending system state STANDBY
+
+
+
+ControllerGlue history
+  11.384s (417.346s ago) - [controller] STANDBY -> RUNNING
+  10.750s (417.980s ago) - [controller] SLEEP -> STANDBY
+
+
+Pairing history
+
+
+ControllerGlue Status
+  Paired device: a1230d246357e90e, Type:  Right, Firmware: 1.32.2, ImuModel: ICM42686, Battery:  80%, Status: Active, ExternalStatus: CONNECTED_ACTIVE, TrackingStatus: POSITION, BrightnessLevel: VERY_DARK
+        Disabled:  1 times,    last from   10.706 to   10.751 (0.045s)
+       Searching:  1 times,    last from   10.751 to   11.382 (0.631s)
+          Active:  1 times, current from   16.624 (420.943s)
+         Blocked: never entered
+      Connecting:  1 times,    last from   11.382 to   16.624 (5.242s)
+  WiFi: Connected (P2p interface last stopped: --- s ago)
+  OTA: Success
+  Charging: false
+  Tracking Level: 6dof
+
+  Selftracked state transitions
+  10.751s (426.816s ago, +0.000s) - Pulsar Connected
+  11.781s (425.786s ago, +1.030s) - Wifi Requested
+  16.624s (420.944s ago, +4.843s) - Wifi Connected
+  36.063s (401.505s ago, +19.439s) - Tracking 6dof
+
+
+  Active Session Tracking Metrics:
+    session duration         : 426.816s
+    pulsar connected         : 426.816s ago
+    time to wifi             : 5.873s
+    first pose received      : 420.925s ago
+    first pose received to tracking 6dof in HMD : 18.871s
+    full tracking            : 401.505s ago
+    time to track            : (0s) ** (in hand after 6dof)
+    time to in-hand          : 27.266s
+    time to first map        : 0.020s, size=0KiB
+    map xfer to 6dof         : 19.419s
+    in-hand to 6dof          : -1.955s
+    connect to 6dof          : 25.311s
+    connect to 6dof in HMD   : 24.762s
+    connect to hmd 6dof      : -0.757s
+    maps sent                : 25, total=67176KiB
+    last map sent            : 16.091s ago, size=3533KiB
+    tracking lost count      : 1
+    invalid map count        : 0
+    build fingerprint        : oculus/starlet/starlet:12/SQ3A.220605.009.A1/50285100049700390:user/release-keys
+    time to ota requested    : ---
+
+
+  SelftrackedRemoteDeviceStateMachine history
+  Current state: Running
+
+  16.628s (420.940s ago) - Sending system state RUNNING
+  16.628s (420.940s ago) - Performing transition Standby -> Running: onStandbyToRunning
+  16.627s (420.940s ago) - Sending system state STANDBY
+  16.627s (420.940s ago) - Performing transition Sleep -> Standby: onSleepToStandby
+  16.627s (420.941s ago) - Sending system state SLEEP
+  16.627s (420.941s ago) - Performing transition WaitForWifi -> Sleep: onControllerIpConnectivityConfirmed
+  11.972s (425.596s ago) - Ignoring spammed wifi connection requests, resending previous response
+  11.970s (425.597s ago) - Sending system state RUNNING
+  11.781s (425.787s ago) - Performing transition VersionCheck -> WaitForWifi: onQuickStartInfo
+  11.753s (425.815s ago) - [VersionCheck] onQuickStartInfo: earlyVersionCheck: otaRequired=0
+  11.382s (426.185s ago) - Sending system state STANDBY
+  11.381s (426.187s ago) - Performing transition IdleDisconnected -> VersionCheck: onPulsarConnected
+
+
+  Paired device: 68221d94b36b41fa, Type:   Left, Firmware: 1.32.2, ImuModel: ICM42686, Battery:  75%, Status: Active, ExternalStatus: CONNECTED_ACTIVE, TrackingStatus: POSITION, BrightnessLevel: VERY_DARK
+        Disabled:  1 times,    last from   10.748 to   10.751 (0.003s)
+       Searching:  1 times,    last from   10.751 to   11.980 (1.229s)
+          Active:  1 times, current from   17.285 (420.283s)
+         Blocked: never entered
+      Connecting:  1 times,    last from   11.980 to   17.285 (5.305s)
+  WiFi: Connected (P2p interface last stopped: --- s ago)
+  OTA: Success
+  Charging: false
+  Tracking Level: 6dof
+
+  Selftracked state transitions
+  11.972s (425.596s ago, +0.000s) - Pulsar Connected
+  12.467s (425.101s ago, +0.495s) - Wifi Requested
+  17.285s (420.283s ago, +4.818s) - Wifi Connected
+  40.924s (396.644s ago, +23.640s) - Tracking 6dof
+
+
+  Active Session Tracking Metrics:
+    session duration         : 425.596s
+    pulsar connected         : 425.596s ago
+    time to wifi             : 5.313s
+    first pose received      : 420.272s ago
+    first pose received to tracking 6dof in HMD : 22.949s
+    full tracking            : 396.644s ago
+    time to track            : 2.709s
+    time to in-hand          : 26.242s
+    time to first map        : 0.012s, size=0KiB
+    map xfer to 6dof         : 23.628s
+    in-hand to 6dof          : 2.709s
+    connect to 6dof          : 28.952s
+    connect to 6dof in HMD   : 28.272s
+    connect to hmd 6dof      : -1.978s
+    maps sent                : 23, total=68492KiB
+    last map sent            : 46.144s ago, size=3557KiB
+    tracking lost count      : 3
+    invalid map count        : 0
+    build fingerprint        : oculus/starlet/starlet:12/SQ3A.220605.009.A1/50285100049700390:user/release-keys
+    time to ota requested    : ---
+
+
+  SelftrackedRemoteDeviceStateMachine history
+  Current state: Running
+
+  17.286s (420.282s ago) - Sending system state RUNNING
+  17.286s (420.282s ago) - Performing transition Standby -> Running: onStandbyToRunning
+  17.286s (420.282s ago) - Sending system state STANDBY
+  17.286s (420.282s ago) - Performing transition Sleep -> Standby: onSleepToStandby
+  17.285s (420.283s ago) - Sending system state SLEEP
+  17.285s (420.283s ago) - Performing transition WaitForWifi -> Sleep: onControllerIpConnectivityConfirmed
+  12.467s (425.101s ago) - Performing transition VersionCheck -> WaitForWifi: onQuickStartInfo
+  12.455s (425.113s ago) - [VersionCheck] onQuickStartInfo: earlyVersionCheck: otaRequired=0
+  11.979s (425.589s ago) - Performing transition IdleDisconnected -> VersionCheck: onPulsarConnected
+  11.971s (425.597s ago) - Sending system state RUNNING
+  11.383s (426.185s ago) - Sending system state STANDBY
+
+
+
+ControllerGlue history
+  11.384s (426.184s ago) - [controller] STANDBY -> RUNNING
+  10.750s (426.818s ago) - [controller] SLEEP -> STANDBY
+
+
+Pairing history
+
+
+ControllerGlue Status
+  Paired device: a1230d246357e90e, Type:  Right, Firmware: 1.32.2, ImuModel: ICM42686, Battery:  80%, Status: Active, ExternalStatus: CONNECTED_ACTIVE, TrackingStatus: POSITION, BrightnessLevel: VERY_DARK
+        Disabled:  1 times,    last from   10.706 to   10.751 (0.045s)
+       Searching:  1 times,    last from   10.751 to   11.382 (0.631s)
+          Active:  1 times, current from   16.624 (426.326s)
+         Blocked: never entered
+      Connecting:  1 times,    last from   11.382 to   16.624 (5.242s)
+  WiFi: Connected (P2p interface last stopped: --- s ago)
+  OTA: Success
+  Charging: false
+  Tracking Level: 6dof
+
+  Selftracked state transitions
+  10.751s (432.199s ago, +0.000s) - Pulsar Connected
+  11.781s (431.169s ago, +1.030s) - Wifi Requested
+  16.624s (426.326s ago, +4.843s) - Wifi Connected
+  36.063s (406.887s ago, +19.439s) - Tracking 6dof
+
+
+  Active Session Tracking Metrics:
+    session duration         : 432.199s
+    pulsar connected         : 432.199s ago
+    time to wifi             : 5.873s
+    first pose received      : 426.308s ago
+    first pose received to tracking 6dof in HMD : 18.871s
+    full tracking            : 406.888s ago
+    time to track            : (0s) ** (in hand after 6dof)
+    time to in-hand          : 27.266s
+    time to first map        : 0.020s, size=0KiB
+    map xfer to 6dof         : 19.419s
+    in-hand to 6dof          : -1.955s
+    connect to 6dof          : 25.311s
+    connect to 6dof in HMD   : 24.762s
+    connect to hmd 6dof      : -0.757s
+    maps sent                : 25, total=67176KiB
+    last map sent            : 21.474s ago, size=3533KiB
+    tracking lost count      : 1
+    invalid map count        : 0
+    build fingerprint        : oculus/starlet/starlet:12/SQ3A.220605.009.A1/50285100049700390:user/release-keys
+    time to ota requested    : ---
+
+
+  SelftrackedRemoteDeviceStateMachine history
+  Current state: Running
+
+  16.628s (426.323s ago) - Sending system state RUNNING
+  16.628s (426.323s ago) - Performing transition Standby -> Running: onStandbyToRunning
+  16.627s (426.323s ago) - Sending system state STANDBY
+  16.627s (426.323s ago) - Performing transition Sleep -> Standby: onSleepToStandby
+  16.627s (426.323s ago) - Sending system state SLEEP
+  16.627s (426.323s ago) - Performing transition WaitForWifi -> Sleep: onControllerIpConnectivityConfirmed
+  11.972s (430.979s ago) - Ignoring spammed wifi connection requests, resending previous response
+  11.970s (430.980s ago) - Sending system state RUNNING
+  11.781s (431.170s ago) - Performing transition VersionCheck -> WaitForWifi: onQuickStartInfo
+  11.753s (431.198s ago) - [VersionCheck] onQuickStartInfo: earlyVersionCheck: otaRequired=0
+  11.382s (431.568s ago) - Sending system state STANDBY
+  11.381s (431.569s ago) - Performing transition IdleDisconnected -> VersionCheck: onPulsarConnected
+
+
+  Paired device: 68221d94b36b41fa, Type:   Left, Firmware: 1.32.2, ImuModel: ICM42686, Battery:  75%, Status: Active, ExternalStatus: CONNECTED_ACTIVE, TrackingStatus: POSITION, BrightnessLevel: VERY_DARK
+        Disabled:  1 times,    last from   10.748 to   10.751 (0.003s)
+       Searching:  1 times,    last from   10.751 to   11.980 (1.229s)
+          Active:  1 times, current from   17.285 (425.666s)
+         Blocked: never entered
+      Connecting:  1 times,    last from   11.980 to   17.285 (5.305s)
+  WiFi: Connected (P2p interface last stopped: --- s ago)
+  OTA: Success
+  Charging: false
+  Tracking Level: 6dof
+
+  Selftracked state transitions
+  11.972s (430.978s ago, +0.000s) - Pulsar Connected
+  12.467s (430.484s ago, +0.495s) - Wifi Requested
+  17.285s (425.666s ago, +4.818s) - Wifi Connected
+  40.924s (402.026s ago, +23.640s) - Tracking 6dof
+
+
+  Active Session Tracking Metrics:
+    session duration         : 430.978s
+    pulsar connected         : 430.978s ago
+    time to wifi             : 5.313s
+    first pose received      : 425.655s ago
+    first pose received to tracking 6dof in HMD : 22.949s
+    full tracking            : 402.027s ago
+    time to track            : 2.709s
+    time to in-hand          : 26.242s
+    time to first map        : 0.012s, size=0KiB
+    map xfer to 6dof         : 23.628s
+    in-hand to 6dof          : 2.709s
+    connect to 6dof          : 28.952s
+    connect to 6dof in HMD   : 28.272s
+    connect to hmd 6dof      : -1.978s
+    maps sent                : 23, total=68492KiB
+    last map sent            : 51.526s ago, size=3557KiB
+    tracking lost count      : 3
+    invalid map count        : 0
+    build fingerprint        : oculus/starlet/starlet:12/SQ3A.220605.009.A1/50285100049700390:user/release-keys
+    time to ota requested    : ---
+
+
+  SelftrackedRemoteDeviceStateMachine history
+  Current state: Running
+
+  17.286s (425.665s ago) - Sending system state RUNNING
+  17.286s (425.665s ago) - Performing transition Standby -> Running: onStandbyToRunning
+  17.286s (425.665s ago) - Sending system state STANDBY
+  17.286s (425.665s ago) - Performing transition Sleep -> Standby: onSleepToStandby
+  17.285s (425.665s ago) - Sending system state SLEEP
+  17.285s (425.665s ago) - Performing transition WaitForWifi -> Sleep: onControllerIpConnectivityConfirmed
+  12.467s (430.484s ago) - Performing transition VersionCheck -> WaitForWifi: onQuickStartInfo
+  12.455s (430.496s ago) - [VersionCheck] onQuickStartInfo: earlyVersionCheck: otaRequired=0
+  11.979s (430.972s ago) - Performing transition IdleDisconnected -> VersionCheck: onPulsarConnected
+  11.971s (430.980s ago) - Sending system state RUNNING
+  11.383s (431.568s ago) - Sending system state STANDBY
+
+
+
+ControllerGlue history
+  11.384s (431.566s ago) - [controller] STANDBY -> RUNNING
+  10.750s (432.200s ago) - [controller] SLEEP -> STANDBY
+
+
+Pairing history
+
+
+ControllerGlue Status
+  Paired device: a1230d246357e90e, Type:  Right, Firmware: 1.32.2, ImuModel: ICM42686, Battery:  80%, Status: Active, ExternalStatus: CONNECTED_ACTIVE, TrackingStatus: POSITION, BrightnessLevel: VERY_DARK
+        Disabled:  1 times,    last from   10.706 to   10.751 (0.045s)
+       Searching:  1 times,    last from   10.751 to   11.382 (0.631s)
+          Active:  1 times, current from   16.624 (435.453s)
+         Blocked: never entered
+      Connecting:  1 times,    last from   11.382 to   16.624 (5.242s)
+  WiFi: Connected (P2p interface last stopped: --- s ago)
+  OTA: Success
+  Charging: false
+  Tracking Level: 6dof
+
+  Selftracked state transitions
+  10.751s (441.326s ago, +0.000s) - Pulsar Connected
+  11.781s (440.296s ago, +1.030s) - Wifi Requested
+  16.624s (435.453s ago, +4.843s) - Wifi Connected
+  36.063s (416.015s ago, +19.439s) - Tracking 6dof
+
+
+  Active Session Tracking Metrics:
+    session duration         : 441.326s
+    pulsar connected         : 441.326s ago
+    time to wifi             : 5.873s
+    first pose received      : 435.435s ago
+    first pose received to tracking 6dof in HMD : 18.871s
+    full tracking            : 416.015s ago
+    time to track            : (0s) ** (in hand after 6dof)
+    time to in-hand          : 27.266s
+    time to first map        : 0.020s, size=0KiB
+    map xfer to 6dof         : 19.419s
+    in-hand to 6dof          : -1.955s
+    connect to 6dof          : 25.311s
+    connect to 6dof in HMD   : 24.762s
+    connect to hmd 6dof      : -0.757s
+    maps sent                : 25, total=67176KiB
+    last map sent            : 30.601s ago, size=3533KiB
+    tracking lost count      : 1
+    invalid map count        : 0
+    build fingerprint        : oculus/starlet/starlet:12/SQ3A.220605.009.A1/50285100049700390:user/release-keys
+    time to ota requested    : ---
+
+
+  SelftrackedRemoteDeviceStateMachine history
+  Current state: Running
+
+  16.628s (435.450s ago) - Sending system state RUNNING
+  16.628s (435.450s ago) - Performing transition Standby -> Running: onStandbyToRunning
+  16.627s (435.450s ago) - Sending system state STANDBY
+  16.627s (435.450s ago) - Performing transition Sleep -> Standby: onSleepToStandby
+  16.627s (435.450s ago) - Sending system state SLEEP
+  16.627s (435.451s ago) - Performing transition WaitForWifi -> Sleep: onControllerIpConnectivityConfirmed
+  11.972s (440.106s ago) - Ignoring spammed wifi connection requests, resending previous response
+  11.970s (440.107s ago) - Sending system state RUNNING
+  11.781s (440.297s ago) - Performing transition VersionCheck -> WaitForWifi: onQuickStartInfo
+  11.753s (440.325s ago) - [VersionCheck] onQuickStartInfo: earlyVersionCheck: otaRequired=0
+  11.382s (440.695s ago) - Sending system state STANDBY
+  11.381s (440.696s ago) - Performing transition IdleDisconnected -> VersionCheck: onPulsarConnected
+
+
+  Paired device: 68221d94b36b41fa, Type:   Left, Firmware: 1.32.2, ImuModel: ICM42686, Battery:  75%, Status: Active, ExternalStatus: CONNECTED_ACTIVE, TrackingStatus: POSITION, BrightnessLevel: VERY_DARK
+        Disabled:  1 times,    last from   10.748 to   10.751 (0.003s)
+       Searching:  1 times,    last from   10.751 to   11.980 (1.229s)
+          Active:  1 times, current from   17.285 (434.793s)
+         Blocked: never entered
+      Connecting:  1 times,    last from   11.980 to   17.285 (5.305s)
+  WiFi: Connected (P2p interface last stopped: --- s ago)
+  OTA: Success
+  Charging: false
+  Tracking Level: 6dof
+
+  Selftracked state transitions
+  11.972s (440.106s ago, +0.000s) - Pulsar Connected
+  12.467s (439.611s ago, +0.495s) - Wifi Requested
+  17.285s (434.793s ago, +4.818s) - Wifi Connected
+  40.924s (411.154s ago, +23.640s) - Tracking 6dof
+
+
+  Active Session Tracking Metrics:
+    session duration         : 440.106s
+    pulsar connected         : 440.106s ago
+    time to wifi             : 5.313s
+    first pose received      : 434.782s ago
+    first pose received to tracking 6dof in HMD : 22.949s
+    full tracking            : 411.154s ago
+    time to track            : 2.709s
+    time to in-hand          : 26.242s
+    time to first map        : 0.012s, size=0KiB
+    map xfer to 6dof         : 23.628s
+    in-hand to 6dof          : 2.709s
+    connect to 6dof          : 28.952s
+    connect to 6dof in HMD   : 28.272s
+    connect to hmd 6dof      : -1.978s
+    maps sent                : 24, total=72080KiB
+    last map sent            : 0.648s ago, size=3587KiB
+    tracking lost count      : 3
+    invalid map count        : 0
+    build fingerprint        : oculus/starlet/starlet:12/SQ3A.220605.009.A1/50285100049700390:user/release-keys
+    time to ota requested    : ---
+
+
+  SelftrackedRemoteDeviceStateMachine history
+  Current state: Running
+
+  17.286s (434.792s ago) - Sending system state RUNNING
+  17.286s (434.792s ago) - Performing transition Standby -> Running: onStandbyToRunning
+  17.286s (434.792s ago) - Sending system state STANDBY
+  17.286s (434.792s ago) - Performing transition Sleep -> Standby: onSleepToStandby
+  17.285s (434.793s ago) - Sending system state SLEEP
+  17.285s (434.793s ago) - Performing transition WaitForWifi -> Sleep: onControllerIpConnectivityConfirmed
+  12.467s (439.611s ago) - Performing transition VersionCheck -> WaitForWifi: onQuickStartInfo
+  12.455s (439.623s ago) - [VersionCheck] onQuickStartInfo: earlyVersionCheck: otaRequired=0
+  11.979s (440.099s ago) - Performing transition IdleDisconnected -> VersionCheck: onPulsarConnected
+  11.971s (440.107s ago) - Sending system state RUNNING
+  11.383s (440.695s ago) - Sending system state STANDBY
+
+
+
+ControllerGlue history
+  11.384s (440.694s ago) - [controller] STANDBY -> RUNNING
+  10.750s (441.328s ago) - [controller] SLEEP -> STANDBY
+
+
+Pairing history
+
+
+ControllerGlue Status
+  Paired device: a1230d246357e90e, Type:  Right, Firmware: 1.32.2, ImuModel: ICM42686, Battery:  80%, Status: Active, ExternalStatus: CONNECTED_ACTIVE, TrackingStatus: POSITION, BrightnessLevel: VERY_DARK
+        Disabled:  1 times,    last from   10.706 to   10.751 (0.045s)
+       Searching:  1 times,    last from   10.751 to   11.382 (0.631s)
+          Active:  1 times, current from   16.624 (441.968s)
+         Blocked: never entered
+      Connecting:  1 times,    last from   11.382 to   16.624 (5.242s)
+  WiFi: Connected (P2p interface last stopped: --- s ago)
+  OTA: Success
+  Charging: false
+  Tracking Level: 6dof
+
+  Selftracked state transitions
+  10.751s (447.841s ago, +0.000s) - Pulsar Connected
+  11.781s (446.811s ago, +1.030s) - Wifi Requested
+  16.624s (441.968s ago, +4.843s) - Wifi Connected
+  36.063s (422.529s ago, +19.439s) - Tracking 6dof
+
+
+  Active Session Tracking Metrics:
+    session duration         : 447.841s
+    pulsar connected         : 447.841s ago
+    time to wifi             : 5.873s
+    first pose received      : 441.950s ago
+    first pose received to tracking 6dof in HMD : 18.871s
+    full tracking            : 422.529s ago
+    time to track            : (0s) ** (in hand after 6dof)
+    time to in-hand          : 27.266s
+    time to first map        : 0.020s, size=0KiB
+    map xfer to 6dof         : 19.419s
+    in-hand to 6dof          : -1.955s
+    connect to 6dof          : 25.311s
+    connect to 6dof in HMD   : 24.762s
+    connect to hmd 6dof      : -0.757s
+    maps sent                : 25, total=67176KiB
+    last map sent            : 37.115s ago, size=3533KiB
+    tracking lost count      : 1
+    invalid map count        : 0
+    build fingerprint        : oculus/starlet/starlet:12/SQ3A.220605.009.A1/50285100049700390:user/release-keys
+    time to ota requested    : ---
+
+
+  SelftrackedRemoteDeviceStateMachine history
+  Current state: Running
+
+  16.628s (441.965s ago) - Sending system state RUNNING
+  16.628s (441.965s ago) - Performing transition Standby -> Running: onStandbyToRunning
+  16.627s (441.965s ago) - Sending system state STANDBY
+  16.627s (441.965s ago) - Performing transition Sleep -> Standby: onSleepToStandby
+  16.627s (441.965s ago) - Sending system state SLEEP
+  16.627s (441.965s ago) - Performing transition WaitForWifi -> Sleep: onControllerIpConnectivityConfirmed
+  11.972s (446.621s ago) - Ignoring spammed wifi connection requests, resending previous response
+  11.970s (446.622s ago) - Sending system state RUNNING
+  11.781s (446.811s ago) - Performing transition VersionCheck -> WaitForWifi: onQuickStartInfo
+  11.753s (446.840s ago) - [VersionCheck] onQuickStartInfo: earlyVersionCheck: otaRequired=0
+  11.382s (447.210s ago) - Sending system state STANDBY
+  11.381s (447.211s ago) - Performing transition IdleDisconnected -> VersionCheck: onPulsarConnected
+
+
+  Paired device: 68221d94b36b41fa, Type:   Left, Firmware: 1.32.2, ImuModel: ICM42686, Battery:  75%, Status: Active, ExternalStatus: CONNECTED_ACTIVE, TrackingStatus: POSITION, BrightnessLevel: VERY_DARK
+        Disabled:  1 times,    last from   10.748 to   10.751 (0.003s)
+       Searching:  1 times,    last from   10.751 to   11.980 (1.229s)
+          Active:  1 times, current from   17.285 (441.308s)
+         Blocked: never entered
+      Connecting:  1 times,    last from   11.980 to   17.285 (5.305s)
+  WiFi: Connected (P2p interface last stopped: --- s ago)
+  OTA: Success
+  Charging: false
+  Tracking Level: 6dof
+
+  Selftracked state transitions
+  11.972s (446.620s ago, +0.000s) - Pulsar Connected
+  12.467s (446.125s ago, +0.495s) - Wifi Requested
+  17.285s (441.308s ago, +4.818s) - Wifi Connected
+  40.924s (417.668s ago, +23.640s) - Tracking 6dof
+
+
+  Active Session Tracking Metrics:
+    session duration         : 446.620s
+    pulsar connected         : 446.620s ago
+    time to wifi             : 5.313s
+    first pose received      : 441.297s ago
+    first pose received to tracking 6dof in HMD : 22.949s
+    full tracking            : 417.668s ago
+    time to track            : 2.709s
+    time to in-hand          : 26.242s
+    time to first map        : 0.012s, size=0KiB
+    map xfer to 6dof         : 23.628s
+    in-hand to 6dof          : 2.709s
+    connect to 6dof          : 28.952s
+    connect to 6dof in HMD   : 28.272s
+    connect to hmd 6dof      : -1.978s
+    maps sent                : 24, total=72080KiB
+    last map sent            : 7.162s ago, size=3587KiB
+    tracking lost count      : 3
+    invalid map count        : 0
+    build fingerprint        : oculus/starlet/starlet:12/SQ3A.220605.009.A1/50285100049700390:user/release-keys
+    time to ota requested    : ---
+
+
+  SelftrackedRemoteDeviceStateMachine history
+  Current state: Running
+
+  17.286s (441.307s ago) - Sending system state RUNNING
+  17.286s (441.307s ago) - Performing transition Standby -> Running: onStandbyToRunning
+  17.286s (441.307s ago) - Sending system state STANDBY
+  17.286s (441.307s ago) - Performing transition Sleep -> Standby: onSleepToStandby
+  17.285s (441.307s ago) - Sending system state SLEEP
+  17.285s (441.307s ago) - Performing transition WaitForWifi -> Sleep: onControllerIpConnectivityConfirmed
+  12.467s (446.126s ago) - Performing transition VersionCheck -> WaitForWifi: onQuickStartInfo
+  12.455s (446.137s ago) - [VersionCheck] onQuickStartInfo: earlyVersionCheck: otaRequired=0
+  11.979s (446.614s ago) - Performing transition IdleDisconnected -> VersionCheck: onPulsarConnected
+  11.971s (446.622s ago) - Sending system state RUNNING
+  11.383s (447.210s ago) - Sending system state STANDBY
+
+
+
+ControllerGlue history
+  11.384s (447.208s ago) - [controller] STANDBY -> RUNNING
+  10.750s (447.842s ago) - [controller] SLEEP -> STANDBY
+
+
+Pairing history
+
+
+ControllerGlue Status
+  Paired device: a1230d246357e90e, Type:  Right, Firmware: 1.32.2, ImuModel: ICM42686, Battery:  80%, Status: Active, ExternalStatus: CONNECTED_ACTIVE, TrackingStatus: POSITION, BrightnessLevel: VERY_DARK
+        Disabled:  1 times,    last from   10.706 to   10.751 (0.045s)
+       Searching:  1 times,    last from   10.751 to   11.382 (0.631s)
+          Active:  1 times, current from   16.624 (448.088s)
+         Blocked: never entered
+      Connecting:  1 times,    last from   11.382 to   16.624 (5.242s)
+  WiFi: Connected (P2p interface last stopped: --- s ago)
+  OTA: Success
+  Charging: false
+  Tracking Level: 6dof
+
+  Selftracked state transitions
+  10.751s (453.961s ago, +0.000s) - Pulsar Connected
+  11.781s (452.931s ago, +1.030s) - Wifi Requested
+  16.624s (448.088s ago, +4.843s) - Wifi Connected
+  36.063s (428.649s ago, +19.439s) - Tracking 6dof
+
+
+  Active Session Tracking Metrics:
+    session duration         : 453.961s
+    pulsar connected         : 453.961s ago
+    time to wifi             : 5.873s
+    first pose received      : 448.070s ago
+    first pose received to tracking 6dof in HMD : 18.871s
+    full tracking            : 428.649s ago
+    time to track            : (0s) ** (in hand after 6dof)
+    time to in-hand          : 27.266s
+    time to first map        : 0.020s, size=0KiB
+    map xfer to 6dof         : 19.419s
+    in-hand to 6dof          : -1.955s
+    connect to 6dof          : 25.311s
+    connect to 6dof in HMD   : 24.762s
+    connect to hmd 6dof      : -0.757s
+    maps sent                : 25, total=67176KiB
+    last map sent            : 43.235s ago, size=3533KiB
+    tracking lost count      : 1
+    invalid map count        : 0
+    build fingerprint        : oculus/starlet/starlet:12/SQ3A.220605.009.A1/50285100049700390:user/release-keys
+    time to ota requested    : ---
+
+
+  SelftrackedRemoteDeviceStateMachine history
+  Current state: Running
+
+  16.628s (448.085s ago) - Sending system state RUNNING
+  16.628s (448.085s ago) - Performing transition Standby -> Running: onStandbyToRunning
+  16.627s (448.085s ago) - Sending system state STANDBY
+  16.627s (448.085s ago) - Performing transition Sleep -> Standby: onSleepToStandby
+  16.627s (448.085s ago) - Sending system state SLEEP
+  16.627s (448.085s ago) - Performing transition WaitForWifi -> Sleep: onControllerIpConnectivityConfirmed
+  11.972s (452.741s ago) - Ignoring spammed wifi connection requests, resending previous response
+  11.970s (452.742s ago) - Sending system state RUNNING
+  11.781s (452.932s ago) - Performing transition VersionCheck -> WaitForWifi: onQuickStartInfo
+  11.753s (452.960s ago) - [VersionCheck] onQuickStartInfo: earlyVersionCheck: otaRequired=0
+  11.382s (453.330s ago) - Sending system state STANDBY
+  11.381s (453.331s ago) - Performing transition IdleDisconnected -> VersionCheck: onPulsarConnected
+
+
+  Paired device: 68221d94b36b41fa, Type:   Left, Firmware: 1.32.2, ImuModel: ICM42686, Battery:  75%, Status: Active, ExternalStatus: CONNECTED_ACTIVE, TrackingStatus: POSITION, BrightnessLevel: VERY_DARK
+        Disabled:  1 times,    last from   10.748 to   10.751 (0.003s)
+       Searching:  1 times,    last from   10.751 to   11.980 (1.229s)
+          Active:  1 times, current from   17.285 (447.428s)
+         Blocked: never entered
+      Connecting:  1 times,    last from   11.980 to   17.285 (5.305s)
+  WiFi: Connected (P2p interface last stopped: --- s ago)
+  OTA: Success
+  Charging: false
+  Tracking Level: 6dof
+
+  Selftracked state transitions
+  11.972s (452.740s ago, +0.000s) - Pulsar Connected
+  12.467s (452.246s ago, +0.495s) - Wifi Requested
+  17.285s (447.428s ago, +4.818s) - Wifi Connected
+  40.924s (423.788s ago, +23.640s) - Tracking 6dof
+
+
+  Active Session Tracking Metrics:
+    session duration         : 452.740s
+    pulsar connected         : 452.740s ago
+    time to wifi             : 5.313s
+    first pose received      : 447.417s ago
+    first pose received to tracking 6dof in HMD : 22.949s
+    full tracking            : 423.788s ago
+    time to track            : 2.709s
+    time to in-hand          : 26.242s
+    time to first map        : 0.012s, size=0KiB
+    map xfer to 6dof         : 23.628s
+    in-hand to 6dof          : 2.709s
+    connect to 6dof          : 28.952s
+    connect to 6dof in HMD   : 28.272s
+    connect to hmd 6dof      : -1.978s
+    maps sent                : 24, total=72080KiB
+    last map sent            : 13.282s ago, size=3587KiB
+    tracking lost count      : 3
+    invalid map count        : 0
+    build fingerprint        : oculus/starlet/starlet:12/SQ3A.220605.009.A1/50285100049700390:user/release-keys
+    time to ota requested    : ---
+
+
+  SelftrackedRemoteDeviceStateMachine history
+  Current state: Running
+
+  17.286s (447.427s ago) - Sending system state RUNNING
+  17.286s (447.427s ago) - Performing transition Standby -> Running: onStandbyToRunning
+  17.286s (447.427s ago) - Sending system state STANDBY
+  17.286s (447.427s ago) - Performing transition Sleep -> Standby: onSleepToStandby
+  17.285s (447.427s ago) - Sending system state SLEEP
+  17.285s (447.427s ago) - Performing transition WaitForWifi -> Sleep: onControllerIpConnectivityConfirmed
+  12.467s (452.246s ago) - Performing transition VersionCheck -> WaitForWifi: onQuickStartInfo
+  12.455s (452.258s ago) - [VersionCheck] onQuickStartInfo: earlyVersionCheck: otaRequired=0
+  11.979s (452.734s ago) - Performing transition IdleDisconnected -> VersionCheck: onPulsarConnected
+  11.971s (452.742s ago) - Sending system state RUNNING
+  11.383s (453.330s ago) - Sending system state STANDBY
+
+
+
+ControllerGlue history
+  11.384s (453.329s ago) - [controller] STANDBY -> RUNNING
+  10.750s (453.962s ago) - [controller] SLEEP -> STANDBY
+
+
+Pairing history
+
+
+ControllerGlue Status
+  Paired device: a1230d246357e90e, Type:  Right, Firmware: 1.32.2, ImuModel: ICM42686, Battery:  80%, Status: Active, ExternalStatus: CONNECTED_ACTIVE, TrackingStatus: POSITION, BrightnessLevel: VERY_DARK
+        Disabled:  1 times,    last from   10.706 to   10.751 (0.045s)
+       Searching:  1 times,    last from   10.751 to   11.382 (0.631s)
+          Active:  1 times, current from   16.624 (457.978s)
+         Blocked: never entered
+      Connecting:  1 times,    last from   11.382 to   16.624 (5.242s)
+  WiFi: Connected (P2p interface last stopped: --- s ago)
+  OTA: Success
+  Charging: false
+  Tracking Level: 6dof
+
+  Selftracked state transitions
+  10.751s (463.851s ago, +0.000s) - Pulsar Connected
+  11.781s (462.822s ago, +1.030s) - Wifi Requested
+  16.624s (457.979s ago, +4.843s) - Wifi Connected
+  36.063s (438.540s ago, +19.439s) - Tracking 6dof
+
+
+  Active Session Tracking Metrics:
+    session duration         : 463.851s
+    pulsar connected         : 463.851s ago
+    time to wifi             : 5.873s
+    first pose received      : 457.960s ago
+    first pose received to tracking 6dof in HMD : 18.871s
+    full tracking            : 438.540s ago
+    time to track            : (0s) ** (in hand after 6dof)
+    time to in-hand          : 27.266s
+    time to first map        : 0.020s, size=0KiB
+    map xfer to 6dof         : 19.419s
+    in-hand to 6dof          : -1.955s
+    connect to 6dof          : 25.311s
+    connect to 6dof in HMD   : 24.762s
+    connect to hmd 6dof      : -0.757s
+    maps sent                : 25, total=67176KiB
+    last map sent            : 53.126s ago, size=3533KiB
+    tracking lost count      : 1
+    invalid map count        : 0
+    build fingerprint        : oculus/starlet/starlet:12/SQ3A.220605.009.A1/50285100049700390:user/release-keys
+    time to ota requested    : ---
+
+
+  SelftrackedRemoteDeviceStateMachine history
+  Current state: Running
+
+  16.628s (457.975s ago) - Sending system state RUNNING
+  16.628s (457.975s ago) - Performing transition Standby -> Running: onStandbyToRunning
+  16.627s (457.975s ago) - Sending system state STANDBY
+  16.627s (457.975s ago) - Performing transition Sleep -> Standby: onSleepToStandby
+  16.627s (457.976s ago) - Sending system state SLEEP
+  16.627s (457.976s ago) - Performing transition WaitForWifi -> Sleep: onControllerIpConnectivityConfirmed
+  11.972s (462.631s ago) - Ignoring spammed wifi connection requests, resending previous response
+  11.970s (462.632s ago) - Sending system state RUNNING
+  11.781s (462.822s ago) - Performing transition VersionCheck -> WaitForWifi: onQuickStartInfo
+  11.753s (462.850s ago) - [VersionCheck] onQuickStartInfo: earlyVersionCheck: otaRequired=0
+  11.382s (463.220s ago) - Sending system state STANDBY
+  11.381s (463.222s ago) - Performing transition IdleDisconnected -> VersionCheck: onPulsarConnected
+
+
+  Paired device: 68221d94b36b41fa, Type:   Left, Firmware: 1.32.2, ImuModel: ICM42686, Battery:  75%, Status: Active, ExternalStatus: CONNECTED_ACTIVE, TrackingStatus: POSITION, BrightnessLevel: VERY_DARK
+        Disabled:  1 times,    last from   10.748 to   10.751 (0.003s)
+       Searching:  1 times,    last from   10.751 to   11.980 (1.229s)
+          Active:  1 times, current from   17.285 (457.318s)
+         Blocked: never entered
+      Connecting:  1 times,    last from   11.980 to   17.285 (5.305s)
+  WiFi: Connected (P2p interface last stopped: --- s ago)
+  OTA: Success
+  Charging: false
+  Tracking Level: 6dof
+
+  Selftracked state transitions
+  11.972s (462.631s ago, +0.000s) - Pulsar Connected
+  12.467s (462.136s ago, +0.495s) - Wifi Requested
+  17.285s (457.318s ago, +4.818s) - Wifi Connected
+  40.924s (433.679s ago, +23.640s) - Tracking 6dof
+
+
+  Active Session Tracking Metrics:
+    session duration         : 462.631s
+    pulsar connected         : 462.631s ago
+    time to wifi             : 5.313s
+    first pose received      : 457.307s ago
+    first pose received to tracking 6dof in HMD : 22.949s
+    full tracking            : 433.679s ago
+    time to track            : 2.709s
+    time to in-hand          : 26.242s
+    time to first map        : 0.012s, size=0KiB
+    map xfer to 6dof         : 23.628s
+    in-hand to 6dof          : 2.709s
+    connect to 6dof          : 28.952s
+    connect to 6dof in HMD   : 28.272s
+    connect to hmd 6dof      : -1.978s
+    maps sent                : 24, total=72080KiB
+    last map sent            : 23.173s ago, size=3587KiB
+    tracking lost count      : 3
+    invalid map count        : 0
+    build fingerprint        : oculus/starlet/starlet:12/SQ3A.220605.009.A1/50285100049700390:user/release-keys
+    time to ota requested    : ---
+
+
+  SelftrackedRemoteDeviceStateMachine history
+  Current state: Running
+
+  17.286s (457.317s ago) - Sending system state RUNNING
+  17.286s (457.317s ago) - Performing transition Standby -> Running: onStandbyToRunning
+  17.286s (457.317s ago) - Sending system state STANDBY
+  17.286s (457.317s ago) - Performing transition Sleep -> Standby: onSleepToStandby
+  17.285s (457.318s ago) - Sending system state SLEEP
+  17.285s (457.318s ago) - Performing transition WaitForWifi -> Sleep: onControllerIpConnectivityConfirmed
+  12.467s (462.136s ago) - Performing transition VersionCheck -> WaitForWifi: onQuickStartInfo
+  12.455s (462.148s ago) - [VersionCheck] onQuickStartInfo: earlyVersionCheck: otaRequired=0
+  11.979s (462.624s ago) - Performing transition IdleDisconnected -> VersionCheck: onPulsarConnected
+  11.971s (462.632s ago) - Sending system state RUNNING
+  11.383s (463.220s ago) - Sending system state STANDBY
+
+
+
+ControllerGlue history
+  11.384s (463.219s ago) - [controller] STANDBY -> RUNNING
+  10.750s (463.853s ago) - [controller] SLEEP -> STANDBY
+
+
+Pairing history
+
+
+ControllerGlue Status
+  Paired device: a1230d246357e90e, Type:  Right, Firmware: 1.32.2, ImuModel: ICM42686, Battery:  80%, Status: Active, ExternalStatus: CONNECTED_ACTIVE, TrackingStatus: POSITION, BrightnessLevel: VERY_DARK
+        Disabled:  1 times,    last from   10.706 to   10.751 (0.045s)
+       Searching:  1 times,    last from   10.751 to   11.382 (0.631s)
+          Active:  1 times, current from   16.624 (466.492s)
+         Blocked: never entered
+      Connecting:  1 times,    last from   11.382 to   16.624 (5.242s)
+  WiFi: Connected (P2p interface last stopped: --- s ago)
+  OTA: Success
+  Charging: false
+  Tracking Level: 6dof
+
+  Selftracked state transitions
+  10.751s (472.365s ago, +0.000s) - Pulsar Connected
+  11.781s (471.335s ago, +1.030s) - Wifi Requested
+  16.624s (466.492s ago, +4.843s) - Wifi Connected
+  36.063s (447.053s ago, +19.439s) - Tracking 6dof
+
+
+  Active Session Tracking Metrics:
+    session duration         : 472.365s
+    pulsar connected         : 472.365s ago
+    time to wifi             : 5.873s
+    first pose received      : 466.474s ago
+    first pose received to tracking 6dof in HMD : 18.871s
+    full tracking            : 447.053s ago
+    time to track            : (0s) ** (in hand after 6dof)
+    time to in-hand          : 27.266s
+    time to first map        : 0.020s, size=0KiB
+    map xfer to 6dof         : 19.419s
+    in-hand to 6dof          : -1.955s
+    connect to 6dof          : 25.311s
+    connect to 6dof in HMD   : 24.762s
+    connect to hmd 6dof      : -0.757s
+    maps sent                : 26, total=70745KiB
+    last map sent            : 1.636s ago, size=3569KiB
+    tracking lost count      : 1
+    invalid map count        : 0
+    build fingerprint        : oculus/starlet/starlet:12/SQ3A.220605.009.A1/50285100049700390:user/release-keys
+    time to ota requested    : ---
+
+
+  SelftrackedRemoteDeviceStateMachine history
+  Current state: Running
+
+  16.628s (466.489s ago) - Sending system state RUNNING
+  16.628s (466.489s ago) - Performing transition Standby -> Running: onStandbyToRunning
+  16.627s (466.489s ago) - Sending system state STANDBY
+  16.627s (466.489s ago) - Performing transition Sleep -> Standby: onSleepToStandby
+  16.627s (466.489s ago) - Sending system state SLEEP
+  16.627s (466.489s ago) - Performing transition WaitForWifi -> Sleep: onControllerIpConnectivityConfirmed
+  11.972s (471.145s ago) - Ignoring spammed wifi connection requests, resending previous response
+  11.970s (471.146s ago) - Sending system state RUNNING
+  11.781s (471.336s ago) - Performing transition VersionCheck -> WaitForWifi: onQuickStartInfo
+  11.753s (471.364s ago) - [VersionCheck] onQuickStartInfo: earlyVersionCheck: otaRequired=0
+  11.382s (471.734s ago) - Sending system state STANDBY
+  11.381s (471.735s ago) - Performing transition IdleDisconnected -> VersionCheck: onPulsarConnected
+
+
+  Paired device: 68221d94b36b41fa, Type:   Left, Firmware: 1.32.2, ImuModel: ICM42686, Battery:  75%, Status: Active, ExternalStatus: CONNECTED_ACTIVE, TrackingStatus: POSITION, BrightnessLevel: VERY_DARK
+        Disabled:  1 times,    last from   10.748 to   10.751 (0.003s)
+       Searching:  1 times,    last from   10.751 to   11.980 (1.229s)
+          Active:  1 times, current from   17.285 (465.832s)
+         Blocked: never entered
+      Connecting:  1 times,    last from   11.980 to   17.285 (5.305s)
+  WiFi: Connected (P2p interface last stopped: --- s ago)
+  OTA: Success
+  Charging: false
+  Tracking Level: 6dof
+
+  Selftracked state transitions
+  11.972s (471.144s ago, +0.000s) - Pulsar Connected
+  12.467s (470.650s ago, +0.495s) - Wifi Requested
+  17.285s (465.832s ago, +4.818s) - Wifi Connected
+  40.924s (442.192s ago, +23.640s) - Tracking 6dof
+
+
+  Active Session Tracking Metrics:
+    session duration         : 471.144s
+    pulsar connected         : 471.144s ago
+    time to wifi             : 5.313s
+    first pose received      : 465.821s ago
+    first pose received to tracking 6dof in HMD : 22.949s
+    full tracking            : 442.192s ago
+    time to track            : 2.709s
+    time to in-hand          : 26.242s
+    time to first map        : 0.012s, size=0KiB
+    map xfer to 6dof         : 23.628s
+    in-hand to 6dof          : 2.709s
+    connect to 6dof          : 28.952s
+    connect to 6dof in HMD   : 28.272s
+    connect to hmd 6dof      : -1.978s
+    maps sent                : 24, total=72080KiB
+    last map sent            : 31.687s ago, size=3587KiB
+    tracking lost count      : 3
+    invalid map count        : 0
+    build fingerprint        : oculus/starlet/starlet:12/SQ3A.220605.009.A1/50285100049700390:user/release-keys
+    time to ota requested    : ---
+
+
+  SelftrackedRemoteDeviceStateMachine history
+  Current state: Running
+
+  17.286s (465.831s ago) - Sending system state RUNNING
+  17.286s (465.831s ago) - Performing transition Standby -> Running: onStandbyToRunning
+  17.286s (465.831s ago) - Sending system state STANDBY
+  17.286s (465.831s ago) - Performing transition Sleep -> Standby: onSleepToStandby
+  17.285s (465.831s ago) - Sending system state SLEEP
+  17.285s (465.831s ago) - Performing transition WaitForWifi -> Sleep: onControllerIpConnectivityConfirmed
+  12.467s (470.650s ago) - Performing transition VersionCheck -> WaitForWifi: onQuickStartInfo
+  12.455s (470.662s ago) - [VersionCheck] onQuickStartInfo: earlyVersionCheck: otaRequired=0
+  11.979s (471.138s ago) - Performing transition IdleDisconnected -> VersionCheck: onPulsarConnected
+  11.971s (471.146s ago) - Sending system state RUNNING
+  11.383s (471.734s ago) - Sending system state STANDBY
+
+
+
+ControllerGlue history
+  11.384s (471.732s ago) - [controller] STANDBY -> RUNNING
+  10.750s (472.366s ago) - [controller] SLEEP -> STANDBY
+
+
+Pairing history
+
+
+ControllerGlue Status
+  Paired device: a1230d246357e90e, Type:  Right, Firmware: 1.32.2, ImuModel: ICM42686, Battery:  80%, Status: Active, ExternalStatus: CONNECTED_ACTIVE, TrackingStatus: POSITION, BrightnessLevel: VERY_DARK
+        Disabled:  1 times,    last from   10.706 to   10.751 (0.045s)
+       Searching:  1 times,    last from   10.751 to   11.382 (0.631s)
+          Active:  1 times, current from   16.624 (469.899s)
+         Blocked: never entered
+      Connecting:  1 times,    last from   11.382 to   16.624 (5.242s)
+  WiFi: Connected (P2p interface last stopped: --- s ago)
+  OTA: Success
+  Charging: false
+  Tracking Level: 6dof
+
+  Selftracked state transitions
+  10.751s (475.772s ago, +0.000s) - Pulsar Connected
+  11.781s (474.742s ago, +1.030s) - Wifi Requested
+  16.624s (469.900s ago, +4.843s) - Wifi Connected
+  36.063s (450.461s ago, +19.439s) - Tracking 6dof
+
+
+  Active Session Tracking Metrics:
+    session duration         : 475.772s
+    pulsar connected         : 475.772s ago
+    time to wifi             : 5.873s
+    first pose received      : 469.881s ago
+    first pose received to tracking 6dof in HMD : 18.871s
+    full tracking            : 450.461s ago
+    time to track            : (0s) ** (in hand after 6dof)
+    time to in-hand          : 27.266s
+    time to first map        : 0.020s, size=0KiB
+    map xfer to 6dof         : 19.419s
+    in-hand to 6dof          : -1.955s
+    connect to 6dof          : 25.311s
+    connect to 6dof in HMD   : 24.762s
+    connect to hmd 6dof      : -0.757s
+    maps sent                : 26, total=70745KiB
+    last map sent            : 5.043s ago, size=3569KiB
+    tracking lost count      : 1
+    invalid map count        : 0
+    build fingerprint        : oculus/starlet/starlet:12/SQ3A.220605.009.A1/50285100049700390:user/release-keys
+    time to ota requested    : ---
+
+
+  SelftrackedRemoteDeviceStateMachine history
+  Current state: Running
+
+  16.628s (469.896s ago) - Sending system state RUNNING
+  16.628s (469.896s ago) - Performing transition Standby -> Running: onStandbyToRunning
+  16.627s (469.896s ago) - Sending system state STANDBY
+  16.627s (469.896s ago) - Performing transition Sleep -> Standby: onSleepToStandby
+  16.627s (469.896s ago) - Sending system state SLEEP
+  16.627s (469.897s ago) - Performing transition WaitForWifi -> Sleep: onControllerIpConnectivityConfirmed
+  11.972s (474.552s ago) - Ignoring spammed wifi connection requests, resending previous response
+  11.970s (474.553s ago) - Sending system state RUNNING
+  11.781s (474.743s ago) - Performing transition VersionCheck -> WaitForWifi: onQuickStartInfo
+  11.753s (474.771s ago) - [VersionCheck] onQuickStartInfo: earlyVersionCheck: otaRequired=0
+  11.382s (475.141s ago) - Sending system state STANDBY
+  11.381s (475.142s ago) - Performing transition IdleDisconnected -> VersionCheck: onPulsarConnected
+
+
+  Paired device: 68221d94b36b41fa, Type:   Left, Firmware: 1.32.2, ImuModel: ICM42686, Battery:  75%, Status: Active, ExternalStatus: CONNECTED_ACTIVE, TrackingStatus: POSITION, BrightnessLevel: VERY_DARK
+        Disabled:  1 times,    last from   10.748 to   10.751 (0.003s)
+       Searching:  1 times,    last from   10.751 to   11.980 (1.229s)
+          Active:  1 times, current from   17.285 (469.239s)
+         Blocked: never entered
+      Connecting:  1 times,    last from   11.980 to   17.285 (5.305s)
+  WiFi: Connected (P2p interface last stopped: --- s ago)
+  OTA: Success
+  Charging: false
+  Tracking Level: 6dof
+
+  Selftracked state transitions
+  11.972s (474.552s ago, +0.000s) - Pulsar Connected
+  12.467s (474.057s ago, +0.495s) - Wifi Requested
+  17.285s (469.239s ago, +4.818s) - Wifi Connected
+  40.924s (445.600s ago, +23.640s) - Tracking 6dof
+
+
+  Active Session Tracking Metrics:
+    session duration         : 474.552s
+    pulsar connected         : 474.552s ago
+    time to wifi             : 5.313s
+    first pose received      : 469.228s ago
+    first pose received to tracking 6dof in HMD : 22.949s
+    full tracking            : 445.600s ago
+    time to track            : 2.709s
+    time to in-hand          : 26.242s
+    time to first map        : 0.012s, size=0KiB
+    map xfer to 6dof         : 23.628s
+    in-hand to 6dof          : 2.709s
+    connect to 6dof          : 28.952s
+    connect to 6dof in HMD   : 28.272s
+    connect to hmd 6dof      : -1.978s
+    maps sent                : 24, total=72080KiB
+    last map sent            : 35.094s ago, size=3587KiB
+    tracking lost count      : 3
+    invalid map count        : 0
+    build fingerprint        : oculus/starlet/starlet:12/SQ3A.220605.009.A1/50285100049700390:user/release-keys
+    time to ota requested    : ---
+
+
+  SelftrackedRemoteDeviceStateMachine history
+  Current state: Running
+
+  17.286s (469.238s ago) - Sending system state RUNNING
+  17.286s (469.238s ago) - Performing transition Standby -> Running: onStandbyToRunning
+  17.286s (469.238s ago) - Sending system state STANDBY
+  17.286s (469.238s ago) - Performing transition Sleep -> Standby: onSleepToStandby
+  17.285s (469.238s ago) - Sending system state SLEEP
+  17.285s (469.238s ago) - Performing transition WaitForWifi -> Sleep: onControllerIpConnectivityConfirmed
+  12.467s (474.057s ago) - Performing transition VersionCheck -> WaitForWifi: onQuickStartInfo
+  12.455s (474.069s ago) - [VersionCheck] onQuickStartInfo: earlyVersionCheck: otaRequired=0
+  11.979s (474.545s ago) - Performing transition IdleDisconnected -> VersionCheck: onPulsarConnected
+  11.971s (474.553s ago) - Sending system state RUNNING
+  11.383s (475.141s ago) - Sending system state STANDBY
+
+
+
+ControllerGlue history
+  11.384s (475.140s ago) - [controller] STANDBY -> RUNNING
+  10.750s (475.774s ago) - [controller] SLEEP -> STANDBY
+
+
+Pairing history
+
+
+ControllerGlue Status
+  Paired device: a1230d246357e90e, Type:  Right, Firmware: 1.32.2, ImuModel: ICM42686, Battery:  80%, Status: Active, ExternalStatus: CONNECTED_ACTIVE, TrackingStatus: POSITION, BrightnessLevel: VERY_DARK
+        Disabled:  1 times,    last from   10.706 to   10.751 (0.045s)
+       Searching:  1 times,    last from   10.751 to   11.382 (0.631s)
+          Active:  1 times, current from   16.624 (480.158s)
+         Blocked: never entered
+      Connecting:  1 times,    last from   11.382 to   16.624 (5.242s)
+  WiFi: Connected (P2p interface last stopped: --- s ago)
+  OTA: Success
+  Charging: false
+  Tracking Level: 6dof
+
+  Selftracked state transitions
+  10.751s (486.031s ago, +0.000s) - Pulsar Connected
+  11.781s (485.001s ago, +1.030s) - Wifi Requested
+  16.624s (480.159s ago, +4.843s) - Wifi Connected
+  36.063s (460.720s ago, +19.439s) - Tracking 6dof
+
+
+  Active Session Tracking Metrics:
+    session duration         : 486.031s
+    pulsar connected         : 486.031s ago
+    time to wifi             : 5.873s
+    first pose received      : 480.140s ago
+    first pose received to tracking 6dof in HMD : 18.871s
+    full tracking            : 460.720s ago
+    time to track            : (0s) ** (in hand after 6dof)
+    time to in-hand          : 27.266s
+    time to first map        : 0.020s, size=0KiB
+    map xfer to 6dof         : 19.419s
+    in-hand to 6dof          : -1.955s
+    connect to 6dof          : 25.311s
+    connect to 6dof in HMD   : 24.762s
+    connect to hmd 6dof      : -0.757s
+    maps sent                : 26, total=70745KiB
+    last map sent            : 15.302s ago, size=3569KiB
+    tracking lost count      : 1
+    invalid map count        : 0
+    build fingerprint        : oculus/starlet/starlet:12/SQ3A.220605.009.A1/50285100049700390:user/release-keys
+    time to ota requested    : ---
+
+
+  SelftrackedRemoteDeviceStateMachine history
+  Current state: Running
+
+  16.628s (480.155s ago) - Sending system state RUNNING
+  16.628s (480.155s ago) - Performing transition Standby -> Running: onStandbyToRunning
+  16.627s (480.155s ago) - Sending system state STANDBY
+  16.627s (480.155s ago) - Performing transition Sleep -> Standby: onSleepToStandby
+  16.627s (480.155s ago) - Sending system state SLEEP
+  16.627s (480.156s ago) - Performing transition WaitForWifi -> Sleep: onControllerIpConnectivityConfirmed
+  11.972s (484.811s ago) - Ignoring spammed wifi connection requests, resending previous response
+  11.970s (484.812s ago) - Sending system state RUNNING
+  11.781s (485.002s ago) - Performing transition VersionCheck -> WaitForWifi: onQuickStartInfo
+  11.753s (485.030s ago) - [VersionCheck] onQuickStartInfo: earlyVersionCheck: otaRequired=0
+  11.382s (485.400s ago) - Sending system state STANDBY
+  11.381s (485.401s ago) - Performing transition IdleDisconnected -> VersionCheck: onPulsarConnected
+
+
+  Paired device: 68221d94b36b41fa, Type:   Left, Firmware: 1.32.2, ImuModel: ICM42686, Battery:  75%, Status: Active, ExternalStatus: CONNECTED_ACTIVE, TrackingStatus: POSITION, BrightnessLevel: VERY_DARK
+        Disabled:  1 times,    last from   10.748 to   10.751 (0.003s)
+       Searching:  1 times,    last from   10.751 to   11.980 (1.229s)
+          Active:  1 times, current from   17.285 (479.498s)
+         Blocked: never entered
+      Connecting:  1 times,    last from   11.980 to   17.285 (5.305s)
+  WiFi: Connected (P2p interface last stopped: --- s ago)
+  OTA: Success
+  Charging: false
+  Tracking Level: 6dof
+
+  Selftracked state transitions
+  11.972s (484.811s ago, +0.000s) - Pulsar Connected
+  12.467s (484.316s ago, +0.495s) - Wifi Requested
+  17.285s (479.498s ago, +4.818s) - Wifi Connected
+  40.924s (455.859s ago, +23.640s) - Tracking 6dof
+
+
+  Active Session Tracking Metrics:
+    session duration         : 484.811s
+    pulsar connected         : 484.811s ago
+    time to wifi             : 5.313s
+    first pose received      : 479.487s ago
+    first pose received to tracking 6dof in HMD : 22.949s
+    full tracking            : 455.859s ago
+    time to track            : 2.709s
+    time to in-hand          : 26.242s
+    time to first map        : 0.012s, size=0KiB
+    map xfer to 6dof         : 23.628s
+    in-hand to 6dof          : 2.709s
+    connect to 6dof          : 28.952s
+    connect to 6dof in HMD   : 28.272s
+    connect to hmd 6dof      : -1.978s
+    maps sent                : 24, total=72080KiB
+    last map sent            : 45.353s ago, size=3587KiB
+    tracking lost count      : 3
+    invalid map count        : 0
+    build fingerprint        : oculus/starlet/starlet:12/SQ3A.220605.009.A1/50285100049700390:user/release-keys
+    time to ota requested    : ---
+
+
+  SelftrackedRemoteDeviceStateMachine history
+  Current state: Running
+
+  17.286s (479.497s ago) - Sending system state RUNNING
+  17.286s (479.497s ago) - Performing transition Standby -> Running: onStandbyToRunning
+  17.286s (479.497s ago) - Sending system state STANDBY
+  17.286s (479.497s ago) - Performing transition Sleep -> Standby: onSleepToStandby
+  17.285s (479.497s ago) - Sending system state SLEEP
+  17.285s (479.498s ago) - Performing transition WaitForWifi -> Sleep: onControllerIpConnectivityConfirmed
+  12.467s (484.316s ago) - Performing transition VersionCheck -> WaitForWifi: onQuickStartInfo
+  12.455s (484.328s ago) - [VersionCheck] onQuickStartInfo: earlyVersionCheck: otaRequired=0
+  11.979s (484.804s ago) - Performing transition IdleDisconnected -> VersionCheck: onPulsarConnected
+  11.971s (484.812s ago) - Sending system state RUNNING
+  11.383s (485.400s ago) - Sending system state STANDBY
+
+
+
+ControllerGlue history
+  11.384s (485.399s ago) - [controller] STANDBY -> RUNNING
+  10.750s (486.033s ago) - [controller] SLEEP -> STANDBY
+
+
+Pairing history
+
+
+ControllerGlue Status
+  Paired device: a1230d246357e90e, Type:  Right, Firmware: 1.32.2, ImuModel: ICM42686, Battery:  80%, Status: Active, ExternalStatus: CONNECTED_ACTIVE, TrackingStatus: POSITION, BrightnessLevel: VERY_DARK
+        Disabled:  1 times,    last from   10.706 to   10.751 (0.045s)
+       Searching:  1 times,    last from   10.751 to   11.382 (0.631s)
+          Active:  1 times, current from   16.624 (486.758s)
+         Blocked: never entered
+      Connecting:  1 times,    last from   11.382 to   16.624 (5.242s)
+  WiFi: Connected (P2p interface last stopped: --- s ago)
+  OTA: Success
+  Charging: false
+  Tracking Level: 6dof
+
+  Selftracked state transitions
+  10.751s (492.630s ago, +0.000s) - Pulsar Connected
+  11.781s (491.601s ago, +1.030s) - Wifi Requested
+  16.624s (486.758s ago, +4.843s) - Wifi Connected
+  36.063s (467.319s ago, +19.439s) - Tracking 6dof
+
+
+  Active Session Tracking Metrics:
+    session duration         : 492.631s
+    pulsar connected         : 492.631s ago
+    time to wifi             : 5.873s
+    first pose received      : 486.739s ago
+    first pose received to tracking 6dof in HMD : 18.871s
+    full tracking            : 467.319s ago
+    time to track            : (0s) ** (in hand after 6dof)
+    time to in-hand          : 27.266s
+    time to first map        : 0.020s, size=0KiB
+    map xfer to 6dof         : 19.419s
+    in-hand to 6dof          : -1.955s
+    connect to 6dof          : 25.311s
+    connect to 6dof in HMD   : 24.762s
+    connect to hmd 6dof      : -0.757s
+    maps sent                : 26, total=70745KiB
+    last map sent            : 21.902s ago, size=3569KiB
+    tracking lost count      : 1
+    invalid map count        : 0
+    build fingerprint        : oculus/starlet/starlet:12/SQ3A.220605.009.A1/50285100049700390:user/release-keys
+    time to ota requested    : ---
+
+
+  SelftrackedRemoteDeviceStateMachine history
+  Current state: Running
+
+  16.628s (486.755s ago) - Sending system state RUNNING
+  16.628s (486.755s ago) - Performing transition Standby -> Running: onStandbyToRunning
+  16.627s (486.755s ago) - Sending system state STANDBY
+  16.627s (486.755s ago) - Performing transition Sleep -> Standby: onSleepToStandby
+  16.627s (486.755s ago) - Sending system state SLEEP
+  16.627s (486.755s ago) - Performing transition WaitForWifi -> Sleep: onControllerIpConnectivityConfirmed
+  11.972s (491.410s ago) - Ignoring spammed wifi connection requests, resending previous response
+  11.970s (491.412s ago) - Sending system state RUNNING
+  11.781s (491.601s ago) - Performing transition VersionCheck -> WaitForWifi: onQuickStartInfo
+  11.753s (491.629s ago) - [VersionCheck] onQuickStartInfo: earlyVersionCheck: otaRequired=0
+  11.382s (492.000s ago) - Sending system state STANDBY
+  11.381s (492.001s ago) - Performing transition IdleDisconnected -> VersionCheck: onPulsarConnected
+
+
+  Paired device: 68221d94b36b41fa, Type:   Left, Firmware: 1.32.2, ImuModel: ICM42686, Battery:  75%, Status: Active, ExternalStatus: CONNECTED_ACTIVE, TrackingStatus: POSITION, BrightnessLevel: VERY_DARK
+        Disabled:  1 times,    last from   10.748 to   10.751 (0.003s)
+       Searching:  1 times,    last from   10.751 to   11.980 (1.229s)
+          Active:  1 times, current from   17.285 (486.097s)
+         Blocked: never entered
+      Connecting:  1 times,    last from   11.980 to   17.285 (5.305s)
+  WiFi: Connected (P2p interface last stopped: --- s ago)
+  OTA: Success
+  Charging: false
+  Tracking Level: 6dof
+
+  Selftracked state transitions
+  11.972s (491.410s ago, +0.000s) - Pulsar Connected
+  12.467s (490.915s ago, +0.495s) - Wifi Requested
+  17.285s (486.097s ago, +4.818s) - Wifi Connected
+  40.924s (462.458s ago, +23.640s) - Tracking 6dof
+
+
+  Active Session Tracking Metrics:
+    session duration         : 491.410s
+    pulsar connected         : 491.410s ago
+    time to wifi             : 5.313s
+    first pose received      : 486.087s ago
+    first pose received to tracking 6dof in HMD : 22.949s
+    full tracking            : 462.458s ago
+    time to track            : 2.709s
+    time to in-hand          : 26.242s
+    time to first map        : 0.012s, size=0KiB
+    map xfer to 6dof         : 23.628s
+    in-hand to 6dof          : 2.709s
+    connect to 6dof          : 28.952s
+    connect to 6dof in HMD   : 28.272s
+    connect to hmd 6dof      : -1.978s
+    maps sent                : 24, total=72080KiB
+    last map sent            : 51.952s ago, size=3587KiB
+    tracking lost count      : 3
+    invalid map count        : 0
+    build fingerprint        : oculus/starlet/starlet:12/SQ3A.220605.009.A1/50285100049700390:user/release-keys
+    time to ota requested    : ---
+
+
+  SelftrackedRemoteDeviceStateMachine history
+  Current state: Running
+
+  17.286s (486.096s ago) - Sending system state RUNNING
+  17.286s (486.096s ago) - Performing transition Standby -> Running: onStandbyToRunning
+  17.286s (486.097s ago) - Sending system state STANDBY
+  17.286s (486.097s ago) - Performing transition Sleep -> Standby: onSleepToStandby
+  17.285s (486.097s ago) - Sending system state SLEEP
+  17.285s (486.097s ago) - Performing transition WaitForWifi -> Sleep: onControllerIpConnectivityConfirmed
+  12.467s (490.915s ago) - Performing transition VersionCheck -> WaitForWifi: onQuickStartInfo
+  12.455s (490.927s ago) - [VersionCheck] onQuickStartInfo: earlyVersionCheck: otaRequired=0
+  11.979s (491.404s ago) - Performing transition IdleDisconnected -> VersionCheck: onPulsarConnected
+  11.971s (491.411s ago) - Sending system state RUNNING
+  11.383s (492.000s ago) - Sending system state STANDBY
+
+
+
+ControllerGlue history
+  11.384s (491.998s ago) - [controller] STANDBY -> RUNNING
+  10.750s (492.632s ago) - [controller] SLEEP -> STANDBY
+
+
+Pairing history
+
+
+ControllerGlue Status
+  Paired device: a1230d246357e90e, Type:  Right, Firmware: 1.32.2, ImuModel: ICM42686, Battery:  80%, Status: Active, ExternalStatus: CONNECTED_ACTIVE, TrackingStatus: POSITION, BrightnessLevel: VERY_DARK
+        Disabled:  1 times,    last from   10.706 to   10.751 (0.045s)
+       Searching:  1 times,    last from   10.751 to   11.382 (0.631s)
+          Active:  1 times, current from   16.624 (495.602s)
+         Blocked: never entered
+      Connecting:  1 times,    last from   11.382 to   16.624 (5.242s)
+  WiFi: Connected (P2p interface last stopped: --- s ago)
+  OTA: Success
+  Charging: false
+  Tracking Level: 6dof
+
+  Selftracked state transitions
+  10.751s (501.474s ago, +0.000s) - Pulsar Connected
+  11.781s (500.445s ago, +1.030s) - Wifi Requested
+  16.624s (495.602s ago, +4.843s) - Wifi Connected
+  36.063s (476.163s ago, +19.439s) - Tracking 6dof
+
+
+  Active Session Tracking Metrics:
+    session duration         : 501.475s
+    pulsar connected         : 501.474s ago
+    time to wifi             : 5.873s
+    first pose received      : 495.583s ago
+    first pose received to tracking 6dof in HMD : 18.871s
+    full tracking            : 476.163s ago
+    time to track            : (0s) ** (in hand after 6dof)
+    time to in-hand          : 27.266s
+    time to first map        : 0.020s, size=0KiB
+    map xfer to 6dof         : 19.419s
+    in-hand to 6dof          : -1.955s
+    connect to 6dof          : 25.311s
+    connect to 6dof in HMD   : 24.762s
+    connect to hmd 6dof      : -0.757s
+    maps sent                : 26, total=70745KiB
+    last map sent            : 30.746s ago, size=3569KiB
+    tracking lost count      : 1
+    invalid map count        : 0
+    build fingerprint        : oculus/starlet/starlet:12/SQ3A.220605.009.A1/50285100049700390:user/release-keys
+    time to ota requested    : ---
+
+
+  SelftrackedRemoteDeviceStateMachine history
+  Current state: Running
+
+  16.628s (495.599s ago) - Sending system state RUNNING
+  16.628s (495.599s ago) - Performing transition Standby -> Running: onStandbyToRunning
+  16.627s (495.599s ago) - Sending system state STANDBY
+  16.627s (495.599s ago) - Performing transition Sleep -> Standby: onSleepToStandby
+  16.627s (495.599s ago) - Sending system state SLEEP
+  16.627s (495.599s ago) - Performing transition WaitForWifi -> Sleep: onControllerIpConnectivityConfirmed
+  11.972s (500.254s ago) - Ignoring spammed wifi connection requests, resending previous response
+  11.970s (500.256s ago) - Sending system state RUNNING
+  11.781s (500.445s ago) - Performing transition VersionCheck -> WaitForWifi: onQuickStartInfo
+  11.753s (500.473s ago) - [VersionCheck] onQuickStartInfo: earlyVersionCheck: otaRequired=0
+  11.382s (500.844s ago) - Sending system state STANDBY
+  11.381s (500.845s ago) - Performing transition IdleDisconnected -> VersionCheck: onPulsarConnected
+
+
+  Paired device: 68221d94b36b41fa, Type:   Left, Firmware: 1.32.2, ImuModel: ICM42686, Battery:  75%, Status: Active, ExternalStatus: CONNECTED_ACTIVE, TrackingStatus: POSITION, BrightnessLevel: VERY_DARK
+        Disabled:  1 times,    last from   10.748 to   10.751 (0.003s)
+       Searching:  1 times,    last from   10.751 to   11.980 (1.229s)
+          Active:  1 times, current from   17.285 (494.942s)
+         Blocked: never entered
+      Connecting:  1 times,    last from   11.980 to   17.285 (5.305s)
+  WiFi: Connected (P2p interface last stopped: --- s ago)
+  OTA: Success
+  Charging: false
+  Tracking Level: 6dof
+
+  Selftracked state transitions
+  11.972s (500.254s ago, +0.000s) - Pulsar Connected
+  12.467s (499.759s ago, +0.495s) - Wifi Requested
+  17.285s (494.942s ago, +4.818s) - Wifi Connected
+  40.924s (471.302s ago, +23.640s) - Tracking 6dof
+
+
+  Active Session Tracking Metrics:
+    session duration         : 500.254s
+    pulsar connected         : 500.254s ago
+    time to wifi             : 5.313s
+    first pose received      : 494.931s ago
+    first pose received to tracking 6dof in HMD : 22.949s
+    full tracking            : 471.302s ago
+    time to track            : 2.709s
+    time to in-hand          : 26.242s
+    time to first map        : 0.012s, size=0KiB
+    map xfer to 6dof         : 23.628s
+    in-hand to 6dof          : 2.709s
+    connect to 6dof          : 28.952s
+    connect to 6dof in HMD   : 28.272s
+    connect to hmd 6dof      : -1.978s
+    maps sent                : 25, total=75641KiB
+    last map sent            : 0.796s ago, size=3561KiB
+    tracking lost count      : 3
+    invalid map count        : 0
+    build fingerprint        : oculus/starlet/starlet:12/SQ3A.220605.009.A1/50285100049700390:user/release-keys
+    time to ota requested    : ---
+
+
+  SelftrackedRemoteDeviceStateMachine history
+  Current state: Running
+
+  17.286s (494.941s ago) - Sending system state RUNNING
+  17.286s (494.941s ago) - Performing transition Standby -> Running: onStandbyToRunning
+  17.286s (494.941s ago) - Sending system state STANDBY
+  17.286s (494.941s ago) - Performing transition Sleep -> Standby: onSleepToStandby
+  17.285s (494.941s ago) - Sending system state SLEEP
+  17.285s (494.941s ago) - Performing transition WaitForWifi -> Sleep: onControllerIpConnectivityConfirmed
+  12.467s (499.760s ago) - Performing transition VersionCheck -> WaitForWifi: onQuickStartInfo
+  12.455s (499.771s ago) - [VersionCheck] onQuickStartInfo: earlyVersionCheck: otaRequired=0
+  11.979s (500.248s ago) - Performing transition IdleDisconnected -> VersionCheck: onPulsarConnected
+  11.971s (500.256s ago) - Sending system state RUNNING
+  11.383s (500.844s ago) - Sending system state STANDBY
+
+
+
+ControllerGlue history
+  11.384s (500.842s ago) - [controller] STANDBY -> RUNNING
+  10.750s (501.476s ago) - [controller] SLEEP -> STANDBY
+
+
+Pairing history
+
+
+ControllerGlue Status
+  Paired device: a1230d246357e90e, Type:  Right, Firmware: 1.32.2, ImuModel: ICM42686, Battery:  80%, Status: Active, ExternalStatus: CONNECTED_ACTIVE, TrackingStatus: POSITION, BrightnessLevel: VERY_DARK
+        Disabled:  1 times,    last from   10.706 to   10.751 (0.045s)
+       Searching:  1 times,    last from   10.751 to   11.382 (0.631s)
+          Active:  1 times, current from   16.624 (506.554s)
+         Blocked: never entered
+      Connecting:  1 times,    last from   11.382 to   16.624 (5.242s)
+  WiFi: Connected (P2p interface last stopped: --- s ago)
+  OTA: Success
+  Charging: false
+  Tracking Level: 6dof
+
+  Selftracked state transitions
+  10.751s (512.427s ago, +0.000s) - Pulsar Connected
+  11.781s (511.397s ago, +1.030s) - Wifi Requested
+  16.624s (506.554s ago, +4.843s) - Wifi Connected
+  36.063s (487.115s ago, +19.439s) - Tracking 6dof
+
+
+  Active Session Tracking Metrics:
+    session duration         : 512.427s
+    pulsar connected         : 512.427s ago
+    time to wifi             : 5.873s
+    first pose received      : 506.536s ago
+    first pose received to tracking 6dof in HMD : 18.871s
+    full tracking            : 487.115s ago
+    time to track            : (0s) ** (in hand after 6dof)
+    time to in-hand          : 27.266s
+    time to first map        : 0.020s, size=0KiB
+    map xfer to 6dof         : 19.419s
+    in-hand to 6dof          : -1.955s
+    connect to 6dof          : 25.311s
+    connect to 6dof in HMD   : 24.762s
+    connect to hmd 6dof      : -0.757s
+    maps sent                : 26, total=70745KiB
+    last map sent            : 41.698s ago, size=3569KiB
+    tracking lost count      : 1
+    invalid map count        : 0
+    build fingerprint        : oculus/starlet/starlet:12/SQ3A.220605.009.A1/50285100049700390:user/release-keys
+    time to ota requested    : ---
+
+
+  SelftrackedRemoteDeviceStateMachine history
+  Current state: Running
+
+  16.628s (506.551s ago) - Sending system state RUNNING
+  16.628s (506.551s ago) - Performing transition Standby -> Running: onStandbyToRunning
+  16.627s (506.551s ago) - Sending system state STANDBY
+  16.627s (506.551s ago) - Performing transition Sleep -> Standby: onSleepToStandby
+  16.627s (506.551s ago) - Sending system state SLEEP
+  16.627s (506.551s ago) - Performing transition WaitForWifi -> Sleep: onControllerIpConnectivityConfirmed
+  11.972s (511.207s ago) - Ignoring spammed wifi connection requests, resending previous response
+  11.970s (511.208s ago) - Sending system state RUNNING
+  11.781s (511.398s ago) - Performing transition VersionCheck -> WaitForWifi: onQuickStartInfo
+  11.753s (511.426s ago) - [VersionCheck] onQuickStartInfo: earlyVersionCheck: otaRequired=0
+  11.382s (511.796s ago) - Sending system state STANDBY
+  11.381s (511.797s ago) - Performing transition IdleDisconnected -> VersionCheck: onPulsarConnected
+
+
+  Paired device: 68221d94b36b41fa, Type:   Left, Firmware: 1.32.2, ImuModel: ICM42686, Battery:  75%, Status: Active, ExternalStatus: CONNECTED_ACTIVE, TrackingStatus: POSITION, BrightnessLevel: VERY_DARK
+        Disabled:  1 times,    last from   10.748 to   10.751 (0.003s)
+       Searching:  1 times,    last from   10.751 to   11.980 (1.229s)
+          Active:  1 times, current from   17.285 (505.894s)
+         Blocked: never entered
+      Connecting:  1 times,    last from   11.980 to   17.285 (5.305s)
+  WiFi: Connected (P2p interface last stopped: --- s ago)
+  OTA: Success
+  Charging: false
+  Tracking Level: 6dof
+
+  Selftracked state transitions
+  11.972s (511.206s ago, +0.000s) - Pulsar Connected
+  12.467s (510.712s ago, +0.495s) - Wifi Requested
+  17.285s (505.894s ago, +4.818s) - Wifi Connected
+  40.924s (482.254s ago, +23.640s) - Tracking 6dof
+
+
+  Active Session Tracking Metrics:
+    session duration         : 511.206s
+    pulsar connected         : 511.206s ago
+    time to wifi             : 5.313s
+    first pose received      : 505.883s ago
+    first pose received to tracking 6dof in HMD : 22.949s
+    full tracking            : 482.254s ago
+    time to track            : 2.709s
+    time to in-hand          : 26.242s
+    time to first map        : 0.012s, size=0KiB
+    map xfer to 6dof         : 23.628s
+    in-hand to 6dof          : 2.709s
+    connect to 6dof          : 28.952s
+    connect to 6dof in HMD   : 28.272s
+    connect to hmd 6dof      : -1.978s
+    maps sent                : 25, total=75641KiB
+    last map sent            : 11.748s ago, size=3561KiB
+    tracking lost count      : 3
+    invalid map count        : 0
+    build fingerprint        : oculus/starlet/starlet:12/SQ3A.220605.009.A1/50285100049700390:user/release-keys
+    time to ota requested    : ---
+
+
+  SelftrackedRemoteDeviceStateMachine history
+  Current state: Running
+
+  17.286s (505.893s ago) - Sending system state RUNNING
+  17.286s (505.893s ago) - Performing transition Standby -> Running: onStandbyToRunning
+  17.286s (505.893s ago) - Sending system state STANDBY
+  17.286s (505.893s ago) - Performing transition Sleep -> Standby: onSleepToStandby
+  17.285s (505.893s ago) - Sending system state SLEEP
+  17.285s (505.893s ago) - Performing transition WaitForWifi -> Sleep: onControllerIpConnectivityConfirmed
+  12.467s (510.712s ago) - Performing transition VersionCheck -> WaitForWifi: onQuickStartInfo
+  12.455s (510.724s ago) - [VersionCheck] onQuickStartInfo: earlyVersionCheck: otaRequired=0
+  11.979s (511.200s ago) - Performing transition IdleDisconnected -> VersionCheck: onPulsarConnected
+  11.971s (511.208s ago) - Sending system state RUNNING
+  11.383s (511.796s ago) - Sending system state STANDBY
+
+
+
+ControllerGlue history
+  11.384s (511.794s ago) - [controller] STANDBY -> RUNNING
+  10.750s (512.428s ago) - [controller] SLEEP -> STANDBY
+
+
+Pairing history
+
+
+ControllerGlue Status
+  Paired device: a1230d246357e90e, Type:  Right, Firmware: 1.32.2, ImuModel: ICM42686, Battery:  80%, Status: Active, ExternalStatus: CONNECTED_ACTIVE, TrackingStatus: POSITION, BrightnessLevel: VERY_DARK
+        Disabled:  1 times,    last from   10.706 to   10.751 (0.045s)
+       Searching:  1 times,    last from   10.751 to   11.382 (0.631s)
+          Active:  1 times, current from   16.624 (514.723s)
+         Blocked: never entered
+      Connecting:  1 times,    last from   11.382 to   16.624 (5.242s)
+  WiFi: Connected (P2p interface last stopped: --- s ago)
+  OTA: Success
+  Charging: false
+  Tracking Level: 6dof
+
+  Selftracked state transitions
+  10.751s (520.596s ago, +0.000s) - Pulsar Connected
+  11.781s (519.566s ago, +1.030s) - Wifi Requested
+  16.624s (514.723s ago, +4.843s) - Wifi Connected
+  36.063s (495.284s ago, +19.439s) - Tracking 6dof
+
+
+  Active Session Tracking Metrics:
+    session duration         : 520.596s
+    pulsar connected         : 520.596s ago
+    time to wifi             : 5.873s
+    first pose received      : 514.704s ago
+    first pose received to tracking 6dof in HMD : 18.871s
+    full tracking            : 495.284s ago
+    time to track            : (0s) ** (in hand after 6dof)
+    time to in-hand          : 27.266s
+    time to first map        : 0.020s, size=0KiB
+    map xfer to 6dof         : 19.419s
+    in-hand to 6dof          : -1.955s
+    connect to 6dof          : 25.311s
+    connect to 6dof in HMD   : 24.762s
+    connect to hmd 6dof      : -0.757s
+    maps sent                : 26, total=70745KiB
+    last map sent            : 49.867s ago, size=3569KiB
+    tracking lost count      : 1
+    invalid map count        : 0
+    build fingerprint        : oculus/starlet/starlet:12/SQ3A.220605.009.A1/50285100049700390:user/release-keys
+    time to ota requested    : ---
+
+
+  SelftrackedRemoteDeviceStateMachine history
+  Current state: Running
+
+  16.628s (514.720s ago) - Sending system state RUNNING
+  16.628s (514.720s ago) - Performing transition Standby -> Running: onStandbyToRunning
+  16.627s (514.720s ago) - Sending system state STANDBY
+  16.627s (514.720s ago) - Performing transition Sleep -> Standby: onSleepToStandby
+  16.627s (514.720s ago) - Sending system state SLEEP
+  16.627s (514.720s ago) - Performing transition WaitForWifi -> Sleep: onControllerIpConnectivityConfirmed
+  11.972s (519.375s ago) - Ignoring spammed wifi connection requests, resending previous response
+  11.970s (519.377s ago) - Sending system state RUNNING
+  11.781s (519.566s ago) - Performing transition VersionCheck -> WaitForWifi: onQuickStartInfo
+  11.753s (519.595s ago) - [VersionCheck] onQuickStartInfo: earlyVersionCheck: otaRequired=0
+  11.382s (519.965s ago) - Sending system state STANDBY
+  11.381s (519.966s ago) - Performing transition IdleDisconnected -> VersionCheck: onPulsarConnected
+
+
+  Paired device: 68221d94b36b41fa, Type:   Left, Firmware: 1.32.2, ImuModel: ICM42686, Battery:  75%, Status: Active, ExternalStatus: CONNECTED_ACTIVE, TrackingStatus: POSITION, BrightnessLevel: VERY_DARK
+        Disabled:  1 times,    last from   10.748 to   10.751 (0.003s)
+       Searching:  1 times,    last from   10.751 to   11.980 (1.229s)
+          Active:  1 times, current from   17.285 (514.063s)
+         Blocked: never entered
+      Connecting:  1 times,    last from   11.980 to   17.285 (5.305s)
+  WiFi: Connected (P2p interface last stopped: --- s ago)
+  OTA: Success
+  Charging: false
+  Tracking Level: 6dof
+
+  Selftracked state transitions
+  11.972s (519.375s ago, +0.000s) - Pulsar Connected
+  12.467s (518.880s ago, +0.495s) - Wifi Requested
+  17.285s (514.063s ago, +4.818s) - Wifi Connected
+  40.924s (490.423s ago, +23.640s) - Tracking 6dof
+
+
+  Active Session Tracking Metrics:
+    session duration         : 519.375s
+    pulsar connected         : 519.375s ago
+    time to wifi             : 5.313s
+    first pose received      : 514.052s ago
+    first pose received to tracking 6dof in HMD : 22.949s
+    full tracking            : 490.423s ago
+    time to track            : 2.709s
+    time to in-hand          : 26.242s
+    time to first map        : 0.012s, size=0KiB
+    map xfer to 6dof         : 23.628s
+    in-hand to 6dof          : 2.709s
+    connect to 6dof          : 28.952s
+    connect to 6dof in HMD   : 28.272s
+    connect to hmd 6dof      : -1.978s
+    maps sent                : 25, total=75641KiB
+    last map sent            : 19.917s ago, size=3561KiB
+    tracking lost count      : 3
+    invalid map count        : 0
+    build fingerprint        : oculus/starlet/starlet:12/SQ3A.220605.009.A1/50285100049700390:user/release-keys
+    time to ota requested    : ---
+
+
+  SelftrackedRemoteDeviceStateMachine history
+  Current state: Running
+
+  17.286s (514.062s ago) - Sending system state RUNNING
+  17.286s (514.062s ago) - Performing transition Standby -> Running: onStandbyToRunning
+  17.286s (514.062s ago) - Sending system state STANDBY
+  17.286s (514.062s ago) - Performing transition Sleep -> Standby: onSleepToStandby
+  17.285s (514.062s ago) - Sending system state SLEEP
+  17.285s (514.062s ago) - Performing transition WaitForWifi -> Sleep: onControllerIpConnectivityConfirmed
+  12.467s (518.881s ago) - Performing transition VersionCheck -> WaitForWifi: onQuickStartInfo
+  12.455s (518.892s ago) - [VersionCheck] onQuickStartInfo: earlyVersionCheck: otaRequired=0
+  11.979s (519.369s ago) - Performing transition IdleDisconnected -> VersionCheck: onPulsarConnected
+  11.971s (519.377s ago) - Sending system state RUNNING
+  11.383s (519.965s ago) - Sending system state STANDBY
+
+
+
+ControllerGlue history
+  11.384s (519.963s ago) - [controller] STANDBY -> RUNNING
+  10.750s (520.597s ago) - [controller] SLEEP -> STANDBY
+
+
+Pairing history
+
+
+ControllerGlue Status
+  Paired device: a1230d246357e90e, Type:  Right, Firmware: 1.32.2, ImuModel: ICM42686, Battery:  80%, Status: Active, ExternalStatus: CONNECTED_ACTIVE, TrackingStatus: POSITION, BrightnessLevel: VERY_DARK
+        Disabled:  1 times,    last from   10.706 to   10.751 (0.045s)
+       Searching:  1 times,    last from   10.751 to   11.382 (0.631s)
+          Active:  1 times, current from   16.624 (523.441s)
+         Blocked: never entered
+      Connecting:  1 times,    last from   11.382 to   16.624 (5.242s)
+  WiFi: Connected (P2p interface last stopped: --- s ago)
+  OTA: Success
+  Charging: false
+  Tracking Level: 6dof
+
+  Selftracked state transitions
+  10.751s (529.313s ago, +0.000s) - Pulsar Connected
+  11.781s (528.284s ago, +1.030s) - Wifi Requested
+  16.624s (523.441s ago, +4.843s) - Wifi Connected
+  36.063s (504.002s ago, +19.439s) - Tracking 6dof
+
+
+  Active Session Tracking Metrics:
+    session duration         : 529.313s
+    pulsar connected         : 529.313s ago
+    time to wifi             : 5.873s
+    first pose received      : 523.422s ago
+    first pose received to tracking 6dof in HMD : 18.871s
+    full tracking            : 504.002s ago
+    time to track            : (0s) ** (in hand after 6dof)
+    time to in-hand          : 27.266s
+    time to first map        : 0.020s, size=0KiB
+    map xfer to 6dof         : 19.419s
+    in-hand to 6dof          : -1.955s
+    connect to 6dof          : 25.311s
+    connect to 6dof in HMD   : 24.762s
+    connect to hmd 6dof      : -0.757s
+    maps sent                : 26, total=70745KiB
+    last map sent            : 58.585s ago, size=3569KiB
+    tracking lost count      : 1
+    invalid map count        : 0
+    build fingerprint        : oculus/starlet/starlet:12/SQ3A.220605.009.A1/50285100049700390:user/release-keys
+    time to ota requested    : ---
+
+
+  SelftrackedRemoteDeviceStateMachine history
+  Current state: Running
+
+  16.628s (523.437s ago) - Sending system state RUNNING
+  16.628s (523.437s ago) - Performing transition Standby -> Running: onStandbyToRunning
+  16.627s (523.438s ago) - Sending system state STANDBY
+  16.627s (523.438s ago) - Performing transition Sleep -> Standby: onSleepToStandby
+  16.627s (523.438s ago) - Sending system state SLEEP
+  16.627s (523.438s ago) - Performing transition WaitForWifi -> Sleep: onControllerIpConnectivityConfirmed
+  11.972s (528.093s ago) - Ignoring spammed wifi connection requests, resending previous response
+  11.970s (528.094s ago) - Sending system state RUNNING
+  11.781s (528.284s ago) - Performing transition VersionCheck -> WaitForWifi: onQuickStartInfo
+  11.753s (528.312s ago) - [VersionCheck] onQuickStartInfo: earlyVersionCheck: otaRequired=0
+  11.382s (528.682s ago) - Sending system state STANDBY
+  11.381s (528.684s ago) - Performing transition IdleDisconnected -> VersionCheck: onPulsarConnected
+
+
+  Paired device: 68221d94b36b41fa, Type:   Left, Firmware: 1.32.2, ImuModel: ICM42686, Battery:  75%, Status: Active, ExternalStatus: CONNECTED_ACTIVE, TrackingStatus: POSITION, BrightnessLevel: VERY_DARK
+        Disabled:  1 times,    last from   10.748 to   10.751 (0.003s)
+       Searching:  1 times,    last from   10.751 to   11.980 (1.229s)
+          Active:  1 times, current from   17.285 (522.780s)
+         Blocked: never entered
+      Connecting:  1 times,    last from   11.980 to   17.285 (5.305s)
+  WiFi: Connected (P2p interface last stopped: --- s ago)
+  OTA: Success
+  Charging: false
+  Tracking Level: 6dof
+
+  Selftracked state transitions
+  11.972s (528.093s ago, +0.000s) - Pulsar Connected
+  12.467s (527.598s ago, +0.495s) - Wifi Requested
+  17.285s (522.780s ago, +4.818s) - Wifi Connected
+  40.924s (499.141s ago, +23.640s) - Tracking 6dof
+
+
+  Active Session Tracking Metrics:
+    session duration         : 528.093s
+    pulsar connected         : 528.093s ago
+    time to wifi             : 5.313s
+    first pose received      : 522.769s ago
+    first pose received to tracking 6dof in HMD : 22.949s
+    full tracking            : 499.141s ago
+    time to track            : 2.709s
+    time to in-hand          : 26.242s
+    time to first map        : 0.012s, size=0KiB
+    map xfer to 6dof         : 23.628s
+    in-hand to 6dof          : 2.709s
+    connect to 6dof          : 28.952s
+    connect to 6dof in HMD   : 28.272s
+    connect to hmd 6dof      : -1.978s
+    maps sent                : 25, total=75641KiB
+    last map sent            : 28.635s ago, size=3561KiB
+    tracking lost count      : 3
+    invalid map count        : 0
+    build fingerprint        : oculus/starlet/starlet:12/SQ3A.220605.009.A1/50285100049700390:user/release-keys
+    time to ota requested    : ---
+
+
+  SelftrackedRemoteDeviceStateMachine history
+  Current state: Running
+
+  17.286s (522.779s ago) - Sending system state RUNNING
+  17.286s (522.779s ago) - Performing transition Standby -> Running: onStandbyToRunning
+  17.286s (522.779s ago) - Sending system state STANDBY
+  17.286s (522.779s ago) - Performing transition Sleep -> Standby: onSleepToStandby
+  17.285s (522.780s ago) - Sending system state SLEEP
+  17.285s (522.780s ago) - Performing transition WaitForWifi -> Sleep: onControllerIpConnectivityConfirmed
+  12.467s (527.598s ago) - Performing transition VersionCheck -> WaitForWifi: onQuickStartInfo
+  12.455s (527.610s ago) - [VersionCheck] onQuickStartInfo: earlyVersionCheck: otaRequired=0
+  11.979s (528.086s ago) - Performing transition IdleDisconnected -> VersionCheck: onPulsarConnected
+  11.971s (528.094s ago) - Sending system state RUNNING
+  11.383s (528.682s ago) - Sending system state STANDBY
+
+
+
+ControllerGlue history
+  11.384s (528.681s ago) - [controller] STANDBY -> RUNNING
+  10.750s (529.315s ago) - [controller] SLEEP -> STANDBY
+
+
+Pairing history
+
+
+ControllerGlue Status
+  Paired device: a1230d246357e90e, Type:  Right, Firmware: 1.32.2, ImuModel: ICM42686, Battery:  80%, Status: Active, ExternalStatus: CONNECTED_ACTIVE, TrackingStatus: POSITION, BrightnessLevel: VERY_DARK
+        Disabled:  1 times,    last from   10.706 to   10.751 (0.045s)
+       Searching:  1 times,    last from   10.751 to   11.382 (0.631s)
+          Active:  1 times, current from   16.624 (530.877s)
+         Blocked: never entered
+      Connecting:  1 times,    last from   11.382 to   16.624 (5.242s)
+  WiFi: Connected (P2p interface last stopped: --- s ago)
+  OTA: Success
+  Charging: false
+  Tracking Level: 6dof
+
+  Selftracked state transitions
+  10.751s (536.750s ago, +0.000s) - Pulsar Connected
+  11.781s (535.720s ago, +1.030s) - Wifi Requested
+  16.624s (530.877s ago, +4.843s) - Wifi Connected
+  36.063s (511.438s ago, +19.439s) - Tracking 6dof
+
+
+  Active Session Tracking Metrics:
+    session duration         : 536.750s
+    pulsar connected         : 536.750s ago
+    time to wifi             : 5.873s
+    first pose received      : 530.859s ago
+    first pose received to tracking 6dof in HMD : 18.871s
+    full tracking            : 511.438s ago
+    time to track            : (0s) ** (in hand after 6dof)
+    time to in-hand          : 27.266s
+    time to first map        : 0.020s, size=0KiB
+    map xfer to 6dof         : 19.419s
+    in-hand to 6dof          : -1.955s
+    connect to 6dof          : 25.311s
+    connect to 6dof in HMD   : 24.762s
+    connect to hmd 6dof      : -0.757s
+    maps sent                : 27, total=74307KiB
+    last map sent            : 6.017s ago, size=3561KiB
+    tracking lost count      : 1
+    invalid map count        : 0
+    build fingerprint        : oculus/starlet/starlet:12/SQ3A.220605.009.A1/50285100049700390:user/release-keys
+    time to ota requested    : ---
+
+
+  SelftrackedRemoteDeviceStateMachine history
+  Current state: Running
+
+  16.628s (530.874s ago) - Sending system state RUNNING
+  16.628s (530.874s ago) - Performing transition Standby -> Running: onStandbyToRunning
+  16.627s (530.874s ago) - Sending system state STANDBY
+  16.627s (530.874s ago) - Performing transition Sleep -> Standby: onSleepToStandby
+  16.627s (530.874s ago) - Sending system state SLEEP
+  16.627s (530.874s ago) - Performing transition WaitForWifi -> Sleep: onControllerIpConnectivityConfirmed
+  11.972s (535.530s ago) - Ignoring spammed wifi connection requests, resending previous response
+  11.970s (535.531s ago) - Sending system state RUNNING
+  11.781s (535.721s ago) - Performing transition VersionCheck -> WaitForWifi: onQuickStartInfo
+  11.753s (535.749s ago) - [VersionCheck] onQuickStartInfo: earlyVersionCheck: otaRequired=0
+  11.382s (536.119s ago) - Sending system state STANDBY
+  11.381s (536.120s ago) - Performing transition IdleDisconnected -> VersionCheck: onPulsarConnected
+
+
+  Paired device: 68221d94b36b41fa, Type:   Left, Firmware: 1.32.2, ImuModel: ICM42686, Battery:  75%, Status: Active, ExternalStatus: CONNECTED_ACTIVE, TrackingStatus: POSITION, BrightnessLevel: VERY_DARK
+        Disabled:  1 times,    last from   10.748 to   10.751 (0.003s)
+       Searching:  1 times,    last from   10.751 to   11.980 (1.229s)
+          Active:  1 times, current from   17.285 (530.217s)
+         Blocked: never entered
+      Connecting:  1 times,    last from   11.980 to   17.285 (5.305s)
+  WiFi: Connected (P2p interface last stopped: --- s ago)
+  OTA: Success
+  Charging: false
+  Tracking Level: 6dof
+
+  Selftracked state transitions
+  11.972s (535.529s ago, +0.000s) - Pulsar Connected
+  12.467s (535.035s ago, +0.495s) - Wifi Requested
+  17.285s (530.217s ago, +4.818s) - Wifi Connected
+  40.924s (506.577s ago, +23.640s) - Tracking 6dof
+
+
+  Active Session Tracking Metrics:
+    session duration         : 535.529s
+    pulsar connected         : 535.529s ago
+    time to wifi             : 5.313s
+    first pose received      : 530.206s ago
+    first pose received to tracking 6dof in HMD : 22.949s
+    full tracking            : 506.577s ago
+    time to track            : 2.709s
+    time to in-hand          : 26.242s
+    time to first map        : 0.012s, size=0KiB
+    map xfer to 6dof         : 23.628s
+    in-hand to 6dof          : 2.709s
+    connect to 6dof          : 28.952s
+    connect to 6dof in HMD   : 28.272s
+    connect to hmd 6dof      : -1.978s
+    maps sent                : 25, total=75641KiB
+    last map sent            : 36.071s ago, size=3561KiB
+    tracking lost count      : 3
+    invalid map count        : 0
+    build fingerprint        : oculus/starlet/starlet:12/SQ3A.220605.009.A1/50285100049700390:user/release-keys
+    time to ota requested    : ---
+
+
+  SelftrackedRemoteDeviceStateMachine history
+  Current state: Running
+
+  17.286s (530.216s ago) - Sending system state RUNNING
+  17.286s (530.216s ago) - Performing transition Standby -> Running: onStandbyToRunning
+  17.286s (530.216s ago) - Sending system state STANDBY
+  17.286s (530.216s ago) - Performing transition Sleep -> Standby: onSleepToStandby
+  17.285s (530.216s ago) - Sending system state SLEEP
+  17.285s (530.216s ago) - Performing transition WaitForWifi -> Sleep: onControllerIpConnectivityConfirmed
+  12.467s (535.035s ago) - Performing transition VersionCheck -> WaitForWifi: onQuickStartInfo
+  12.455s (535.047s ago) - [VersionCheck] onQuickStartInfo: earlyVersionCheck: otaRequired=0
+  11.979s (535.523s ago) - Performing transition IdleDisconnected -> VersionCheck: onPulsarConnected
+  11.971s (535.531s ago) - Sending system state RUNNING
+  11.383s (536.119s ago) - Sending system state STANDBY
+
+
+
+ControllerGlue history
+  11.384s (536.117s ago) - [controller] STANDBY -> RUNNING
+  10.750s (536.751s ago) - [controller] SLEEP -> STANDBY
+
+
+Pairing history
+
+
+ControllerGlue Status
+  Paired device: a1230d246357e90e, Type:  Right, Firmware: 1.32.2, ImuModel: ICM42686, Battery:  80%, Status: Active, ExternalStatus: CONNECTED_ACTIVE, TrackingStatus: POSITION, BrightnessLevel: VERY_DARK
+        Disabled:  1 times,    last from   10.706 to   10.751 (0.045s)
+       Searching:  1 times,    last from   10.751 to   11.382 (0.631s)
+          Active:  1 times, current from   16.624 (538.995s)
+         Blocked: never entered
+      Connecting:  1 times,    last from   11.382 to   16.624 (5.242s)
+  WiFi: Connected (P2p interface last stopped: --- s ago)
+  OTA: Success
+  Charging: false
+  Tracking Level: 6dof
+
+  Selftracked state transitions
+  10.751s (544.867s ago, +0.000s) - Pulsar Connected
+  11.781s (543.838s ago, +1.030s) - Wifi Requested
+  16.624s (538.995s ago, +4.843s) - Wifi Connected
+  36.063s (519.556s ago, +19.439s) - Tracking 6dof
+
+
+  Active Session Tracking Metrics:
+    session duration         : 544.867s
+    pulsar connected         : 544.867s ago
+    time to wifi             : 5.873s
+    first pose received      : 538.976s ago
+    first pose received to tracking 6dof in HMD : 18.871s
+    full tracking            : 519.556s ago
+    time to track            : (0s) ** (in hand after 6dof)
+    time to in-hand          : 27.266s
+    time to first map        : 0.020s, size=0KiB
+    map xfer to 6dof         : 19.419s
+    in-hand to 6dof          : -1.955s
+    connect to 6dof          : 25.311s
+    connect to 6dof in HMD   : 24.762s
+    connect to hmd 6dof      : -0.757s
+    maps sent                : 27, total=74307KiB
+    last map sent            : 14.134s ago, size=3561KiB
+    tracking lost count      : 1
+    invalid map count        : 0
+    build fingerprint        : oculus/starlet/starlet:12/SQ3A.220605.009.A1/50285100049700390:user/release-keys
+    time to ota requested    : ---
+
+
+  SelftrackedRemoteDeviceStateMachine history
+  Current state: Running
+
+  16.628s (538.991s ago) - Sending system state RUNNING
+  16.628s (538.991s ago) - Performing transition Standby -> Running: onStandbyToRunning
+  16.627s (538.991s ago) - Sending system state STANDBY
+  16.627s (538.991s ago) - Performing transition Sleep -> Standby: onSleepToStandby
+  16.627s (538.992s ago) - Sending system state SLEEP
+  16.627s (538.992s ago) - Performing transition WaitForWifi -> Sleep: onControllerIpConnectivityConfirmed
+  11.972s (543.647s ago) - Ignoring spammed wifi connection requests, resending previous response
+  11.970s (543.648s ago) - Sending system state RUNNING
+  11.781s (543.838s ago) - Performing transition VersionCheck -> WaitForWifi: onQuickStartInfo
+  11.753s (543.866s ago) - [VersionCheck] onQuickStartInfo: earlyVersionCheck: otaRequired=0
+  11.382s (544.236s ago) - Sending system state STANDBY
+  11.381s (544.238s ago) - Performing transition IdleDisconnected -> VersionCheck: onPulsarConnected
+
+
+  Paired device: 68221d94b36b41fa, Type:   Left, Firmware: 1.32.2, ImuModel: ICM42686, Battery:  75%, Status: Active, ExternalStatus: CONNECTED_ACTIVE, TrackingStatus: POSITION, BrightnessLevel: VERY_DARK
+        Disabled:  1 times,    last from   10.748 to   10.751 (0.003s)
+       Searching:  1 times,    last from   10.751 to   11.980 (1.229s)
+          Active:  1 times, current from   17.285 (538.334s)
+         Blocked: never entered
+      Connecting:  1 times,    last from   11.980 to   17.285 (5.305s)
+  WiFi: Connected (P2p interface last stopped: --- s ago)
+  OTA: Success
+  Charging: false
+  Tracking Level: 6dof
+
+  Selftracked state transitions
+  11.972s (543.647s ago, +0.000s) - Pulsar Connected
+  12.467s (543.152s ago, +0.495s) - Wifi Requested
+  17.285s (538.334s ago, +4.818s) - Wifi Connected
+  40.924s (514.695s ago, +23.640s) - Tracking 6dof
+
+
+  Active Session Tracking Metrics:
+    session duration         : 543.647s
+    pulsar connected         : 543.647s ago
+    time to wifi             : 5.313s
+    first pose received      : 538.323s ago
+    first pose received to tracking 6dof in HMD : 22.949s
+    full tracking            : 514.695s ago
+    time to track            : 2.709s
+    time to in-hand          : 26.242s
+    time to first map        : 0.012s, size=0KiB
+    map xfer to 6dof         : 23.628s
+    in-hand to 6dof          : 2.709s
+    connect to 6dof          : 28.952s
+    connect to 6dof in HMD   : 28.272s
+    connect to hmd 6dof      : -1.978s
+    maps sent                : 25, total=75641KiB
+    last map sent            : 44.189s ago, size=3561KiB
+    tracking lost count      : 3
+    invalid map count        : 0
+    build fingerprint        : oculus/starlet/starlet:12/SQ3A.220605.009.A1/50285100049700390:user/release-keys
+    time to ota requested    : ---
+
+
+  SelftrackedRemoteDeviceStateMachine history
+  Current state: Running
+
+  17.286s (538.333s ago) - Sending system state RUNNING
+  17.286s (538.333s ago) - Performing transition Standby -> Running: onStandbyToRunning
+  17.286s (538.333s ago) - Sending system state STANDBY
+  17.286s (538.333s ago) - Performing transition Sleep -> Standby: onSleepToStandby
+  17.285s (538.334s ago) - Sending system state SLEEP
+  17.285s (538.334s ago) - Performing transition WaitForWifi -> Sleep: onControllerIpConnectivityConfirmed
+  12.467s (543.152s ago) - Performing transition VersionCheck -> WaitForWifi: onQuickStartInfo
+  12.455s (543.164s ago) - [VersionCheck] onQuickStartInfo: earlyVersionCheck: otaRequired=0
+  11.979s (543.640s ago) - Performing transition IdleDisconnected -> VersionCheck: onPulsarConnected
+  11.971s (543.648s ago) - Sending system state RUNNING
+  11.383s (544.236s ago) - Sending system state STANDBY
+
+
+
+ControllerGlue history
+  11.384s (544.235s ago) - [controller] STANDBY -> RUNNING
+  10.750s (544.869s ago) - [controller] SLEEP -> STANDBY
+
+
+Pairing history
+
+
+ControllerGlue Status
+  Paired device: a1230d246357e90e, Type:  Right, Firmware: 1.32.2, ImuModel: ICM42686, Battery:  80%, Status: Active, ExternalStatus: CONNECTED_ACTIVE, TrackingStatus: POSITION, BrightnessLevel: VERY_DARK
+        Disabled:  1 times,    last from   10.706 to   10.751 (0.045s)
+       Searching:  1 times,    last from   10.751 to   11.382 (0.631s)
+          Active:  1 times, current from   16.624 (546.816s)
+         Blocked: never entered
+      Connecting:  1 times,    last from   11.382 to   16.624 (5.242s)
+  WiFi: Connected (P2p interface last stopped: --- s ago)
+  OTA: Success
+  Charging: false
+  Tracking Level: 6dof
+
+  Selftracked state transitions
+  10.751s (552.689s ago, +0.000s) - Pulsar Connected
+  11.781s (551.659s ago, +1.030s) - Wifi Requested
+  16.624s (546.816s ago, +4.843s) - Wifi Connected
+  36.063s (527.377s ago, +19.439s) - Tracking 6dof
+
+
+  Active Session Tracking Metrics:
+    session duration         : 552.689s
+    pulsar connected         : 552.689s ago
+    time to wifi             : 5.873s
+    first pose received      : 546.798s ago
+    first pose received to tracking 6dof in HMD : 18.871s
+    full tracking            : 527.377s ago
+    time to track            : (0s) ** (in hand after 6dof)
+    time to in-hand          : 27.266s
+    time to first map        : 0.020s, size=0KiB
+    map xfer to 6dof         : 19.419s
+    in-hand to 6dof          : -1.955s
+    connect to 6dof          : 25.311s
+    connect to 6dof in HMD   : 24.762s
+    connect to hmd 6dof      : -0.757s
+    maps sent                : 27, total=74307KiB
+    last map sent            : 21.956s ago, size=3561KiB
+    tracking lost count      : 1
+    invalid map count        : 0
+    build fingerprint        : oculus/starlet/starlet:12/SQ3A.220605.009.A1/50285100049700390:user/release-keys
+    time to ota requested    : ---
+
+
+  SelftrackedRemoteDeviceStateMachine history
+  Current state: Running
+
+  16.628s (546.813s ago) - Sending system state RUNNING
+  16.628s (546.813s ago) - Performing transition Standby -> Running: onStandbyToRunning
+  16.627s (546.813s ago) - Sending system state STANDBY
+  16.627s (546.813s ago) - Performing transition Sleep -> Standby: onSleepToStandby
+  16.627s (546.813s ago) - Sending system state SLEEP
+  16.627s (546.813s ago) - Performing transition WaitForWifi -> Sleep: onControllerIpConnectivityConfirmed
+  11.972s (551.469s ago) - Ignoring spammed wifi connection requests, resending previous response
+  11.970s (551.470s ago) - Sending system state RUNNING
+  11.781s (551.660s ago) - Performing transition VersionCheck -> WaitForWifi: onQuickStartInfo
+  11.753s (551.688s ago) - [VersionCheck] onQuickStartInfo: earlyVersionCheck: otaRequired=0
+  11.382s (552.058s ago) - Sending system state STANDBY
+  11.381s (552.059s ago) - Performing transition IdleDisconnected -> VersionCheck: onPulsarConnected
+
+
+  Paired device: 68221d94b36b41fa, Type:   Left, Firmware: 1.32.2, ImuModel: ICM42686, Battery:  75%, Status: Active, ExternalStatus: CONNECTED_ACTIVE, TrackingStatus: POSITION, BrightnessLevel: VERY_DARK
+        Disabled:  1 times,    last from   10.748 to   10.751 (0.003s)
+       Searching:  1 times,    last from   10.751 to   11.980 (1.229s)
+          Active:  1 times, current from   17.285 (546.156s)
+         Blocked: never entered
+      Connecting:  1 times,    last from   11.980 to   17.285 (5.305s)
+  WiFi: Connected (P2p interface last stopped: --- s ago)
+  OTA: Success
+  Charging: false
+  Tracking Level: 6dof
+
+  Selftracked state transitions
+  11.972s (551.468s ago, +0.000s) - Pulsar Connected
+  12.467s (550.974s ago, +0.495s) - Wifi Requested
+  17.285s (546.156s ago, +4.818s) - Wifi Connected
+  40.924s (522.516s ago, +23.640s) - Tracking 6dof
+
+
+  Active Session Tracking Metrics:
+    session duration         : 551.468s
+    pulsar connected         : 551.468s ago
+    time to wifi             : 5.313s
+    first pose received      : 546.145s ago
+    first pose received to tracking 6dof in HMD : 22.949s
+    full tracking            : 522.516s ago
+    time to track            : 2.709s
+    time to in-hand          : 26.242s
+    time to first map        : 0.012s, size=0KiB
+    map xfer to 6dof         : 23.628s
+    in-hand to 6dof          : 2.709s
+    connect to 6dof          : 28.952s
+    connect to 6dof in HMD   : 28.272s
+    connect to hmd 6dof      : -1.978s
+    maps sent                : 25, total=75641KiB
+    last map sent            : 52.010s ago, size=3561KiB
+    tracking lost count      : 3
+    invalid map count        : 0
+    build fingerprint        : oculus/starlet/starlet:12/SQ3A.220605.009.A1/50285100049700390:user/release-keys
+    time to ota requested    : ---
+
+
+  SelftrackedRemoteDeviceStateMachine history
+  Current state: Running
+
+  17.286s (546.155s ago) - Sending system state RUNNING
+  17.286s (546.155s ago) - Performing transition Standby -> Running: onStandbyToRunning
+  17.286s (546.155s ago) - Sending system state STANDBY
+  17.286s (546.155s ago) - Performing transition Sleep -> Standby: onSleepToStandby
+  17.285s (546.155s ago) - Sending system state SLEEP
+  17.285s (546.155s ago) - Performing transition WaitForWifi -> Sleep: onControllerIpConnectivityConfirmed
+  12.467s (550.974s ago) - Performing transition VersionCheck -> WaitForWifi: onQuickStartInfo
+  12.455s (550.986s ago) - [VersionCheck] onQuickStartInfo: earlyVersionCheck: otaRequired=0
+  11.979s (551.462s ago) - Performing transition IdleDisconnected -> VersionCheck: onPulsarConnected
+  11.971s (551.470s ago) - Sending system state RUNNING
+  11.383s (552.058s ago) - Sending system state STANDBY
+
+
+
+ControllerGlue history
+  11.384s (552.056s ago) - [controller] STANDBY -> RUNNING
+  10.750s (552.690s ago) - [controller] SLEEP -> STANDBY
+
+
+Pairing history
+
+
+ControllerGlue Status
+  Paired device: a1230d246357e90e, Type:  Right, Firmware: 1.32.2, ImuModel: ICM42686, Battery:  80%, Status: Active, ExternalStatus: CONNECTED_ACTIVE, TrackingStatus: POSITION, BrightnessLevel: VERY_DARK
+        Disabled:  1 times,    last from   10.706 to   10.751 (0.045s)
+       Searching:  1 times,    last from   10.751 to   11.382 (0.631s)
+          Active:  1 times, current from   16.624 (551.892s)
+         Blocked: never entered
+      Connecting:  1 times,    last from   11.382 to   16.624 (5.242s)
+  WiFi: Connected (P2p interface last stopped: --- s ago)
+  OTA: Success
+  Charging: false
+  Tracking Level: 6dof
+
+  Selftracked state transitions
+  10.751s (557.765s ago, +0.000s) - Pulsar Connected
+  11.781s (556.735s ago, +1.030s) - Wifi Requested
+  16.624s (551.892s ago, +4.843s) - Wifi Connected
+  36.063s (532.453s ago, +19.439s) - Tracking 6dof
+
+
+  Active Session Tracking Metrics:
+    session duration         : 557.765s
+    pulsar connected         : 557.765s ago
+    time to wifi             : 5.873s
+    first pose received      : 551.874s ago
+    first pose received to tracking 6dof in HMD : 18.871s
+    full tracking            : 532.453s ago
+    time to track            : (0s) ** (in hand after 6dof)
+    time to in-hand          : 27.266s
+    time to first map        : 0.020s, size=0KiB
+    map xfer to 6dof         : 19.419s
+    in-hand to 6dof          : -1.955s
+    connect to 6dof          : 25.311s
+    connect to 6dof in HMD   : 24.762s
+    connect to hmd 6dof      : -0.757s
+    maps sent                : 27, total=74307KiB
+    last map sent            : 27.032s ago, size=3561KiB
+    tracking lost count      : 1
+    invalid map count        : 0
+    build fingerprint        : oculus/starlet/starlet:12/SQ3A.220605.009.A1/50285100049700390:user/release-keys
+    time to ota requested    : ---
+
+
+  SelftrackedRemoteDeviceStateMachine history
+  Current state: Running
+
+  16.628s (551.889s ago) - Sending system state RUNNING
+  16.628s (551.889s ago) - Performing transition Standby -> Running: onStandbyToRunning
+  16.627s (551.889s ago) - Sending system state STANDBY
+  16.627s (551.889s ago) - Performing transition Sleep -> Standby: onSleepToStandby
+  16.627s (551.889s ago) - Sending system state SLEEP
+  16.627s (551.889s ago) - Performing transition WaitForWifi -> Sleep: onControllerIpConnectivityConfirmed
+  11.972s (556.545s ago) - Ignoring spammed wifi connection requests, resending previous response
+  11.970s (556.546s ago) - Sending system state RUNNING
+  11.781s (556.736s ago) - Performing transition VersionCheck -> WaitForWifi: onQuickStartInfo
+  11.753s (556.764s ago) - [VersionCheck] onQuickStartInfo: earlyVersionCheck: otaRequired=0
+  11.382s (557.134s ago) - Sending system state STANDBY
+  11.381s (557.135s ago) - Performing transition IdleDisconnected -> VersionCheck: onPulsarConnected
+
+
+  Paired device: 68221d94b36b41fa, Type:   Left, Firmware: 1.32.2, ImuModel: ICM42686, Battery:  75%, Status: Active, ExternalStatus: CONNECTED_ACTIVE, TrackingStatus: POSITION, BrightnessLevel: VERY_DARK
+        Disabled:  1 times,    last from   10.748 to   10.751 (0.003s)
+       Searching:  1 times,    last from   10.751 to   11.980 (1.229s)
+          Active:  1 times, current from   17.285 (551.232s)
+         Blocked: never entered
+      Connecting:  1 times,    last from   11.980 to   17.285 (5.305s)
+  WiFi: Connected (P2p interface last stopped: --- s ago)
+  OTA: Success
+  Charging: false
+  Tracking Level: 6dof
+
+  Selftracked state transitions
+  11.972s (556.544s ago, +0.000s) - Pulsar Connected
+  12.467s (556.050s ago, +0.495s) - Wifi Requested
+  17.285s (551.232s ago, +4.818s) - Wifi Connected
+  40.924s (527.592s ago, +23.640s) - Tracking 6dof
+
+
+  Active Session Tracking Metrics:
+    session duration         : 556.544s
+    pulsar connected         : 556.544s ago
+    time to wifi             : 5.313s
+    first pose received      : 551.221s ago
+    first pose received to tracking 6dof in HMD : 22.949s
+    full tracking            : 527.592s ago
+    time to track            : 2.709s
+    time to in-hand          : 26.242s
+    time to first map        : 0.012s, size=0KiB
+    map xfer to 6dof         : 23.628s
+    in-hand to 6dof          : 2.709s
+    connect to 6dof          : 28.952s
+    connect to 6dof in HMD   : 28.272s
+    connect to hmd 6dof      : -1.978s
+    maps sent                : 25, total=75641KiB
+    last map sent            : 57.086s ago, size=3561KiB
+    tracking lost count      : 3
+    invalid map count        : 0
+    build fingerprint        : oculus/starlet/starlet:12/SQ3A.220605.009.A1/50285100049700390:user/release-keys
+    time to ota requested    : ---
+
+
+  SelftrackedRemoteDeviceStateMachine history
+  Current state: Running
+
+  17.286s (551.231s ago) - Sending system state RUNNING
+  17.286s (551.231s ago) - Performing transition Standby -> Running: onStandbyToRunning
+  17.286s (551.231s ago) - Sending system state STANDBY
+  17.286s (551.231s ago) - Performing transition Sleep -> Standby: onSleepToStandby
+  17.285s (551.231s ago) - Sending system state SLEEP
+  17.285s (551.231s ago) - Performing transition WaitForWifi -> Sleep: onControllerIpConnectivityConfirmed
+  12.467s (556.050s ago) - Performing transition VersionCheck -> WaitForWifi: onQuickStartInfo
+  12.455s (556.062s ago) - [VersionCheck] onQuickStartInfo: earlyVersionCheck: otaRequired=0
+  11.979s (556.538s ago) - Performing transition IdleDisconnected -> VersionCheck: onPulsarConnected
+  11.971s (556.546s ago) - Sending system state RUNNING
+  11.383s (557.134s ago) - Sending system state STANDBY
+
+
+
+ControllerGlue history
+  11.384s (557.132s ago) - [controller] STANDBY -> RUNNING
+  10.750s (557.766s ago) - [controller] SLEEP -> STANDBY
+
+
+Pairing history
+
+
+ControllerGlue Status
+  Paired device: a1230d246357e90e, Type:  Right, Firmware: 1.32.2, ImuModel: ICM42686, Battery:  80%, Status: Active, ExternalStatus: CONNECTED_INACTIVE, TrackingStatus: POSITION, BrightnessLevel: VERY_DARK
+        Disabled:  1 times,    last from   10.706 to   10.751 (0.045s)
+       Searching:  1 times,    last from   10.751 to   11.382 (0.631s)
+          Active:  1 times, current from   16.624 (556.255s)
+         Blocked: never entered
+      Connecting:  1 times,    last from   11.382 to   16.624 (5.242s)
+  WiFi: Connected (P2p interface last stopped: --- s ago)
+  OTA: Success
+  Charging: false
+  Tracking Level: 6dof
+
+  Selftracked state transitions
+  10.751s (562.127s ago, +0.000s) - Pulsar Connected
+  11.781s (561.098s ago, +1.030s) - Wifi Requested
+  16.624s (556.255s ago, +4.843s) - Wifi Connected
+  36.063s (536.816s ago, +19.439s) - Tracking 6dof
+
+
+  Active Session Tracking Metrics:
+    session duration         : 562.127s
+    pulsar connected         : 562.127s ago
+    time to wifi             : 5.873s
+    first pose received      : 556.236s ago
+    first pose received to tracking 6dof in HMD : 18.871s
+    full tracking            : 536.816s ago
+    time to track            : (0s) ** (in hand after 6dof)
+    time to in-hand          : 27.266s
+    time to first map        : 0.020s, size=0KiB
+    map xfer to 6dof         : 19.419s
+    in-hand to 6dof          : -1.955s
+    connect to 6dof          : 25.311s
+    connect to 6dof in HMD   : 24.762s
+    connect to hmd 6dof      : -0.757s
+    maps sent                : 27, total=74307KiB
+    last map sent            : 31.395s ago, size=3561KiB
+    tracking lost count      : 1
+    invalid map count        : 0
+    build fingerprint        : oculus/starlet/starlet:12/SQ3A.220605.009.A1/50285100049700390:user/release-keys
+    time to ota requested    : ---
+
+
+  SelftrackedRemoteDeviceStateMachine history
+  Current state: Running
+
+  16.628s (556.251s ago) - Sending system state RUNNING
+  16.628s (556.251s ago) - Performing transition Standby -> Running: onStandbyToRunning
+  16.627s (556.252s ago) - Sending system state STANDBY
+  16.627s (556.252s ago) - Performing transition Sleep -> Standby: onSleepToStandby
+  16.627s (556.252s ago) - Sending system state SLEEP
+  16.627s (556.252s ago) - Performing transition WaitForWifi -> Sleep: onControllerIpConnectivityConfirmed
+  11.972s (560.907s ago) - Ignoring spammed wifi connection requests, resending previous response
+  11.970s (560.908s ago) - Sending system state RUNNING
+  11.781s (561.098s ago) - Performing transition VersionCheck -> WaitForWifi: onQuickStartInfo
+  11.753s (561.126s ago) - [VersionCheck] onQuickStartInfo: earlyVersionCheck: otaRequired=0
+  11.382s (561.496s ago) - Sending system state STANDBY
+  11.381s (561.498s ago) - Performing transition IdleDisconnected -> VersionCheck: onPulsarConnected
+
+
+  Paired device: 68221d94b36b41fa, Type:   Left, Firmware: 1.32.2, ImuModel: ICM42686, Battery:  75%, Status: Active, ExternalStatus: CONNECTED_ACTIVE, TrackingStatus: POSITION, BrightnessLevel: VERY_DARK
+        Disabled:  1 times,    last from   10.748 to   10.751 (0.003s)
+       Searching:  1 times,    last from   10.751 to   11.980 (1.229s)
+          Active:  1 times, current from   17.285 (555.594s)
+         Blocked: never entered
+      Connecting:  1 times,    last from   11.980 to   17.285 (5.305s)
+  WiFi: Connected (P2p interface last stopped: --- s ago)
+  OTA: Success
+  Charging: false
+  Tracking Level: 6dof
+
+  Selftracked state transitions
+  11.972s (560.907s ago, +0.000s) - Pulsar Connected
+  12.467s (560.412s ago, +0.495s) - Wifi Requested
+  17.285s (555.594s ago, +4.818s) - Wifi Connected
+  40.924s (531.955s ago, +23.640s) - Tracking 6dof
+
+
+  Active Session Tracking Metrics:
+    session duration         : 560.907s
+    pulsar connected         : 560.907s ago
+    time to wifi             : 5.313s
+    first pose received      : 555.583s ago
+    first pose received to tracking 6dof in HMD : 22.949s
+    full tracking            : 531.955s ago
+    time to track            : 2.709s
+    time to in-hand          : 26.242s
+    time to first map        : 0.012s, size=0KiB
+    map xfer to 6dof         : 23.628s
+    in-hand to 6dof          : 2.709s
+    connect to 6dof          : 28.952s
+    connect to 6dof in HMD   : 28.272s
+    connect to hmd 6dof      : -1.978s
+    maps sent                : 26, total=79234KiB
+    last map sent            : 1.442s ago, size=3592KiB
+    tracking lost count      : 3
+    invalid map count        : 0
+    build fingerprint        : oculus/starlet/starlet:12/SQ3A.220605.009.A1/50285100049700390:user/release-keys
+    time to ota requested    : ---
+
+
+  SelftrackedRemoteDeviceStateMachine history
+  Current state: Running
+
+  17.286s (555.593s ago) - Sending system state RUNNING
+  17.286s (555.593s ago) - Performing transition Standby -> Running: onStandbyToRunning
+  17.286s (555.594s ago) - Sending system state STANDBY
+  17.286s (555.594s ago) - Performing transition Sleep -> Standby: onSleepToStandby
+  17.285s (555.594s ago) - Sending system state SLEEP
+  17.285s (555.594s ago) - Performing transition WaitForWifi -> Sleep: onControllerIpConnectivityConfirmed
+  12.467s (560.412s ago) - Performing transition VersionCheck -> WaitForWifi: onQuickStartInfo
+  12.455s (560.424s ago) - [VersionCheck] onQuickStartInfo: earlyVersionCheck: otaRequired=0
+  11.979s (560.900s ago) - Performing transition IdleDisconnected -> VersionCheck: onPulsarConnected
+  11.971s (560.908s ago) - Sending system state RUNNING
+  11.383s (561.497s ago) - Sending system state STANDBY
+
+
+
+ControllerGlue history
+  11.384s (561.495s ago) - [controller] STANDBY -> RUNNING
+  10.750s (562.129s ago) - [controller] SLEEP -> STANDBY
+
+
+Pairing history
+
+
+ControllerGlue Status
+  Paired device: a1230d246357e90e, Type:  Right, Firmware: 1.32.2, ImuModel: ICM42686, Battery:  80%, Status: Active, ExternalStatus: CONNECTED_INACTIVE, TrackingStatus: POSITION, BrightnessLevel: VERY_DARK
+        Disabled:  1 times,    last from   10.706 to   10.751 (0.045s)
+       Searching:  1 times,    last from   10.751 to   11.382 (0.631s)
+          Active:  1 times, current from   16.624 (568.266s)
+         Blocked: never entered
+      Connecting:  1 times,    last from   11.382 to   16.624 (5.242s)
+  WiFi: Connected (P2p interface last stopped: --- s ago)
+  OTA: Success
+  Charging: false
+  Tracking Level: 6dof
+
+  Selftracked state transitions
+  10.751s (574.138s ago, +0.000s) - Pulsar Connected
+  11.781s (573.109s ago, +1.030s) - Wifi Requested
+  16.624s (568.266s ago, +4.843s) - Wifi Connected
+  36.063s (548.827s ago, +19.439s) - Tracking 6dof
+
+
+  Active Session Tracking Metrics:
+    session duration         : 574.138s
+    pulsar connected         : 574.138s ago
+    time to wifi             : 5.873s
+    first pose received      : 568.247s ago
+    first pose received to tracking 6dof in HMD : 18.871s
+    full tracking            : 548.827s ago
+    time to track            : (0s) ** (in hand after 6dof)
+    time to in-hand          : 27.266s
+    time to first map        : 0.020s, size=0KiB
+    map xfer to 6dof         : 19.419s
+    in-hand to 6dof          : -1.955s
+    connect to 6dof          : 25.311s
+    connect to 6dof in HMD   : 24.762s
+    connect to hmd 6dof      : -0.757s
+    maps sent                : 27, total=74307KiB
+    last map sent            : 43.405s ago, size=3561KiB
+    tracking lost count      : 1
+    invalid map count        : 0
+    build fingerprint        : oculus/starlet/starlet:12/SQ3A.220605.009.A1/50285100049700390:user/release-keys
+    time to ota requested    : ---
+
+
+  SelftrackedRemoteDeviceStateMachine history
+  Current state: Running
+
+  16.628s (568.262s ago) - Sending system state RUNNING
+  16.628s (568.262s ago) - Performing transition Standby -> Running: onStandbyToRunning
+  16.627s (568.262s ago) - Sending system state STANDBY
+  16.627s (568.262s ago) - Performing transition Sleep -> Standby: onSleepToStandby
+  16.627s (568.263s ago) - Sending system state SLEEP
+  16.627s (568.263s ago) - Performing transition WaitForWifi -> Sleep: onControllerIpConnectivityConfirmed
+  11.972s (572.918s ago) - Ignoring spammed wifi connection requests, resending previous response
+  11.970s (572.919s ago) - Sending system state RUNNING
+  11.781s (573.109s ago) - Performing transition VersionCheck -> WaitForWifi: onQuickStartInfo
+  11.753s (573.137s ago) - [VersionCheck] onQuickStartInfo: earlyVersionCheck: otaRequired=0
+  11.382s (573.507s ago) - Sending system state STANDBY
+  11.381s (573.509s ago) - Performing transition IdleDisconnected -> VersionCheck: onPulsarConnected
+
+
+  Paired device: 68221d94b36b41fa, Type:   Left, Firmware: 1.32.2, ImuModel: ICM42686, Battery:  75%, Status: Active, ExternalStatus: CONNECTED_INACTIVE, TrackingStatus: POSITION, BrightnessLevel: VERY_DARK
+        Disabled:  1 times,    last from   10.748 to   10.751 (0.003s)
+       Searching:  1 times,    last from   10.751 to   11.980 (1.229s)
+          Active:  1 times, current from   17.285 (567.605s)
+         Blocked: never entered
+      Connecting:  1 times,    last from   11.980 to   17.285 (5.305s)
+  WiFi: Connected (P2p interface last stopped: --- s ago)
+  OTA: Success
+  Charging: false
+  Tracking Level: 6dof
+
+  Selftracked state transitions
+  11.972s (572.918s ago, +0.000s) - Pulsar Connected
+  12.467s (572.423s ago, +0.495s) - Wifi Requested
+  17.285s (567.605s ago, +4.818s) - Wifi Connected
+  40.924s (543.966s ago, +23.640s) - Tracking 6dof
+
+
+  Active Session Tracking Metrics:
+    session duration         : 572.918s
+    pulsar connected         : 572.918s ago
+    time to wifi             : 5.313s
+    first pose received      : 567.594s ago
+    first pose received to tracking 6dof in HMD : 22.949s
+    full tracking            : 543.966s ago
+    time to track            : 2.709s
+    time to in-hand          : 26.242s
+    time to first map        : 0.012s, size=0KiB
+    map xfer to 6dof         : 23.628s
+    in-hand to 6dof          : 2.709s
+    connect to 6dof          : 28.952s
+    connect to 6dof in HMD   : 28.272s
+    connect to hmd 6dof      : -1.978s
+    maps sent                : 26, total=79234KiB
+    last map sent            : 13.452s ago, size=3592KiB
+    tracking lost count      : 3
+    invalid map count        : 0
+    build fingerprint        : oculus/starlet/starlet:12/SQ3A.220605.009.A1/50285100049700390:user/release-keys
+    time to ota requested    : ---
+
+
+  SelftrackedRemoteDeviceStateMachine history
+  Current state: Running
+
+  17.286s (567.604s ago) - Sending system state RUNNING
+  17.286s (567.604s ago) - Performing transition Standby -> Running: onStandbyToRunning
+  17.286s (567.604s ago) - Sending system state STANDBY
+  17.286s (567.604s ago) - Performing transition Sleep -> Standby: onSleepToStandby
+  17.285s (567.605s ago) - Sending system state SLEEP
+  17.285s (567.605s ago) - Performing transition WaitForWifi -> Sleep: onControllerIpConnectivityConfirmed
+  12.467s (572.423s ago) - Performing transition VersionCheck -> WaitForWifi: onQuickStartInfo
+  12.455s (572.435s ago) - [VersionCheck] onQuickStartInfo: earlyVersionCheck: otaRequired=0
+  11.979s (572.911s ago) - Performing transition IdleDisconnected -> VersionCheck: onPulsarConnected
+  11.971s (572.919s ago) - Sending system state RUNNING
+  11.383s (573.507s ago) - Sending system state STANDBY
+
+
+
+ControllerGlue history
+  11.384s (573.506s ago) - [controller] STANDBY -> RUNNING
+  10.750s (574.140s ago) - [controller] SLEEP -> STANDBY
+
+
+Pairing history
+
+
+ControllerGlue Status
+  Paired device: a1230d246357e90e, Type:  Right, Firmware: 1.32.2, ImuModel: ICM42686, Battery:  80%, Status: Active, ExternalStatus: CONNECTED_INACTIVE, TrackingStatus: POSITION, BrightnessLevel: VERY_DARK
+        Disabled:  1 times,    last from   10.706 to   10.751 (0.045s)
+       Searching:  1 times,    last from   10.751 to   11.382 (0.631s)
+          Active:  1 times, current from   16.624 (580.018s)
+         Blocked: never entered
+      Connecting:  1 times,    last from   11.382 to   16.624 (5.242s)
+  WiFi: Connected (P2p interface last stopped: --- s ago)
+  OTA: Success
+  Charging: false
+  Tracking Level: 6dof
+
+  Selftracked state transitions
+  10.751s (585.890s ago, +0.000s) - Pulsar Connected
+  11.781s (584.861s ago, +1.030s) - Wifi Requested
+  16.624s (580.018s ago, +4.843s) - Wifi Connected
+  36.063s (560.579s ago, +19.439s) - Tracking 6dof
+
+
+  Active Session Tracking Metrics:
+    session duration         : 585.891s
+    pulsar connected         : 585.891s ago
+    time to wifi             : 5.873s
+    first pose received      : 579.999s ago
+    first pose received to tracking 6dof in HMD : 18.871s
+    full tracking            : 560.579s ago
+    time to track            : (0s) ** (in hand after 6dof)
+    time to in-hand          : 27.266s
+    time to first map        : 0.020s, size=0KiB
+    map xfer to 6dof         : 19.419s
+    in-hand to 6dof          : -1.955s
+    connect to 6dof          : 25.311s
+    connect to 6dof in HMD   : 24.762s
+    connect to hmd 6dof      : -0.757s
+    maps sent                : 27, total=74307KiB
+    last map sent            : 55.158s ago, size=3561KiB
+    tracking lost count      : 1
+    invalid map count        : 0
+    build fingerprint        : oculus/starlet/starlet:12/SQ3A.220605.009.A1/50285100049700390:user/release-keys
+    time to ota requested    : ---
+
+
+  SelftrackedRemoteDeviceStateMachine history
+  Current state: Running
+
+  16.628s (580.015s ago) - Sending system state RUNNING
+  16.628s (580.015s ago) - Performing transition Standby -> Running: onStandbyToRunning
+  16.627s (580.015s ago) - Sending system state STANDBY
+  16.627s (580.015s ago) - Performing transition Sleep -> Standby: onSleepToStandby
+  16.627s (580.015s ago) - Sending system state SLEEP
+  16.627s (580.015s ago) - Performing transition WaitForWifi -> Sleep: onControllerIpConnectivityConfirmed
+  11.972s (584.670s ago) - Ignoring spammed wifi connection requests, resending previous response
+  11.970s (584.672s ago) - Sending system state RUNNING
+  11.781s (584.861s ago) - Performing transition VersionCheck -> WaitForWifi: onQuickStartInfo
+  11.753s (584.889s ago) - [VersionCheck] onQuickStartInfo: earlyVersionCheck: otaRequired=0
+  11.382s (585.260s ago) - Sending system state STANDBY
+  11.381s (585.261s ago) - Performing transition IdleDisconnected -> VersionCheck: onPulsarConnected
+
+
+  Paired device: 68221d94b36b41fa, Type:   Left, Firmware: 1.32.2, ImuModel: ICM42686, Battery:  75%, Status: Active, ExternalStatus: CONNECTED_INACTIVE, TrackingStatus: POSITION, BrightnessLevel: VERY_DARK
+        Disabled:  1 times,    last from   10.748 to   10.751 (0.003s)
+       Searching:  1 times,    last from   10.751 to   11.980 (1.229s)
+          Active:  1 times, current from   17.285 (579.357s)
+         Blocked: never entered
+      Connecting:  1 times,    last from   11.980 to   17.285 (5.305s)
+  WiFi: Connected (P2p interface last stopped: --- s ago)
+  OTA: Success
+  Charging: false
+  Tracking Level: 6dof
+
+  Selftracked state transitions
+  11.972s (584.670s ago, +0.000s) - Pulsar Connected
+  12.467s (584.175s ago, +0.495s) - Wifi Requested
+  17.285s (579.357s ago, +4.818s) - Wifi Connected
+  40.924s (555.718s ago, +23.640s) - Tracking 6dof
+
+
+  Active Session Tracking Metrics:
+    session duration         : 584.670s
+    pulsar connected         : 584.670s ago
+    time to wifi             : 5.313s
+    first pose received      : 579.347s ago
+    first pose received to tracking 6dof in HMD : 22.949s
+    full tracking            : 555.718s ago
+    time to track            : 2.709s
+    time to in-hand          : 26.242s
+    time to first map        : 0.012s, size=0KiB
+    map xfer to 6dof         : 23.628s
+    in-hand to 6dof          : 2.709s
+    connect to 6dof          : 28.952s
+    connect to 6dof in HMD   : 28.272s
+    connect to hmd 6dof      : -1.978s
+    maps sent                : 26, total=79234KiB
+    last map sent            : 25.205s ago, size=3592KiB
+    tracking lost count      : 3
+    invalid map count        : 0
+    build fingerprint        : oculus/starlet/starlet:12/SQ3A.220605.009.A1/50285100049700390:user/release-keys
+    time to ota requested    : ---
+
+
+  SelftrackedRemoteDeviceStateMachine history
+  Current state: Running
+
+  17.286s (579.356s ago) - Sending system state RUNNING
+  17.286s (579.356s ago) - Performing transition Standby -> Running: onStandbyToRunning
+  17.286s (579.357s ago) - Sending system state STANDBY
+  17.286s (579.357s ago) - Performing transition Sleep -> Standby: onSleepToStandby
+  17.285s (579.357s ago) - Sending system state SLEEP
+  17.285s (579.357s ago) - Performing transition WaitForWifi -> Sleep: onControllerIpConnectivityConfirmed
+  12.467s (584.175s ago) - Performing transition VersionCheck -> WaitForWifi: onQuickStartInfo
+  12.455s (584.187s ago) - [VersionCheck] onQuickStartInfo: earlyVersionCheck: otaRequired=0
+  11.979s (584.664s ago) - Performing transition IdleDisconnected -> VersionCheck: onPulsarConnected
+  11.971s (584.671s ago) - Sending system state RUNNING
+  11.383s (585.260s ago) - Sending system state STANDBY
+
+
+
+ControllerGlue history
+  11.384s (585.258s ago) - [controller] STANDBY -> RUNNING
+  10.750s (585.892s ago) - [controller] SLEEP -> STANDBY
+
+
+Pairing history
+

@@ -8,15 +8,20 @@ param (
     [ValidateNotNullOrEmpty()][ValidateSet('record', 'replay')][System.String]$Mode = "replay",
     [switch]$NoHostTrace,
     [switch]$S2Battery,
-    [ValidateRange("Positive")][int]$Delay = 0
+    [ValidateRange("Positive")][int]$Delay = 0,
+    [Int32]$BWLimit
 )
 
 # Give warnings/errors when using undefined variables and such
 Set-StrictMode -Version latest
 
-# if the trace file path is relative and outdir has been specified, write trace file in outdir
+# when recording, if the trace file path is relative and outdir has been specified, write trace file in outdir
 if (($Mode -eq "record") -and $PSBoundParameters.ContainsKey('OutDir') -and (-not([System.IO.Path]::IsPathRooted($TraceFile)))) {
     $TraceFile = Join-Path $OutDir $TraceFile
+    $TraceFile = [IO.Path]::GetFullPath($Tracefile, $PSScriptRoot)
+}
+# when replaying, if the trace file path is relative, translate to absolute path
+if (($Mode -eq "replay") -and (-not([System.IO.Path]::IsPathRooted($TraceFile)))) {
     $TraceFile = [IO.Path]::GetFullPath($Tracefile, $PSScriptRoot)
 }
 
@@ -28,10 +33,10 @@ Start-Sleep -Seconds $Delay
 
 $functions = {
     function Trace-Metrics(
-            [Parameter(Mandatory)][string]$OutDir,
-            [Parameter(Mandatory)][bool]$S2Battery,
-            [Parameter(Mandatory)][bool]$NoHostTrace,
-            [Parameter(Mandatory)][string]$PSScriptRoot
+        [Parameter(Mandatory)][string]$OutDir,
+        [Parameter(Mandatory)][bool]$S2Battery,
+        [Parameter(Mandatory)][bool]$NoHostTrace,
+        [Parameter(Mandatory)][string]$PSScriptRoot
     ) {
         # Give warnings/errors when using undefined variables and such
         Set-StrictMode -Version latest
@@ -49,7 +54,7 @@ $functions = {
             # start the battery measurement app
             adb shell am start-foreground-service -n "com.example.batterymanager_utility/com.example.batterymanager_utility.DataCollectionService" --ei sampleRate 1000 --es "dataFields" "BATTERY_PROPERTY_CURRENT_NOW,EXTRA_VOLTAGE" --ez toCSV False
             # stream battery measurement logs to file
-            $BatteryJob = Start-ThreadJob -StreamingHost $Host -ScriptBlock {
+            $BatteryJob = Start-Job -ScriptBlock {
                 $Out = "$using:TempDir/batterymanager-companion.log"
                 Write-Host "Writing S2 battery data measurements to $Out"
                 adb shell "logcat | grep 'BatteryMgr:DataCollectionService' >> $Out"
@@ -61,7 +66,7 @@ $functions = {
         adb shell "cat /proc/cpuinfo >> $TempDir/cpuinfo.log"
 
         # stream vrapi logs to file
-        $VrJob = Start-ThreadJob -StreamingHost $Host -ScriptBlock { adb shell "logcat -s VrApi >> $using:TempDir/logcat_VrApi.log" }
+        $VrJob = Start-Job -ScriptBlock { adb shell "logcat -s VrApi >> $using:TempDir/logcat_VrApi.log" }
         # start logging metrics from the gaming PC
         if (-not($NoHostTrace)) {
             $HostJob = Start-Job -ScriptBlock {
@@ -82,11 +87,11 @@ $functions = {
 
                 if ($VrJob.State -ne "Running") {
                     Write-Host "Oh no! Restarting adb VrApi log capture"
-                    $VrJob = Start-ThreadJob -StreamingHost $Host -ScriptBlock { adb shell "logcat -s VrApi >> $using:TempDir/logcat_VrApi.log" }
+                    $VrJob = Start-Job -ScriptBlock { adb shell "logcat -s VrApi >> $using:TempDir/logcat_VrApi.log" }
                 }
                 if (($S2Battery) -and ($BatteryJob.State -ne "Running")) {
                     Write-Host "Oh no! Restarting adb battery log capture"
-                    $BatteryJob = Start-ThreadJob -StreamingHost $Host -ScriptBlock { adb shell "logcat | grep 'BatteryMgr:DataCollectionService' >> $using:TempDir/batterymanager-companion.log" }
+                    $BatteryJob = Start-Job -ScriptBlock { adb shell "logcat | grep 'BatteryMgr:DataCollectionService' >> $using:TempDir/batterymanager-companion.log" }
                 }
                 # check if process that logs metrics from gaming PC is still running
                 # if not, restart
@@ -131,6 +136,7 @@ $functions = {
                 # stop app collecting battery measurements
                 adb shell am stopservice com.example.batterymanager_utility/com.example.batterymanager_utility.DataCollectionService
                 Stop-Job $BatteryJob
+                Receive-Job $BatteryJob
             }
 
             # Copy temp folder to output folder
@@ -138,7 +144,7 @@ $functions = {
             adb pull $TempDir $OutDir
             $LocalTempDir = Join-Path $OutDir (Split-Path -Leaf $TempDir)
             Move-Item -Path "$LocalTempDir\*" -Destination $OutDir
-            Remove-Item $LocalTempDir
+            Remove-Item -Recurse $LocalTempDir
             adb shell rm -rf $TempDir
         }
     }
@@ -162,11 +168,19 @@ try {
     # Create the output directory, if needed
     New-Item $OutDir -ItemType Directory -Force | Out-Null
 
+    # Resolves '~' if passed on command line
+    $OutDir = (Resolve-Path $OutDir).Path
+
     # Store the command used this script in the output folder
     $PSBoundParameters >> "$OutDir/command.txt"
 
     # Set librnr to configured mode
     Set-Content -Path $modeFilePath -Value "$Mode $TraceFile"
+
+    # Set Bandwidth limit if configured
+    if ( $PSBoundParameters.ContainsKey('BWLimit')) {
+        & "$PSScriptRoot\network-emulate\net-delay-static.ps1" $BWLimit
+    }
 
     # Start tracing
     $TraceJob = Start-ThreadJob -StreamingHost $Host -InitializationScript $functions -ScriptBlock {
@@ -186,6 +200,7 @@ try {
             adb shell setprop debug.oculus.autoDriverMode Record
         }
         adb shell dumpsys package $Class >> "$OutDir/apk-package-dumpsys.txt"
+        Write-Host "Starting app $Class/$Activity"
         adb shell am start -S $Class/$Activity > nul 2>&1
 
         Write-Host "Sleeping for $Duration seconds..."
@@ -206,9 +221,17 @@ try {
             Start-Sleep -Seconds $Seconds
         }
         else {
-            # Recording, sleep until the user stops the script with an interrupt
-            while ($True) {
-                Start-Sleep 5
+            # Recording
+            if ( $PSBoundParameters.ContainsKey('Duration')) {
+                Write-Output "Will sleep for $Duration seconds"
+                Start-Sleep $Duration
+            }
+            else {
+                # sleep until the user stops the script with an interrupt
+                Write-Output "WARNING: Will sleep for until user interrupt!"
+                while ($True) {
+                    Start-Sleep 5
+                }
             }
         }
     }
@@ -238,9 +261,17 @@ finally {
     }
 
     # Stop tracing
+    Write-Output "Stopping trace job"
     Stop-Job $TraceJob
 
+    # Stop Bandwidth limiting, if set
+    if ( $PSBoundParameters.ContainsKey('BWLimit')) {
+        Write-Output "Removing bandwidth limit"
+        net stop nlsvc
+    }
+
     # Plot results
+    Write-Output "Copying R Notebook"
     Copy-Item -Path .\README.Rmd $OutDir
 
     Write-Output "Done $( $Mode )ing trace. Open $OutDir\README.Rmd to view results."
