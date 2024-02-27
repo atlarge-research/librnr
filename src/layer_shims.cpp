@@ -202,9 +202,13 @@ XRAPI_CALL thisLayer_xrCreateReferenceSpace(XrSession session, const XrReference
     auto name = refSpaceTypeToString(createInfo->referenceSpaceType);
     spaceToFullName[*space] = name;
 
-    if (mode == tracer::Mode::RECORD) {
-        recordCreateReferenceSpace(createInfo, space);
-    }
+    // Do not uncomment before fixing time bug.
+//    if (mode == tracer::Mode::RECORD) {
+//        recordCreateReferenceSpace(createInfo, space);
+//        // 0 r XR_REFERENCE_SPACE_TYPE_LOCAL  0 0 0 1 0 0 0 2
+//        // 0 r XR_REFERENCE_SPACE_TYPE_VIEW  0 0 0 1 0 0 0 1
+//        // 0 r XR_REFERENCE_SPACE_TYPE_STAGE  0 0 0 1 0 0 0 3
+//    }
 
     stringstream buffer;
     auto p = createInfo->poseInReferenceSpace;

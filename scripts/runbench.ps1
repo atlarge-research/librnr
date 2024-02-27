@@ -228,8 +228,8 @@ try {
             }
             else {
                 # sleep until the user stops the script with an interrupt
+                Write-Output "WARNING: Will sleep for until user interrupt!"
                 while ($True) {
-                    Write-Output "WARNING: Will sleep for until user interrupt!"
                     Start-Sleep 5
                 }
             }
