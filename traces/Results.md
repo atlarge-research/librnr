@@ -4,6 +4,7 @@ Experiment
 - [Description](#description)
 - [Results](#results)
   - [librnr Performance Overhead](#librnr-performance-overhead)
+  - [Performance Variability](#performance-variability)
   - [Network Tests](#network-tests)
   - [Evolution of Hardware](#evolution-of-hardware)
     - [Frames per Second](#frames-per-second)
@@ -14,7 +15,7 @@ Experiment
   - [Bandwidth Limits](#bandwidth-limits)
   - [Local vs Streamed](#local-vs-streamed)
   - [Hand Tracking](#hand-tracking)
-  - [Performance Variability](#performance-variability)
+  - [Performance Variability](#performance-variability-1)
     - [Local Apps](#local-apps)
 
 # Description
@@ -198,7 +199,7 @@ data_logcat_vrapi <- data_logcat_vrapi %>%
 data_logcat_vrapi
 ```
 
-    ## # A tibble: 99,957 × 80
+    ## # A tibble: 102,290 × 80
     ##    month   day  hour minute second millisecond   pid   tid level fps_render
     ##    <int> <int> <int>  <int>  <int>       <int> <int> <int> <chr>      <int>
     ##  1    12    11     2     59     45         524  1975  3146 I             90
@@ -211,7 +212,7 @@ data_logcat_vrapi
     ##  8    12    11     2     59     52         524  1975  3146 I             90
     ##  9    12    11     2     59     53         524  1975  3146 I             90
     ## 10    12    11     2     59     54         524  1975  3146 I             90
-    ## # ℹ 99,947 more rows
+    ## # ℹ 102,280 more rows
     ## # ℹ 70 more variables: fps_refresh <int>, prd <int>, tear <int>, early <int>,
     ## #   stale <int>, stale2 <int>, stale5 <int>, stale10 <int>, stalemax <int>,
     ## #   vsnc <int>, lat <int>, fov <chr>, cpun <int>, cpu_level <int>,
@@ -261,7 +262,7 @@ data_net_dev <- data_net_dev %>%
 data_net_dev
 ```
 
-    ## # A tibble: 93,580 × 44
+    ## # A tibble: 95,908 × 44
     ##       ts rx_bytes rx_packets rx_errs rx_drop rx_fifo rx_frame rx_compressed
     ##    <int>    <dbl>      <int>   <int>   <int>   <int>    <int>         <int>
     ##  1     0 22648810      36024       0       0       0        0             0
@@ -274,7 +275,7 @@ data_net_dev
     ##  8     7 22682726      36323       0       0       0        0             0
     ##  9     8 22691887      36383       0       0       0        0             0
     ## 10     9 22694465      36425       0       0       0        0             0
-    ## # ℹ 93,570 more rows
+    ## # ℹ 95,898 more rows
     ## # ℹ 36 more variables: rx_multicast <int>, tx_bytes <dbl>, tx_packets <int>,
     ## #   tx_errs <int>, tx_drop <int>, tx_fifo <int>, tx_colls <int>,
     ## #   tx_carrier <int>, tx_compressed <int>, date <int>, a <chr>, n <chr>,
@@ -317,7 +318,7 @@ data_batterymanager_companion <- data_batterymanager_companion %>%
 data_batterymanager_companion
 ```
 
-    ## # A tibble: 60,223 × 30
+    ## # A tibble: 62,553 × 30
     ##    month   day  hour minute second millisecond   pid   tid ts_milli  current
     ##    <int> <int> <int>  <int>  <int>       <int> <int> <int>    <dbl>    <int>
     ##  1     1    16    13     56      7         733  6505  6529        0 -1833983
@@ -330,7 +331,7 @@ data_batterymanager_companion
     ##  8     1    16    13     56     14         758  6505  6529     7025 -1550292
     ##  9     1    16    13     56     15         761  6505  6529     8028 -1501952
     ## 10     1    16    13     56     16         763  6505  6529     9030 -1864256
-    ## # ℹ 60,213 more rows
+    ## # ℹ 62,543 more rows
     ## # ℹ 20 more variables: voltage <int>, date <int>, m <chr>, d <chr>, a <chr>,
     ## #   l <int>, i <int>, fname <chr>, b <int>, n <chr>, song <chr>, diff <chr>,
     ## #   d_h <chr>, game_h <chr>, ts <dbl>, ts_m <dbl>, current_ma <dbl>,
@@ -446,6 +447,33 @@ d %>%
     ## 13 20240227-m-replay-d-mqp-a-beatsaber-song-popstars-diff-medium-i-7-n-overhang 
     ## 14 20240227-m-replay-d-mqp-a-beatsaber-song-popstars-diff-medium-i-8-n-overhang 
     ## 15 20240227-m-replay-d-mqp-a-beatsaber-song-popstars-diff-medium-i-9-n-overhang
+
+``` r
+d %>%
+  give_stats(gpu_util, by=c("m", "n"))
+```
+
+    ## Warning: Using an external vector in selections was deprecated in tidyselect 1.1.0.
+    ## ℹ Please use `all_of()` or `any_of()` instead.
+    ##   # Was:
+    ##   data %>% select(by)
+    ## 
+    ##   # Now:
+    ##   data %>% select(all_of(by))
+    ## 
+    ## See <https://tidyselect.r-lib.org/reference/faq-external-vector.html>.
+    ## This warning is displayed once every 8 hours.
+    ## Call `lifecycle::last_lifecycle_warnings()` to see where this warning was
+    ## generated.
+
+    ## # A tibble: 3 × 20
+    ##   m     n      mean stdev   min   q25 median   q75   q90   q95   q99   max   iqr
+    ##   <chr> <chr> <dbl> <dbl> <dbl> <dbl>  <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl>
+    ## 1 base… <NA>   21.2 0.403    20    21     21    21    22    22    22    24     0
+    ## 2 reco… <NA>   21.2 0.426    20    21     21    21    22    22    22    22     0
+    ## 3 repl… over…  21.2 0.491    16    21     21    21    22    22    22    22     0
+    ## # ℹ 7 more variables: mean_maxd <dbl>, stdev_maxd <dbl>, min_maxd <dbl>,
+    ## #   q25_maxd <dbl>, median_maxd <dbl>, q75_maxd <dbl>, max_maxd <dbl>
 
 ``` r
 d %>%
@@ -865,6 +893,20 @@ d %>%
 
 ``` r
 d %>%
+  give_stats(-power_w, by=c("m", "n"))
+```
+
+    ## # A tibble: 3 × 20
+    ##   m     n      mean stdev   min   q25 median   q75   q90   q95   q99   max   iqr
+    ##   <chr> <chr> <dbl> <dbl> <dbl> <dbl>  <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl>
+    ## 1 base… <NA>   7.45 0.218  7.14  7.32   7.39  7.47  7.84  8.01  8.14  8.20 0.145
+    ## 2 reco… <NA>   7.50 0.232  7.16  7.35   7.42  7.53  7.94  8.05  8.18  8.33 0.177
+    ## 3 repl… over…  7.52 0.247  6.65  7.37   7.44  7.55  7.96  8.08  8.28  8.69 0.178
+    ## # ℹ 7 more variables: mean_maxd <dbl>, stdev_maxd <dbl>, min_maxd <dbl>,
+    ## #   q25_maxd <dbl>, median_maxd <dbl>, q75_maxd <dbl>, max_maxd <dbl>
+
+``` r
+d %>%
   ggplot(aes(x = -power_w, y = factor(i))) +
   geom_boxplot() +
   stat_summary(fun=mean, geom="point", shape=21, size=2, color="black", fill="white") +
@@ -878,6 +920,71 @@ d %>%
 ```
 
 ![](Results_files/figure-gfm/val-perf-overhead-power-draw-all-box-1.svg)<!-- -->
+
+## Performance Variability
+
+``` r
+d <- data_logcat_vrapi %>%
+  filter(date == 20240228) %>%
+  filter(ts > 60) %>%
+  filter(ts < 180) %>%
+  mutate(i = i + 1)
+
+d %>%
+  select(fname) %>%
+  unique()
+```
+
+    ## # A tibble: 10 × 1
+    ##    fname                                                                       
+    ##    <chr>                                                                       
+    ##  1 20240228-m-replay-d-mqp-a-beatsaber-song-popstars-diff-medium-i-0-n-perfvara
+    ##  2 20240228-m-replay-d-mqp-a-beatsaber-song-popstars-diff-medium-i-1-n-perfvara
+    ##  3 20240228-m-replay-d-mqp-a-beatsaber-song-popstars-diff-medium-i-2-n-perfvara
+    ##  4 20240228-m-replay-d-mqp-a-beatsaber-song-popstars-diff-medium-i-3-n-perfvara
+    ##  5 20240228-m-replay-d-mqp-a-beatsaber-song-popstars-diff-medium-i-4-n-perfvara
+    ##  6 20240228-m-replay-d-mqp-a-beatsaber-song-popstars-diff-medium-i-5-n-perfvara
+    ##  7 20240228-m-replay-d-mqp-a-beatsaber-song-popstars-diff-medium-i-6-n-perfvara
+    ##  8 20240228-m-replay-d-mqp-a-beatsaber-song-popstars-diff-medium-i-7-n-perfvara
+    ##  9 20240228-m-replay-d-mqp-a-beatsaber-song-popstars-diff-medium-i-8-n-perfvara
+    ## 10 20240228-m-replay-d-mqp-a-beatsaber-song-popstars-diff-medium-i-9-n-perfvara
+
+``` r
+d %>%
+  give_stats(gpu_util, by=c("m", "i"))
+```
+
+    ## # A tibble: 10 × 20
+    ##    m          i  mean stdev   min   q25 median   q75   q90   q95   q99   max
+    ##    <chr>  <dbl> <dbl> <dbl> <dbl> <dbl>  <dbl> <dbl> <dbl> <dbl> <dbl> <dbl>
+    ##  1 replay     1  21.2 0.423    20    21     21    21  22      22    22    22
+    ##  2 replay     2  21.2 0.431    21    21     21    21  22      22    22    22
+    ##  3 replay     3  21.2 0.390    21    21     21    21  22      22    22    22
+    ##  4 replay     4  21.1 0.302    21    21     21    21  21.2    22    22    22
+    ##  5 replay     5  21.3 0.468    21    21     21    22  22      22    22    22
+    ##  6 replay     6  21.5 0.502    21    21     22    22  22      22    22    22
+    ##  7 replay     7  21.3 0.441    21    21     21    22  22      22    22    22
+    ##  8 replay     8  21.2 0.403    21    21     21    21  22      22    22    22
+    ##  9 replay     9  21.1 0.375    21    21     21    21  22      22    22    23
+    ## 10 replay    10  21.1 0.329    20    21     21    21  22      22    22    22
+    ## # ℹ 8 more variables: iqr <dbl>, mean_maxd <dbl>, stdev_maxd <dbl>,
+    ## #   min_maxd <dbl>, q25_maxd <dbl>, median_maxd <dbl>, q75_maxd <dbl>,
+    ## #   max_maxd <dbl>
+
+``` r
+d %>%
+  ggplot(aes(x = gpu_util, y = factor(i))) +
+  geom_boxplot() +
+  stat_summary(fun=mean, geom="point", shape=21, size=2, color="black", fill="white") +
+  xlim(0,NA) +
+  theme_cowplot(15) +
+  background_grid() +
+  labs(x = "GPU utilization [%]   ", y = "Iteration") +
+  coord_cartesian(clip="off") +
+  theme(plot.margin=margin(0,0,0,0, "cm"), strip.background=element_rect(fill="white"))
+```
+
+![](Results_files/figure-gfm/val-perf-vara-gpu-util-all-box-1.svg)<!-- -->
 
 ## Network Tests
 
@@ -1073,19 +1180,6 @@ d %>%
 d %>%
   give_stats(Mbps, by=c("d_h"))
 ```
-
-    ## Warning: Using an external vector in selections was deprecated in tidyselect 1.1.0.
-    ## ℹ Please use `all_of()` or `any_of()` instead.
-    ##   # Was:
-    ##   data %>% select(by)
-    ## 
-    ##   # Now:
-    ##   data %>% select(all_of(by))
-    ## 
-    ## See <https://tidyselect.r-lib.org/reference/faq-external-vector.html>.
-    ## This warning is displayed once every 8 hours.
-    ## Call `lifecycle::last_lifecycle_warnings()` to see where this warning was
-    ## generated.
 
     ## # A tibble: 4 × 19
     ##   d_h       mean stdev   min   q25 median   q75   q90   q95   q99   max   iqr

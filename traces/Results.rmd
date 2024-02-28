@@ -582,6 +582,157 @@ d %>%
   facet_grid(cols = vars(m))
 ```
 
+## Performance Variability
+
+```{r val-perf-vara-gpu-util-all-box, fig.width=3, fig.height=2}
+d <- data_logcat_vrapi %>%
+  filter(date == 20240228) %>%
+  filter(ts > 60) %>%
+  filter(ts < 180) %>%
+  mutate(i = i + 1)
+
+d %>%
+  select(fname) %>%
+  unique()
+
+d %>%
+  give_stats(gpu_util, by=c("m", "i"))
+
+d %>%
+  ggplot(aes(x = gpu_util, y = factor(i))) +
+  geom_boxplot() +
+  stat_summary(fun=mean, geom="point", shape=21, size=2, color="black", fill="white") +
+  xlim(0,NA) +
+  theme_cowplot(15) +
+  background_grid() +
+  labs(x = "GPU utilization [%]   ", y = "Iteration") +
+  coord_cartesian(clip="off") +
+  theme(plot.margin=margin(0,0,0,0, "cm"), strip.background=element_rect(fill="white"))
+```
+
+```{r val-perf-vara-power-draw-all-box, fig.width=3, fig.height=2}
+d <- data_batterymanager_companion %>%
+  filter(date == 20240228) %>%
+  filter(ts > 60) %>%
+  filter(ts < 180) %>%
+  mutate(i = i + 1)
+
+d %>%
+  select(fname) %>%
+  unique()
+
+d %>%
+  give_stats(-power_w, by=c("m", "i"))
+
+d %>%
+  ggplot(aes(x = -power_w, y = factor(i))) +
+  geom_boxplot() +
+  stat_summary(fun=mean, geom="point", shape=21, size=2, color="black", fill="white") +
+  xlim(0,NA) +
+  theme_cowplot(15) +
+  background_grid() +
+  labs(x = "Power draw [W]", y = "Iteration") +
+  coord_cartesian(clip="off") +
+  theme(plot.margin=margin(0,0,0,0, "cm"), strip.background=element_rect(fill="white"))
+```
+
+```{r, fig.width=3, fig.height=2}
+d <- data_net_dev %>%
+  filter(date == 20240228) %>%
+  filter(ts > 60) %>%
+  filter(ts < 180) %>%
+  mutate(i = i + 1)
+
+d %>%
+  select(fname) %>%
+  unique()
+
+d %>%
+  give_stats(Mbps_rx, by=c("i", "m"))
+
+d %>%
+  ggplot(aes(x = Mbps_rx, y = factor(i))) +
+  geom_boxplot() +
+  stat_summary(fun=mean, geom="point", shape=21, size=2, color="black", fill="white") +
+  xlim(0,NA) +
+  theme_cowplot(15) +
+  background_grid() +
+  labs(x = "Bandwidth [Mbps]", y = "Iteration") +
+  coord_cartesian(clip="off") +
+  theme(plot.margin=margin(0,0.6,0,0, "cm"))
+
+d %>%
+  ggplot(aes(y = Mbps_rx, x = ts)) +
+  geom_line() +
+  ylim(0,NA) +
+  theme_cowplot(15) +
+  background_grid() +
+  labs(y = "Bandwidth [Mbps]", x = "Time [s]") +
+  coord_cartesian(clip="off") +
+  theme(plot.margin=margin(0,0.6,0,0, "cm")) +
+  facet_grid(cols = vars(m), rows = vars(i))
+```
+
+```{r r, fig.width=3, fig.height=2}
+d <- data_logcat_vrapi %>%
+  filter(date == 20240228) %>%
+  filter(ts > 60) %>%
+  filter(ts < 180) %>%
+  mutate(i = i + 1)
+
+d %>%
+  select(fname) %>%
+  unique()
+
+d %>%
+  give_stats(gpu_util, by=c("m", "i"))
+
+d %>%
+  ggplot(aes(x = gpu_util, y = factor(i))) +
+  geom_boxplot() +
+  stat_summary(fun=mean, geom="point", shape=21, size=2, color="black", fill="white") +
+  xlim(0,NA) +
+  theme_cowplot(15) +
+  background_grid() +
+  labs(x = "GPU utilization [%]", y = "Trace") +
+  coord_cartesian(clip="off") +
+  theme(plot.margin=margin(0,0.2,0,0, "cm"), strip.background=element_rect(fill="white"))
+
+d %>%
+  ggplot(aes(x = cpu_util, y = factor(i))) +
+  geom_boxplot() +
+  stat_summary(fun=mean, geom="point", shape=21, size=2, color="black", fill="white") +
+  xlim(0,NA) +
+  theme_cowplot(15) +
+  background_grid() +
+  labs(x = "CPU utilization [%]", y = "Iteration") +
+  coord_cartesian(clip="off") +
+  theme(plot.margin=margin(0,0.6,0,0, "cm"))
+
+d %>%
+  ggplot(aes(x = fps_render, y = factor(i))) +
+  geom_boxplot() +
+  stat_summary(fun=mean, geom="point", shape=21, size=2, color="black", fill="white") +
+  xlim(0,NA) +
+  theme_cowplot(15) +
+  background_grid() +
+  labs(x = "Frames per second", y = "Iteration") +
+  coord_cartesian(clip="off") +
+  theme(plot.margin=margin(0,0.6,0,0, "cm"))
+
+d %>%
+  ggplot(aes(x = app, y = factor(i))) +
+  geom_vline(xintercept = 13.88, color="red") + 
+  geom_boxplot() +
+  stat_summary(fun=mean, geom="point", shape=21, size=2, color="black", fill="white") +
+  xlim(0,NA) +
+  theme_cowplot(15) +
+  background_grid() +
+  labs(x = "Frame time [ms]", y = "Iteration") +
+  coord_cartesian(clip="off") +
+  theme(plot.margin=margin(0,0.6,0,0, "cm"))
+```
+
 ## Network Tests
 
 ```{r iperf-mqp, fig.width=3, fig.height=2}

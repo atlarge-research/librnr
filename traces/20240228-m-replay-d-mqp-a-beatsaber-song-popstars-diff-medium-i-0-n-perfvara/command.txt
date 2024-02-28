@@ -1,0 +1,10 @@
+
+Key       Value
+---       -----
+TraceFile ..\traces\20240227-m-record-d-mqp-a-beatsaber-song-popstars-diff-medium-i-10\trace.txt
+Mode      replay
+App       C:\Program Files\Oculus\Software\Software\hyperbolic-magnetism-beat-saber\Beat Saber.exe
+OutDir    ..\traces\20240228-m-replay-d-mqp-a-beatsaber-song-popstars-diff-medium-i-0-n-perfvara
+S2Battery True
+Delay     5
+
