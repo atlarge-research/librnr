@@ -308,18 +308,23 @@ c_demph <- "gray"
 
 ## librnr Performance Overhead
 
-```{r librnr-overhead, fig.width=9, fig.height=2}
+```{r}
 d <- data_logcat_vrapi %>%
   filter(date == 20240227) %>%
   filter(ts > 60) %>%
-  filter(ts < 180)
+  filter(ts < 180) %>%
+  filter(m != "replay" | n == "overhang") %>%
+  filter(i > 5) %>%
+  mutate(i = i - 5)
 
 d %>%
   select(fname) %>%
   unique()
+```
 
-# d %>%
-#   give_stats(gpu_util, by=c("i", "m"))
+```{r val-perf-overhead-gpu-util-all-box, fig.width=5, fig.height=1.6}
+d %>%
+  give_stats(gpu_util, by=c("m", "n"))
 
 d %>%
   ggplot(aes(x = gpu_util, y = factor(i))) +
@@ -328,11 +333,13 @@ d %>%
   xlim(0,NA) +
   theme_cowplot(15) +
   background_grid() +
-  labs(x = "GPU utilization [%]", y = "Iteration") +
+  labs(x = "GPU utilization [%]", y = "Trace") +
   coord_cartesian(clip="off") +
-  theme(plot.margin=margin(0,0.6,0,0, "cm")) +
-  facet_grid(cols = vars(m))
+  theme(plot.margin=margin(0,0.2,0,0, "cm"), strip.background=element_rect(fill="white")) +
+  facet_grid(cols =vars(m))
+```
 
+```{r}
 d %>%
   ggplot(aes(x = cpu_util, y = factor(i))) +
   geom_boxplot() +
@@ -394,7 +401,7 @@ d %>%
   facet_grid(cols = vars(m))
 ```
 
-```{r librnr-overhead, fig.width=9, fig.height=2}
+```{r, fig.width=9, fig.height=2}
 d <- data_host_sys_metrics %>%
   filter(date == 20240227) %>%
   filter(ts_s > 60) %>%
@@ -478,7 +485,7 @@ d %>%
 d
 ```
 
-```{r librnr-overhead, fig.width=9, fig.height=2}
+```{r, fig.width=9, fig.height=2}
 d <- data_host_gpu_metrics %>%
   filter(date == 20240227) %>%
   filter(ts > 60) %>%
@@ -504,7 +511,7 @@ d %>%
   facet_grid(cols = vars(m))
 ```
 
-```{r librnr-overhead, fig.width=9, fig.height=10}
+```{r, fig.width=9, fig.height=10}
 d <- data_net_dev %>%
   filter(date == 20240227) %>%
   filter(ts > 60) %>%
@@ -541,11 +548,14 @@ d %>%
   facet_grid(cols = vars(m), rows = vars(i))
 ```
 
-```{r librnr-overhead, fig.width=9, fig.height=2}
+```{r}
 d <- data_batterymanager_companion %>%
   filter(date == 20240227) %>%
   filter(ts > 60) %>%
-  filter(ts < 180)
+  filter(ts < 180) %>%
+  filter(m != "replay" | n == "overhang") %>%
+  filter(i > 5) %>%
+  mutate(i = i - 5)
 
 d %>%
   select(fname) %>%
@@ -553,6 +563,11 @@ d %>%
 
 # d %>%
 #   give_stats(gpu_util, by=c("i", "m"))
+```
+
+```{r val-perf-overhead-power-draw-all-box, fig.width=5, fig.height=1.6}
+d %>%
+  give_stats(-power_w, by=c("m", "n"))
 
 d %>%
   ggplot(aes(x = -power_w, y = factor(i))) +
@@ -561,9 +576,9 @@ d %>%
   xlim(0,NA) +
   theme_cowplot(15) +
   background_grid() +
-  labs(x = "Power draw [W]", y = "Iteration") +
+  labs(x = "Power draw [W]", y = "Trace") +
   coord_cartesian(clip="off") +
-  theme(plot.margin=margin(0,0.6,0,0, "cm")) +
+  theme(plot.margin=margin(0,0,0,0, "cm"), strip.background=element_rect(fill="white")) +
   facet_grid(cols = vars(m))
 ```
 

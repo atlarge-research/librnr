@@ -3,6 +3,7 @@ Experiment
 
 - [Description](#description)
 - [Results](#results)
+  - [librnr Performance Overhead](#librnr-performance-overhead)
   - [Network Tests](#network-tests)
   - [Evolution of Hardware](#evolution-of-hardware)
     - [Frames per Second](#frames-per-second)
@@ -21,8 +22,6 @@ Experiment
 # Results
 
 ``` r
-library(tidyverse)
-theme_set(theme_bw())
 library(knitr)
 library(forcats)
 library(data.table)
@@ -34,6 +33,9 @@ library(stringr)
 library(fBasics)
 library(here)
 here::i_am("./Results.rmd")
+library(tidyverse)
+theme_set(theme_bw())
+
 
 saveplot <- function(filename, ...) {
   ggsave2(filename, ...)
@@ -140,7 +142,8 @@ data_host_sys_metrics <- data_host_sys_metrics %>%
   group_by(fname) %>%
   mutate(ts = timestamp) %>%
   mutate(ts = ts - min(ts)) %>%
-  mutate(ts_m = ts / 60) %>%
+  mutate(ts_s = ts / 1000) %>%
+  mutate(ts_m = ts_s / 60) %>%
   ungroup()
 
 # Load host gpu metrics data
@@ -195,7 +198,7 @@ data_logcat_vrapi <- data_logcat_vrapi %>%
 data_logcat_vrapi
 ```
 
-    ## # A tibble: 81,673 × 80
+    ## # A tibble: 99,957 × 80
     ##    month   day  hour minute second millisecond   pid   tid level fps_render
     ##    <int> <int> <int>  <int>  <int>       <int> <int> <int> <chr>      <int>
     ##  1    12    11     2     59     45         524  1975  3146 I             90
@@ -208,7 +211,7 @@ data_logcat_vrapi
     ##  8    12    11     2     59     52         524  1975  3146 I             90
     ##  9    12    11     2     59     53         524  1975  3146 I             90
     ## 10    12    11     2     59     54         524  1975  3146 I             90
-    ## # ℹ 81,663 more rows
+    ## # ℹ 99,947 more rows
     ## # ℹ 70 more variables: fps_refresh <int>, prd <int>, tear <int>, early <int>,
     ## #   stale <int>, stale2 <int>, stale5 <int>, stale10 <int>, stalemax <int>,
     ## #   vsnc <int>, lat <int>, fov <chr>, cpun <int>, cpu_level <int>,
@@ -258,7 +261,7 @@ data_net_dev <- data_net_dev %>%
 data_net_dev
 ```
 
-    ## # A tibble: 75,809 × 44
+    ## # A tibble: 93,580 × 44
     ##       ts rx_bytes rx_packets rx_errs rx_drop rx_fifo rx_frame rx_compressed
     ##    <int>    <dbl>      <int>   <int>   <int>   <int>    <int>         <int>
     ##  1     0 22648810      36024       0       0       0        0             0
@@ -271,7 +274,7 @@ data_net_dev
     ##  8     7 22682726      36323       0       0       0        0             0
     ##  9     8 22691887      36383       0       0       0        0             0
     ## 10     9 22694465      36425       0       0       0        0             0
-    ## # ℹ 75,799 more rows
+    ## # ℹ 93,570 more rows
     ## # ℹ 36 more variables: rx_multicast <int>, tx_bytes <dbl>, tx_packets <int>,
     ## #   tx_errs <int>, tx_drop <int>, tx_fifo <int>, tx_colls <int>,
     ## #   tx_carrier <int>, tx_compressed <int>, date <int>, a <chr>, n <chr>,
@@ -314,7 +317,7 @@ data_batterymanager_companion <- data_batterymanager_companion %>%
 data_batterymanager_companion
 ```
 
-    ## # A tibble: 41,890 × 28
+    ## # A tibble: 60,223 × 30
     ##    month   day  hour minute second millisecond   pid   tid ts_milli  current
     ##    <int> <int> <int>  <int>  <int>       <int> <int> <int>    <dbl>    <int>
     ##  1     1    16    13     56      7         733  6505  6529        0 -1833983
@@ -327,11 +330,11 @@ data_batterymanager_companion
     ##  8     1    16    13     56     14         758  6505  6529     7025 -1550292
     ##  9     1    16    13     56     15         761  6505  6529     8028 -1501952
     ## 10     1    16    13     56     16         763  6505  6529     9030 -1864256
-    ## # ℹ 41,880 more rows
-    ## # ℹ 18 more variables: voltage <int>, date <int>, m <chr>, d <chr>, a <chr>,
-    ## #   l <int>, i <int>, fname <chr>, b <int>, n <chr>, d_h <chr>, game_h <chr>,
-    ## #   ts <dbl>, ts_m <dbl>, current_ma <dbl>, current_a <dbl>, voltage_v <dbl>,
-    ## #   power_w <dbl>
+    ## # ℹ 60,213 more rows
+    ## # ℹ 20 more variables: voltage <int>, date <int>, m <chr>, d <chr>, a <chr>,
+    ## #   l <int>, i <int>, fname <chr>, b <int>, n <chr>, song <chr>, diff <chr>,
+    ## #   d_h <chr>, game_h <chr>, ts <dbl>, ts_m <dbl>, current_ma <dbl>,
+    ## #   current_a <dbl>, voltage_v <dbl>, power_w <dbl>
 
 ``` r
 # Load iperf data
@@ -376,6 +379,9 @@ for (f in files) {
     ## Warning in readLines(fp): incomplete final line found on
     ## '/mnt/c/Users/atl_gaming/repos/openxr-librnr/traces/20240224-m-baseline-d-pixel6a-a-iperf-n-l1k/iperf.txt'
 
+    ## Warning in readLines(fp): incomplete final line found on
+    ## '/mnt/c/Users/atl_gaming/repos/openxr-librnr/traces/20240225-m-baseline-d-mq3-a-iperf-n-6ghz/iperf.txt'
+
 ``` r
 data_iperf <- data_iperf %>%
   type.convert(as.is=TRUE) %>%
@@ -405,6 +411,473 @@ c_norm <- "black"
 c_emph <- "#06bd55"
 c_demph <- "gray"
 ```
+
+## librnr Performance Overhead
+
+``` r
+d <- data_logcat_vrapi %>%
+  filter(date == 20240227) %>%
+  filter(ts > 60) %>%
+  filter(ts < 180) %>%
+  filter(m != "replay" | n == "overhang") %>%
+  filter(i > 5) %>%
+  mutate(i = i - 5)
+
+d %>%
+  select(fname) %>%
+  unique()
+```
+
+    ## # A tibble: 15 × 1
+    ##    fname                                                                        
+    ##    <chr>                                                                        
+    ##  1 20240227-m-baseline-d-mqp-a-beatsaber-song-popstars-diff-medium-i-10         
+    ##  2 20240227-m-baseline-d-mqp-a-beatsaber-song-popstars-diff-medium-i-6          
+    ##  3 20240227-m-baseline-d-mqp-a-beatsaber-song-popstars-diff-medium-i-7          
+    ##  4 20240227-m-baseline-d-mqp-a-beatsaber-song-popstars-diff-medium-i-8          
+    ##  5 20240227-m-baseline-d-mqp-a-beatsaber-song-popstars-diff-medium-i-9          
+    ##  6 20240227-m-record-d-mqp-a-beatsaber-song-popstars-diff-medium-i-10           
+    ##  7 20240227-m-record-d-mqp-a-beatsaber-song-popstars-diff-medium-i-6            
+    ##  8 20240227-m-record-d-mqp-a-beatsaber-song-popstars-diff-medium-i-7            
+    ##  9 20240227-m-record-d-mqp-a-beatsaber-song-popstars-diff-medium-i-8            
+    ## 10 20240227-m-record-d-mqp-a-beatsaber-song-popstars-diff-medium-i-9            
+    ## 11 20240227-m-replay-d-mqp-a-beatsaber-song-popstars-diff-medium-i-10-n-overhang
+    ## 12 20240227-m-replay-d-mqp-a-beatsaber-song-popstars-diff-medium-i-6-n-overhang 
+    ## 13 20240227-m-replay-d-mqp-a-beatsaber-song-popstars-diff-medium-i-7-n-overhang 
+    ## 14 20240227-m-replay-d-mqp-a-beatsaber-song-popstars-diff-medium-i-8-n-overhang 
+    ## 15 20240227-m-replay-d-mqp-a-beatsaber-song-popstars-diff-medium-i-9-n-overhang
+
+``` r
+d %>%
+  ggplot(aes(x = gpu_util, y = factor(i))) +
+  geom_boxplot() +
+  stat_summary(fun=mean, geom="point", shape=21, size=2, color="black", fill="white") +
+  xlim(0,NA) +
+  theme_cowplot(15) +
+  background_grid() +
+  labs(x = "GPU utilization [%]", y = "Trace") +
+  coord_cartesian(clip="off") +
+  theme(plot.margin=margin(0,0.2,0,0, "cm"), strip.background=element_rect(fill="white")) +
+  facet_grid(cols =vars(m))
+```
+
+![](Results_files/figure-gfm/val-perf-overhead-gpu-util-all-box-1.svg)<!-- -->
+
+``` r
+d %>%
+  ggplot(aes(x = cpu_util, y = factor(i))) +
+  geom_boxplot() +
+  stat_summary(fun=mean, geom="point", shape=21, size=2, color="black", fill="white") +
+  xlim(0,NA) +
+  theme_cowplot(15) +
+  background_grid() +
+  labs(x = "CPU utilization [%]", y = "Iteration") +
+  coord_cartesian(clip="off") +
+  theme(plot.margin=margin(0,0.6,0,0, "cm")) +
+  facet_grid(cols = vars(m))
+```
+
+![](Results_files/figure-gfm/unnamed-chunk-2-1.svg)<!-- -->
+
+``` r
+d %>%
+  ggplot(aes(x = fps_render, y = factor(i))) +
+  geom_boxplot() +
+  stat_summary(fun=mean, geom="point", shape=21, size=2, color="black", fill="white") +
+  xlim(0,NA) +
+  theme_cowplot(15) +
+  background_grid() +
+  labs(x = "Frames per second", y = "Iteration") +
+  coord_cartesian(clip="off") +
+  theme(plot.margin=margin(0,0.6,0,0, "cm")) +
+  facet_grid(cols = vars(m))
+```
+
+![](Results_files/figure-gfm/unnamed-chunk-2-2.svg)<!-- -->
+
+``` r
+d %>%
+  ggplot(aes(x = app, y = factor(i))) +
+  geom_vline(xintercept = 13.88, color="red") + 
+  geom_boxplot() +
+  stat_summary(fun=mean, geom="point", shape=21, size=2, color="black", fill="white") +
+  xlim(0,NA) +
+  theme_cowplot(15) +
+  background_grid() +
+  labs(x = "Frame time [ms]", y = "Iteration") +
+  coord_cartesian(clip="off") +
+  theme(plot.margin=margin(0,0.6,0,0, "cm")) +
+  facet_grid(cols = vars(m))
+```
+
+![](Results_files/figure-gfm/unnamed-chunk-2-3.svg)<!-- -->
+
+``` r
+d %>%
+  ggplot(aes(x = stale, y = factor(i))) +
+  geom_boxplot() +
+  stat_summary(fun=mean, geom="point", shape=21, size=2, color="black", fill="white") +
+  xlim(0,NA) +
+  theme_cowplot(15) +
+  background_grid() +
+  labs(x = "Stale frames", y = "Iteration") +
+  coord_cartesian(clip="off") +
+  theme(plot.margin=margin(0,0.6,0,0, "cm")) +
+  facet_grid(cols = vars(m))
+```
+
+![](Results_files/figure-gfm/unnamed-chunk-2-4.svg)<!-- -->
+
+``` r
+d %>%
+  ggplot(aes(y = gpu_util, x = ts, color = factor(i))) +
+  geom_line() +
+  ylim(0,NA) +
+  theme_cowplot(15) +
+  background_grid() +
+  labs(y = "GPU utilization [%]", x = "Time [s]") +
+  coord_cartesian(clip="off") +
+  theme(plot.margin=margin(0,0.6,0,0, "cm")) +
+  facet_grid(cols = vars(m))
+```
+
+![](Results_files/figure-gfm/unnamed-chunk-2-5.svg)<!-- -->
+
+``` r
+d <- data_host_sys_metrics %>%
+  filter(date == 20240227) %>%
+  filter(ts_s > 60) %>%
+  filter(ts_s < 180) %>%
+  group_by(fname) %>%
+  mutate(disk.read_count.PhysicalDrive0 = disk.read_count.PhysicalDrive0 - min(disk.read_count.PhysicalDrive0)) %>%
+  mutate(disk.read_bytes.PhysicalDrive0 = disk.read_bytes.PhysicalDrive0 - min(disk.read_bytes.PhysicalDrive0)) %>%
+  mutate(disk.write_count.PhysicalDrive0 = disk.write_count.PhysicalDrive0 - min(disk.write_count.PhysicalDrive0)) %>%
+  mutate(disk.write_bytes.PhysicalDrive0 = disk.write_bytes.PhysicalDrive0 - min(disk.write_bytes.PhysicalDrive0)) %>%
+  ungroup()
+
+d %>%
+  select(fname) %>%
+  unique()
+```
+
+    ## # A tibble: 72 × 1
+    ##    fname                                                               
+    ##    <chr>                                                               
+    ##  1 20240227-m-baseline-d-mqp-a-beatsaber-song-popstars-diff-medium-i-1 
+    ##  2 20240227-m-baseline-d-mqp-a-beatsaber-song-popstars-diff-medium-i-10
+    ##  3 20240227-m-baseline-d-mqp-a-beatsaber-song-popstars-diff-medium-i-2 
+    ##  4 20240227-m-baseline-d-mqp-a-beatsaber-song-popstars-diff-medium-i-3 
+    ##  5 20240227-m-baseline-d-mqp-a-beatsaber-song-popstars-diff-medium-i-4 
+    ##  6 20240227-m-baseline-d-mqp-a-beatsaber-song-popstars-diff-medium-i-5 
+    ##  7 20240227-m-baseline-d-mqp-a-beatsaber-song-popstars-diff-medium-i-6 
+    ##  8 20240227-m-baseline-d-mqp-a-beatsaber-song-popstars-diff-medium-i-7 
+    ##  9 20240227-m-baseline-d-mqp-a-beatsaber-song-popstars-diff-medium-i-8 
+    ## 10 20240227-m-baseline-d-mqp-a-beatsaber-song-popstars-diff-medium-i-9 
+    ## # ℹ 62 more rows
+
+``` r
+# d %>%
+#   give_stats(gpu_util, by=c("i", "m"))
+
+d
+```
+
+    ## # A tibble: 8,640 × 125
+    ##    timestamp net.bytes_sent.Bluetooth Network Connectio…¹ net.bytes_recv.Bluet…²
+    ##        <dbl>                                        <int>                  <int>
+    ##  1   1.71e12                                            0                      0
+    ##  2   1.71e12                                            0                      0
+    ##  3   1.71e12                                            0                      0
+    ##  4   1.71e12                                            0                      0
+    ##  5   1.71e12                                            0                      0
+    ##  6   1.71e12                                            0                      0
+    ##  7   1.71e12                                            0                      0
+    ##  8   1.71e12                                            0                      0
+    ##  9   1.71e12                                            0                      0
+    ## 10   1.71e12                                            0                      0
+    ## # ℹ 8,630 more rows
+    ## # ℹ abbreviated names: ¹​`net.bytes_sent.Bluetooth Network Connection`,
+    ## #   ²​`net.bytes_recv.Bluetooth Network Connection`
+    ## # ℹ 122 more variables: `net.packets_sent.Bluetooth Network Connection` <int>,
+    ## #   `net.packets_recv.Bluetooth Network Connection` <int>,
+    ## #   `net.errin.Bluetooth Network Connection` <int>,
+    ## #   `net.errout.Bluetooth Network Connection` <int>, …
+
+``` r
+d %>%
+  ggplot(aes(x = disk.read_count.PhysicalDrive0, y = factor(i))) +
+  geom_boxplot() +
+  stat_summary(fun=mean, geom="point", shape=21, size=2, color="black", fill="white") +
+  xlim(0,1000) +
+  theme_cowplot(15) +
+  background_grid() +
+  labs(x = "Disk reads per second", y = "Iteration") +
+  coord_cartesian(clip="off") +
+  theme(plot.margin=margin(0,0.6,0,0, "cm")) +
+  facet_grid(cols = vars(m))
+```
+
+    ## Warning: Removed 100 rows containing non-finite values (`stat_boxplot()`).
+
+    ## Warning: Removed 100 rows containing non-finite values (`stat_summary()`).
+
+![](Results_files/figure-gfm/unnamed-chunk-3-1.svg)<!-- -->
+
+``` r
+d %>%
+  ggplot(aes(x = disk.write_count.PhysicalDrive0, y = factor(i))) +
+  geom_boxplot() +
+  stat_summary(fun=mean, geom="point", shape=21, size=2, color="black", fill="white") +
+  xlim(0,NA) +
+  theme_cowplot(15) +
+  background_grid() +
+  labs(x = "Disk writes per second", y = "Iteration") +
+  coord_cartesian(clip="off") +
+  theme(plot.margin=margin(0,0.6,0,0, "cm")) +
+  facet_grid(cols = vars(m))
+```
+
+![](Results_files/figure-gfm/unnamed-chunk-3-2.svg)<!-- -->
+
+``` r
+d %>%
+  ggplot(aes(x = disk.read_bytes.PhysicalDrive0, y = factor(i))) +
+  geom_boxplot() +
+  stat_summary(fun=mean, geom="point", shape=21, size=2, color="black", fill="white") +
+  xlim(0,1000000) +
+  theme_cowplot(15) +
+  background_grid() +
+  labs(x = "Disk bytes read per second", y = "Iteration") +
+  coord_cartesian(clip="off") +
+  theme(plot.margin=margin(0,0.6,0,0, "cm")) +
+  facet_grid(cols = vars(m))
+```
+
+    ## Warning: Removed 3018 rows containing non-finite values (`stat_boxplot()`).
+
+    ## Warning: Removed 3018 rows containing non-finite values (`stat_summary()`).
+
+![](Results_files/figure-gfm/unnamed-chunk-3-3.svg)<!-- -->
+
+``` r
+d %>%
+  ggplot(aes(x = disk.write_bytes.PhysicalDrive0, y = factor(i))) +
+  geom_boxplot() +
+  stat_summary(fun=mean, geom="point", shape=21, size=2, color="black", fill="white") +
+  xlim(0,10000000) +
+  theme_cowplot(15) +
+  background_grid() +
+  labs(x = "Disk bytes written per second", y = "Iteration") +
+  coord_cartesian(clip="off") +
+  theme(plot.margin=margin(0,0.6,0,0, "cm")) +
+  facet_grid(cols = vars(m))
+```
+
+    ## Warning: Removed 8126 rows containing non-finite values (`stat_boxplot()`).
+
+    ## Warning: Removed 8126 rows containing non-finite values (`stat_summary()`).
+
+![](Results_files/figure-gfm/unnamed-chunk-3-4.svg)<!-- -->
+
+``` r
+d %>%
+  ggplot(aes(x = cpu.percent, y = factor(i))) +
+  geom_boxplot() +
+  stat_summary(fun=mean, geom="point", shape=21, size=2, color="black", fill="white") +
+  xlim(0,NA) +
+  theme_cowplot(15) +
+  background_grid() +
+  labs(x = "CPU utilization [%]", y = "Iteration") +
+  coord_cartesian(clip="off") +
+  theme(plot.margin=margin(0,0.6,0,0, "cm")) +
+  facet_grid(cols = vars(m))
+```
+
+![](Results_files/figure-gfm/unnamed-chunk-3-5.svg)<!-- -->
+
+``` r
+d
+```
+
+    ## # A tibble: 8,640 × 125
+    ##    timestamp net.bytes_sent.Bluetooth Network Connectio…¹ net.bytes_recv.Bluet…²
+    ##        <dbl>                                        <int>                  <int>
+    ##  1   1.71e12                                            0                      0
+    ##  2   1.71e12                                            0                      0
+    ##  3   1.71e12                                            0                      0
+    ##  4   1.71e12                                            0                      0
+    ##  5   1.71e12                                            0                      0
+    ##  6   1.71e12                                            0                      0
+    ##  7   1.71e12                                            0                      0
+    ##  8   1.71e12                                            0                      0
+    ##  9   1.71e12                                            0                      0
+    ## 10   1.71e12                                            0                      0
+    ## # ℹ 8,630 more rows
+    ## # ℹ abbreviated names: ¹​`net.bytes_sent.Bluetooth Network Connection`,
+    ## #   ²​`net.bytes_recv.Bluetooth Network Connection`
+    ## # ℹ 122 more variables: `net.packets_sent.Bluetooth Network Connection` <int>,
+    ## #   `net.packets_recv.Bluetooth Network Connection` <int>,
+    ## #   `net.errin.Bluetooth Network Connection` <int>,
+    ## #   `net.errout.Bluetooth Network Connection` <int>, …
+
+``` r
+d <- data_host_gpu_metrics %>%
+  filter(date == 20240227) %>%
+  filter(ts > 60) %>%
+  filter(ts < 180)
+
+d %>%
+  select(fname) %>%
+  unique()
+```
+
+    ## # A tibble: 72 × 1
+    ##    fname                                                               
+    ##    <chr>                                                               
+    ##  1 20240227-m-baseline-d-mqp-a-beatsaber-song-popstars-diff-medium-i-1 
+    ##  2 20240227-m-baseline-d-mqp-a-beatsaber-song-popstars-diff-medium-i-10
+    ##  3 20240227-m-baseline-d-mqp-a-beatsaber-song-popstars-diff-medium-i-2 
+    ##  4 20240227-m-baseline-d-mqp-a-beatsaber-song-popstars-diff-medium-i-3 
+    ##  5 20240227-m-baseline-d-mqp-a-beatsaber-song-popstars-diff-medium-i-4 
+    ##  6 20240227-m-baseline-d-mqp-a-beatsaber-song-popstars-diff-medium-i-5 
+    ##  7 20240227-m-baseline-d-mqp-a-beatsaber-song-popstars-diff-medium-i-6 
+    ##  8 20240227-m-baseline-d-mqp-a-beatsaber-song-popstars-diff-medium-i-7 
+    ##  9 20240227-m-baseline-d-mqp-a-beatsaber-song-popstars-diff-medium-i-8 
+    ## 10 20240227-m-baseline-d-mqp-a-beatsaber-song-popstars-diff-medium-i-9 
+    ## # ℹ 62 more rows
+
+``` r
+# d %>%
+#   give_stats(gpu_util, by=c("i", "m"))
+
+d %>%
+  ggplot(aes(x = load * 100, y = factor(i))) +
+  geom_boxplot() +
+  stat_summary(fun=mean, geom="point", shape=21, size=2, color="black", fill="white") +
+  xlim(0,NA) +
+  theme_cowplot(15) +
+  background_grid() +
+  labs(x = "GPU utilization [%]", y = "Iteration") +
+  coord_cartesian(clip="off") +
+  theme(plot.margin=margin(0,0.6,0,0, "cm")) +
+  facet_grid(cols = vars(m))
+```
+
+![](Results_files/figure-gfm/unnamed-chunk-4-1.svg)<!-- -->
+
+``` r
+d <- data_net_dev %>%
+  filter(date == 20240227) %>%
+  filter(ts > 60) %>%
+  filter(ts < 180)
+
+d %>%
+  select(fname) %>%
+  unique()
+```
+
+    ## # A tibble: 72 × 1
+    ##    fname                                                               
+    ##    <chr>                                                               
+    ##  1 20240227-m-baseline-d-mqp-a-beatsaber-song-popstars-diff-medium-i-1 
+    ##  2 20240227-m-baseline-d-mqp-a-beatsaber-song-popstars-diff-medium-i-10
+    ##  3 20240227-m-baseline-d-mqp-a-beatsaber-song-popstars-diff-medium-i-2 
+    ##  4 20240227-m-baseline-d-mqp-a-beatsaber-song-popstars-diff-medium-i-3 
+    ##  5 20240227-m-baseline-d-mqp-a-beatsaber-song-popstars-diff-medium-i-4 
+    ##  6 20240227-m-baseline-d-mqp-a-beatsaber-song-popstars-diff-medium-i-5 
+    ##  7 20240227-m-baseline-d-mqp-a-beatsaber-song-popstars-diff-medium-i-6 
+    ##  8 20240227-m-baseline-d-mqp-a-beatsaber-song-popstars-diff-medium-i-7 
+    ##  9 20240227-m-baseline-d-mqp-a-beatsaber-song-popstars-diff-medium-i-8 
+    ## 10 20240227-m-baseline-d-mqp-a-beatsaber-song-popstars-diff-medium-i-9 
+    ## # ℹ 62 more rows
+
+``` r
+# d %>%
+#   give_stats(gpu_util, by=c("i", "m"))
+
+d %>%
+  ggplot(aes(x = Mbps_rx, y = factor(i))) +
+  geom_boxplot() +
+  stat_summary(fun=mean, geom="point", shape=21, size=2, color="black", fill="white") +
+  xlim(0,NA) +
+  theme_cowplot(15) +
+  background_grid() +
+  labs(x = "Bandwidth [Mbps]", y = "Iteration") +
+  coord_cartesian(clip="off") +
+  theme(plot.margin=margin(0,0.6,0,0, "cm")) +
+  facet_grid(cols = vars(m))
+```
+
+![](Results_files/figure-gfm/unnamed-chunk-5-1.svg)<!-- -->
+
+``` r
+d %>%
+  ggplot(aes(y = Mbps_rx, x = ts)) +
+  geom_line() +
+  ylim(0,NA) +
+  theme_cowplot(15) +
+  background_grid() +
+  labs(y = "Bandwidth [Mbps]", x = "Time [s]") +
+  coord_cartesian(clip="off") +
+  theme(plot.margin=margin(0,0.6,0,0, "cm")) +
+  facet_grid(cols = vars(m), rows = vars(i))
+```
+
+![](Results_files/figure-gfm/unnamed-chunk-5-2.svg)<!-- -->
+
+``` r
+d <- data_batterymanager_companion %>%
+  filter(date == 20240227) %>%
+  filter(ts > 60) %>%
+  filter(ts < 180) %>%
+  filter(m != "replay" | n == "overhang") %>%
+  filter(i > 5) %>%
+  mutate(i = i - 5)
+
+d %>%
+  select(fname) %>%
+  unique()
+```
+
+    ## # A tibble: 15 × 1
+    ##    fname                                                                        
+    ##    <chr>                                                                        
+    ##  1 20240227-m-baseline-d-mqp-a-beatsaber-song-popstars-diff-medium-i-10         
+    ##  2 20240227-m-baseline-d-mqp-a-beatsaber-song-popstars-diff-medium-i-6          
+    ##  3 20240227-m-baseline-d-mqp-a-beatsaber-song-popstars-diff-medium-i-7          
+    ##  4 20240227-m-baseline-d-mqp-a-beatsaber-song-popstars-diff-medium-i-8          
+    ##  5 20240227-m-baseline-d-mqp-a-beatsaber-song-popstars-diff-medium-i-9          
+    ##  6 20240227-m-record-d-mqp-a-beatsaber-song-popstars-diff-medium-i-10           
+    ##  7 20240227-m-record-d-mqp-a-beatsaber-song-popstars-diff-medium-i-6            
+    ##  8 20240227-m-record-d-mqp-a-beatsaber-song-popstars-diff-medium-i-7            
+    ##  9 20240227-m-record-d-mqp-a-beatsaber-song-popstars-diff-medium-i-8            
+    ## 10 20240227-m-record-d-mqp-a-beatsaber-song-popstars-diff-medium-i-9            
+    ## 11 20240227-m-replay-d-mqp-a-beatsaber-song-popstars-diff-medium-i-10-n-overhang
+    ## 12 20240227-m-replay-d-mqp-a-beatsaber-song-popstars-diff-medium-i-6-n-overhang 
+    ## 13 20240227-m-replay-d-mqp-a-beatsaber-song-popstars-diff-medium-i-7-n-overhang 
+    ## 14 20240227-m-replay-d-mqp-a-beatsaber-song-popstars-diff-medium-i-8-n-overhang 
+    ## 15 20240227-m-replay-d-mqp-a-beatsaber-song-popstars-diff-medium-i-9-n-overhang
+
+``` r
+# d %>%
+#   give_stats(gpu_util, by=c("i", "m"))
+```
+
+``` r
+d %>%
+  ggplot(aes(x = -power_w, y = factor(i))) +
+  geom_boxplot() +
+  stat_summary(fun=mean, geom="point", shape=21, size=2, color="black", fill="white") +
+  xlim(0,NA) +
+  theme_cowplot(15) +
+  background_grid() +
+  labs(x = "Power draw [W]", y = "Trace") +
+  coord_cartesian(clip="off") +
+  theme(plot.margin=margin(0,0,0,0, "cm"), strip.background=element_rect(fill="white")) +
+  facet_grid(cols = vars(m))
+```
+
+![](Results_files/figure-gfm/val-perf-overhead-power-draw-all-box-1.svg)<!-- -->
 
 ## Network Tests
 
@@ -660,7 +1133,7 @@ data_logcat_vrapi %>%
   facet_grid(cols = vars(fname))
 ```
 
-![](Results_files/figure-gfm/unnamed-chunk-1-1.svg)<!-- -->
+![](Results_files/figure-gfm/unnamed-chunk-7-1.svg)<!-- -->
 
 ### Frame Time
 
@@ -1676,14 +2149,14 @@ d %>%
 
 ``` r
 d %>%
-  give_stats(cpu_util, by = c("fname"))
+  give_stats(gpu_util, by = c("fname"))
 ```
 
     ## # A tibble: 2 × 19
     ##   fname        mean stdev   min   q25 median   q75   q90   q95   q99   max   iqr
     ##   <chr>       <dbl> <dbl> <dbl> <dbl>  <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl>
-    ## 1 20240224-m…  48.6  17.3    21    34     46    63    71    75  93.1   100    29
-    ## 2 20240224-m…  41.0  16.4    17    28     36    53    66    71  82.2    97    25
+    ## 1 20240224-m…  76.8  2.57    65    75     77    79    80    81    82    83     4
+    ## 2 20240224-m…  74.9  2.15    66    73     74    76    78    79    80    81     3
     ## # ℹ 7 more variables: mean_maxd <dbl>, stdev_maxd <dbl>, min_maxd <dbl>,
     ## #   q25_maxd <dbl>, median_maxd <dbl>, q75_maxd <dbl>, max_maxd <dbl>
 
@@ -1832,7 +2305,7 @@ d %>%
   labs(x = "Time [s]", y = "Frame time [ms]  ")
 ```
 
-![](Results_files/figure-gfm/unnamed-chunk-2-1.svg)<!-- -->
+![](Results_files/figure-gfm/unnamed-chunk-8-1.svg)<!-- -->
 
 ``` r
 d <- data_logcat_vrapi %>%
